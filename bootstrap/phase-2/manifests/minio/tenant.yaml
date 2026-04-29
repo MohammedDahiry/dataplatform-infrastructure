@@ -1,0 +1,30 @@
+apiVersion: minio.min.io/v2
+kind: Tenant
+metadata:
+  name: lakehouse-tenant
+  namespace: platform-storage
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+spec:
+  image: "minio/minio:RELEASE.2024-01-18T22-51-28Z"
+  requestAutoCert: true
+  pools:
+    - name: pool-0
+      servers: 4
+      volumesPerServer: 4
+      volumeClaimTemplate:
+        metadata:
+          name: data
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          storageClassName: gp3
+          resources:
+            requests:
+              storage: 500Gi
+  mountPath: /export
+  users:
+    - name: minio-admin-secret
+  buckets:
+    - name: lakehouse
+    - name: backups

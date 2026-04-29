@@ -1,0 +1,24 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-source-cluster
+  namespace: platform-storage
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+spec:
+  instances: 3
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  postgresql:
+    parameters:
+      wal_level: logical
+      max_replication_slots: "20"
+  bootstrap:
+    initdb:
+      database: source_db
+      owner: nifi_user
+      secret:
+        name: pg-source-app-secret
+  storage:
+    storageClass: gp3
+    size: 100Gi

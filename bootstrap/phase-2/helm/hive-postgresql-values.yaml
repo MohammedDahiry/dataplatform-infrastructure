@@ -1,0 +1,17 @@
+auth:
+  username: hive
+  database: hive_metastore
+  existingSecret: hive-db-secret
+
+primary:
+  persistence:
+    enabled: true
+    size: 100Gi
+    storageClass: gp3
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 4Gi

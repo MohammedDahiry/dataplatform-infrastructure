@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hive-metastore-site
+  namespace: platform-metastore
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+data:
+  hive-site.xml: |
+    <configuration>
+      <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value>jdbc:postgresql://pg-hms-cluster-rw.platform-metastore.svc.cluster.local:5432/hive_metastore</value>
+      </property>
+      <property>
+        <name>javax.jdo.option.ConnectionDriverName</name>
+        <value>org.postgresql.Driver</value>
+      </property>
+      <property>
+        <name>hive.metastore.warehouse.dir</name>
+        <value>s3a://lakehouse/warehouse/</value>
+      </property>
+      <property>
+        <name>fs.s3a.endpoint</name>
+        <value>http://lakehouse-tenant-hl.platform-storage.svc.cluster.local:9000</value>
+      </property>
+      <property>
+        <name>fs.s3a.path.style.access</name>
+        <value>true</value>
+      </property>
+    </configuration>

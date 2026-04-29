@@ -1,0 +1,20 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-hms-cluster
+  namespace: platform-metastore
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+spec:
+  instances: 3
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  bootstrap:
+    initdb:
+      database: hive_metastore
+      owner: hive
+      secret:
+        name: pg-hms-app-secret
+  storage:
+    storageClass: gp3
+    size: 100Gi

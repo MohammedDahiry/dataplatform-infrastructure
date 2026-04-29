@@ -1,0 +1,79 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform-apply.yml"
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+    concurrency:
+      group: terraform-dev-apply
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_GH_ACTIONS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Terraform fmt (check)
+        run: terraform -chdir=terraform fmt -check -recursive
+
+      - name: TFLint
+        run: |
+          tflint --init
+          tflint --chdir=terraform/environments/dev --recursive
+
+      - name: Terraform init
+        run: |
+          terraform -chdir=terraform/environments/dev init -input=false \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=terraform/dev/terraform.tfstate" \
+            -backend-config="region=us-east-1" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="access_key=${{ secrets.CF_R2_ACCESS_KEY_ID }}" \
+            -backend-config="secret_key=${{ secrets.CF_R2_SECRET_ACCESS_KEY }}" \
+            -backend-config='endpoints={s3="https://${{ secrets.CF_ACCOUNT_ID }}.r2.cloudflarestorage.com"}' \
+            -backend-config="skip_credentials_validation=true" \
+            -backend-config="skip_region_validation=true" \
+            -backend-config="skip_metadata_api_check=true" \
+            -backend-config="skip_requesting_account_id=true" \
+            -backend-config="skip_s3_checksum=true"
+
+      - name: Terraform validate
+        run: terraform -chdir=terraform/environments/dev validate -no-color
+
+      - name: Terraform plan
+        run: terraform -chdir=terraform/environments/dev plan -input=false -no-color -out=tfplan
+
+      - name: Terraform apply
+        run: terraform -chdir=terraform/environments/dev apply -input=false -auto-approve tfplan
+
+      - name: Capture Terraform outputs
+        run: terraform -chdir=terraform/environments/dev output -json > terraform-outputs.json
+
+      - name: Upload Terraform outputs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-dev-outputs
+          path: terraform/environments/dev/terraform-outputs.json
+          if-no-files-found: error

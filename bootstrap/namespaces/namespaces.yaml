@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-ingestion
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-storage
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-metastore
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-compute
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-orchestr
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-serving
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-monitoring
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-logging
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-security
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+    pod-security.kubernetes.io/enforce: privileged
