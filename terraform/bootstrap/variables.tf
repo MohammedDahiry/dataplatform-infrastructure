@@ -52,3 +52,29 @@ variable "tags" {
     phase   = "landing-zone"
   }
 }
+
+variable "create_r2_state_bucket" {
+  description = "If true, create the Cloudflare R2 bucket via Terraform (requires CLOUDFLARE_API_TOKEN in env)."
+  type        = bool
+  default     = false
+}
+
+variable "cloudflare_account_id" {
+  description = "Cloudflare account ID (required when create_r2_state_bucket is true)."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "r2_state_bucket_name" {
+  description = "Unique name for the Terraform state bucket on R2 (required when create_r2_state_bucket is true)."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "r2_bucket_location" {
+  description = "R2 location hint (enam, weur, wnam, etc.). See Cloudflare docs."
+  type        = string
+  default     = "enam"
+}

@@ -1,6 +1,13 @@
 aws_region  = "us-east-1"
 aws_profile = "dataplatform-admin"
 
+# --- Optional: create Terraform state bucket on Cloudflare R2 in this apply ---
+# export CLOUDFLARE_API_TOKEN=...   # Account API token with R2 bucket permissions (Workers R2 Storage Write / Edit)
+# create_r2_state_bucket = true
+# cloudflare_account_id  = "your-cloudflare-account-id"
+# r2_state_bucket_name   = "dataplatform-tfstate-pfe"
+# r2_bucket_location     = "enam"
+
 # GitHub org/user that owns this repository
 github_org = "replace-me"
 

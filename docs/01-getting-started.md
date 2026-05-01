@@ -29,19 +29,22 @@ export AWS_PROFILE=dataplatform-admin
 aws sts get-caller-identity   # sanity check
 ```
 
-## Step 1 — AWS bootstrap for GitHub Actions (once)
+## Step 1 — Bootstrap: GitHub Actions (AWS) + optional R2 bucket (once)
 
-The stack in `terraform/bootstrap/` creates **only** AWS resources:
+The stack in `terraform/bootstrap/` creates:
 
-1. (Optional) GitHub OIDC provider in IAM.
-2. IAM role for GitHub Actions + managed policy attachments.
+1. **AWS:** (Optional) GitHub OIDC provider in IAM + IAM role for GitHub Actions + policy attachments.
+2. **Cloudflare R2 (optional):** If you set `create_r2_state_bucket = true` in `terraform.tfvars`, Terraform creates the state bucket via `modules/r2-backend-bootstrap`. Otherwise create the bucket manually in the R2 UI (same end state).
 
 It uses **local state** — do not commit `terraform.tfstate` after it contains real ARNs.
 
 ```bash
 cd terraform/bootstrap
 cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars: github_org, github_repo, aws_profile; tighten github_actions_managed_policy_arns for prod.
+# Edit terraform.tfvars: github_org, github_repo, aws_profile.
+# Optional: create_r2_state_bucket = true, cloudflare_account_id, r2_state_bucket_name
+
+export CLOUDFLARE_API_TOKEN=...   # required only if create_r2_state_bucket = true
 
 terraform init
 terraform apply
@@ -53,11 +56,12 @@ Capture the outputs:
 terraform output
 # github_actions_role_arn    -> arn:aws:iam::123456789012:role/dataplatform-github-actions
 # github_oidc_provider_arn   -> ...
+# r2_state_bucket_name       -> (if R2 bucket created here) dataplatform-tfstate-pfe
 ```
 
-### Step 1.5 — Create the R2 bucket for Terraform state (manual)
+### Step 1.5 — Create the R2 bucket for Terraform state (manual path only)
 
-Terraform state for `terraform/environments/dev` lives on **Cloudflare R2** (S3-compatible). The bucket is **not** created by `terraform/bootstrap/` today.
+Skip this if Step 1 already created the bucket (`r2_state_bucket_name` output).
 
 1. Cloudflare Dashboard → **R2** → **Create bucket** (e.g. `dataplatform-tfstate-pfe`).
 2. Note the **bucket name** — you will set `TF_STATE_BUCKET` to this value.

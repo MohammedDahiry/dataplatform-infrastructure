@@ -118,10 +118,10 @@ resource "aws_eks_node_group" "stateful" {
   node_role_arn   = aws_iam_role.node.arn
   subnet_ids      = var.private_subnet_ids
 
-  ami_type        = "AL2_x86_64"
-  capacity_type   = "ON_DEMAND"
-  instance_types  = ["m5.xlarge"]
-  disk_size       = 100
+  ami_type       = "AL2_x86_64"
+  capacity_type  = "ON_DEMAND"
+  instance_types = ["m5.xlarge"]
+  disk_size      = 100
 
   scaling_config {
     desired_size = 1
@@ -155,10 +155,10 @@ resource "aws_eks_node_group" "compute" {
   node_role_arn   = aws_iam_role.node.arn
   subnet_ids      = var.private_subnet_ids
 
-  ami_type        = "AL2_x86_64"
-  capacity_type   = "ON_DEMAND"
-  instance_types  = ["m5.2xlarge"]
-  disk_size       = 100
+  ami_type       = "AL2_x86_64"
+  capacity_type  = "ON_DEMAND"
+  instance_types = ["m5.2xlarge"]
+  disk_size      = 100
 
   scaling_config {
     desired_size = 0

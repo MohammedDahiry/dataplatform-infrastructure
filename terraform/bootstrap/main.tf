@@ -1,8 +1,3 @@
-provider "aws" {
-  region  = var.aws_region
-  profile = var.aws_profile
-}
-
 locals {
   github_oidc_url = "https://token.actions.githubusercontent.com"
 }
@@ -52,4 +47,24 @@ resource "aws_iam_role_policy_attachment" "github_actions_managed" {
 
   role       = aws_iam_role.github_actions.name
   policy_arn = each.value
+}
+
+module "r2_tf_state" {
+  source = "../modules/r2-backend-bootstrap"
+
+  count = var.create_r2_state_bucket ? 1 : 0
+
+  account_id  = var.cloudflare_account_id
+  bucket_name = var.r2_state_bucket_name
+  location    = var.r2_bucket_location
+}
+
+check "r2_bootstrap_inputs" {
+  assert {
+    condition = !var.create_r2_state_bucket || (
+      var.cloudflare_account_id != null && length(var.cloudflare_account_id) > 5 &&
+      var.r2_state_bucket_name != null && length(var.r2_state_bucket_name) > 2
+    )
+    error_message = "When create_r2_state_bucket is true, set cloudflare_account_id and r2_state_bucket_name in terraform.tfvars."
+  }
 }

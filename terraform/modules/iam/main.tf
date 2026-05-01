@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "irsa_assume" {
   for_each = local.service_accounts
 
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = ["sts:AssumeRoleWithWebIdentity"]
     principals {
       type        = "Federated"

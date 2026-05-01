@@ -20,7 +20,7 @@ and secured to host them.
 
 | Component | Module / step | Purpose |
 |---|---|---|
-| Terraform state bucket (R2) | **Manual** in Cloudflare (dashboard) | Create the bucket, then scope an R2 API token to it; `TF_STATE_BUCKET` in GitHub. The Terraform module `modules/r2-backend-bootstrap` is reserved for a future automated bootstrap. |
+| Terraform state bucket (R2) | `modules/r2-backend-bootstrap` (optional) **or** manual R2 UI | Enable `create_r2_state_bucket` in `terraform/bootstrap` **or** create the bucket by hand; then create R2 **S3 API** keys scoped to that bucket for CI/local `terraform init`. |
 | GitHub → AWS (CI) | `terraform/bootstrap` | One-time IAM OIDC provider + role for GitHub Actions (`terraform apply` with local state). |
 | KMS keys | `modules/kms` | Customer-managed keys for EBS, secrets, logs |
 | VPC | `modules/vpc` | 3-AZ VPC with public/private subnets, single NAT (cost-optimised) |
@@ -72,6 +72,10 @@ and secured to host them.
 See [`docs/01-getting-started.md`](docs/01-getting-started.md) for the bootstrap
 sequence — you need to run `terraform/bootstrap/` exactly once before
 `terraform/environments/dev/` will work.
+
+## Specification traceability (PFE)
+
+The official PDFs under [`docs/specs/`](docs/specs/) are mapped to this repo in [`docs/specs/SPEC_ALIGNMENT.md`](docs/specs/SPEC_ALIGNMENT.md) (phases, gaps, next steps).
 
 ## Architecture decisions
 

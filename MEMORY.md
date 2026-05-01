@@ -38,7 +38,7 @@ Mettre en place une base d'infrastructure securisee et exploitable pour les phas
   - `terraform/modules/iam`
   - `terraform/modules/eks`
 - **`terraform/bootstrap`:** stack **AWS uniquement** — OIDC GitHub + role IAM pour Actions (voir `terraform/bootstrap/README.md`). Pas de creation de bucket R2 dans ce stack.
-- **`terraform/modules/r2-backend-bootstrap`:** **non utilise**; `main.tf` ne contient qu'un commentaire TODO (bucket R2 a creer manuellement / hors module pour l’instant).
+- **`terraform/modules/r2-backend-bootstrap`:** implemente (bucket R2); appele depuis `terraform/bootstrap` si `create_r2_state_bucket = true`. Les **cles S3 R2** pour le backend Terraform restent a creer manuellement dans le dashboard Cloudflare.
 - **`bootstrap/` (Phase 1 K8s):** present — `namespaces/`, `resource-quotas/`, `network-policies/`, `storage-classes/` + `README.md`.
 - **`bootstrap/phase-2/` et `bootstrap/phase-3/`:** valeurs Helm, manifests d’exemple (secrets `.example.yaml`), runbooks et scripts d’installation; **non** inclus dans le scope “Phase 1 livree” du README racine.
 - **Scripts:** `scripts/tf-init-local.sh`, `scripts/bootstrap-cluster.sh`, `scripts/bootstrap-phase2.sh`, `scripts/bootstrap-phase3.sh`.
@@ -129,15 +129,14 @@ Source de verite: `docs/02-architecture-decision-records.md`.
 4. Parcourir `terraform/modules/{vpc,kms,iam,eks}/main.tf` pour le niveau de detail.
 5. Lancer `terraform validate` dans `terraform/environments/dev` (apres `init` si possible).
 6. Parcourir `bootstrap/` et `bootstrap/phase-2` / `phase-3` pour la suite produit.
-7. Aligner le backlog section 10 selon la prochaine priorite (cloud vs squelette R2 vs script bootstrap).
+7. Aligner le backlog section 10 avec `docs/specs/SPEC_ALIGNMENT.md`.
 
 ## 10) Backlog recommande (ordre de delivery — mis a jour)
 
-1. **Implementer ou supprimer** `terraform/modules/r2-backend-bootstrap` (Terraform Cloudflare pour bucket R2, ou supprimer le module et clarifier la doc).
-2. **Aligner la doc** (`README.md`, `docs/01-getting-started.md`) avec le contenu reel de `terraform/bootstrap` (IAM seul vs R2 dans Terraform).
+1. **Poursuivre la couverture spec** (voir `docs/specs/SPEC_ALIGNMENT.md`): Phase 2–4 manifests, observabilite, Lambda cost, Ansible ou justification ecrite.
+2. **Durcir le role GitHub Actions** (remplacer `AdministratorAccess` par politiques limitees Terraform/EKS).
 3. **Valider en cloud:** premier `apply` dev + `bootstrap-cluster` + checks `kubectl` du getting-started.
-4. **Durcir IAM GitHub Actions** (moindre privilege).
-5. **Politique state:** retirer ou externaliser `terraform/bootstrap/terraform.tfstate*`.
+4. **Politique state:** retirer ou externaliser `terraform/bootstrap/terraform.tfstate*`.
 
 ## 11) Secrets et prerequis externes (memo)
 

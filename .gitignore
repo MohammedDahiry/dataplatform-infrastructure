@@ -13,7 +13,6 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
-.terraform.lock.hcl
 
 # AWS / credentials
 .aws/
@@ -42,4 +41,6 @@ venv/
 # Logs
 *.log
 logs/
-docs/specs/*.pdf
+
+# Local venv for PDF text extraction / tooling (not project runtime)
+.venv-pdf/

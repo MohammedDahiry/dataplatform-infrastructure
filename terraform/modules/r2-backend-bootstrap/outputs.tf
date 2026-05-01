@@ -1,9 +1,9 @@
 output "bucket_name" {
-  description = "R2 state bucket name."
-  value       = var.bucket_name
+  description = "R2 bucket name (use as TF_STATE_BUCKET / S3 backend bucket)."
+  value       = cloudflare_r2_bucket.terraform_state.name
 }
 
-output "r2_endpoint" {
-  description = "R2 S3-compatible endpoint for this account."
-  value       = "https://${var.account_id}.r2.cloudflarestorage.com"
+output "bucket_id" {
+  description = "Cloudflare provider-assigned bucket id."
+  value       = cloudflare_r2_bucket.terraform_state.id
 }

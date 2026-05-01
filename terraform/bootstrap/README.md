@@ -1,30 +1,34 @@
 # Terraform Bootstrap
 
-One-time bootstrap stack for:
+One-time stack run from your laptop (local state — **do not commit** `terraform.tfstate` once it is real).
 
-- GitHub Actions OIDC role creation in **AWS**
+It provisions:
 
-**Not included:** Cloudflare R2 bucket creation — create the state bucket in the R2 UI (see `docs/01-getting-started.md`), then store credentials in GitHub Secrets for CI.
+1. **AWS:** GitHub OIDC provider (optional) + IAM role for GitHub Actions.
+2. **Cloudflare R2 (optional):** Terraform state bucket via module `modules/r2-backend-bootstrap` when `create_r2_state_bucket = true`.
 
-This stack is intentionally separate from environment stacks.
+## Prerequisites
 
-## What it creates
-
-- GitHub OIDC provider in IAM (`token.actions.githubusercontent.com`) when enabled
-- IAM role for GitHub Actions (`dataplatform-github-actions` by default)
-- Managed policy attachments to that role
+- AWS credentials (named profile recommended).
+- For R2 bucket creation: `export CLOUDFLARE_API_TOKEN=...` with a token allowed to manage R2 buckets on the account.
 
 ## Apply
 
 ```bash
 cd terraform/bootstrap
 cp terraform.tfvars.example terraform.tfvars
-# Edit github_org / github_repo and optional aws_profile
+# Edit: github_org, github_repo; optionally enable create_r2_state_bucket + Cloudflare IDs
+
+export CLOUDFLARE_API_TOKEN=...   # only if creating R2 bucket via Terraform
 
 terraform init
 terraform apply
 terraform output
 ```
+
+Outputs include `github_actions_role_arn` and, when enabled, `r2_state_bucket_name` for the GitHub variable `TF_STATE_BUCKET`.
+
+You still create **R2 S3-compatible access keys** for Terraform backend auth in the Cloudflare dashboard (object read/write on that bucket) — Terraform cannot mint those keys via API today.
 
 ## If OIDC provider already exists
 
