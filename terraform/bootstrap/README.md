@@ -2,7 +2,9 @@
 
 One-time bootstrap stack for:
 
-- GitHub Actions OIDC role creation
+- GitHub Actions OIDC role creation in **AWS**
+
+**Not included:** Cloudflare R2 bucket creation — create the state bucket in the R2 UI (see `docs/01-getting-started.md`), then store credentials in GitHub Secrets for CI.
 
 This stack is intentionally separate from environment stacks.
 

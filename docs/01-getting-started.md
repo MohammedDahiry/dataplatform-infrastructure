@@ -29,23 +29,19 @@ export AWS_PROFILE=dataplatform-admin
 aws sts get-caller-identity   # sanity check
 ```
 
-## Step 1 — Run the bootstrap stack (once)
+## Step 1 — AWS bootstrap for GitHub Actions (once)
 
-The bootstrap stack creates:
+The stack in `terraform/bootstrap/` creates **only** AWS resources:
 
-1. The Cloudflare R2 bucket that holds Terraform state for everything else.
-2. The IAM OIDC role that GitHub Actions assumes.
+1. (Optional) GitHub OIDC provider in IAM.
+2. IAM role for GitHub Actions + managed policy attachments.
 
-It uses **local state**, committed once and then frozen.
+It uses **local state** — do not commit `terraform.tfstate` after it contains real ARNs.
 
 ```bash
 cd terraform/bootstrap
 cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars:
-#   - cloudflare_account_id: get from CF dashboard right sidebar
-#   - github_org / github_repo: where this code lives
-
-export CLOUDFLARE_API_TOKEN=...    # Cloudflare > My Profile > API Tokens
+# Edit terraform.tfvars: github_org, github_repo, aws_profile; tighten github_actions_managed_policy_arns for prod.
 
 terraform init
 terraform apply
@@ -55,29 +51,33 @@ Capture the outputs:
 
 ```bash
 terraform output
-# r2_bucket_name             -> dataplatform-tfstate-pfe
-# r2_endpoint                -> https://abc123.r2.cloudflarestorage.com
 # github_actions_role_arn    -> arn:aws:iam::123456789012:role/dataplatform-github-actions
+# github_oidc_provider_arn   -> ...
 ```
 
-### Step 1.5 — Create the R2 API token (manual, one-time)
+### Step 1.5 — Create the R2 bucket for Terraform state (manual)
 
-The Cloudflare provider can't yet create R2 access keys declaratively, so:
+Terraform state for `terraform/environments/dev` lives on **Cloudflare R2** (S3-compatible). The bucket is **not** created by `terraform/bootstrap/` today.
 
-1. CF Dashboard → R2 → "Manage R2 API tokens" → "Create API token".
-2. Name it `terraform-state-rw`.
-3. Permissions: **Object Read & Write**, scoped to the bucket created above.
+1. Cloudflare Dashboard → **R2** → **Create bucket** (e.g. `dataplatform-tfstate-pfe`).
+2. Note the **bucket name** — you will set `TF_STATE_BUCKET` to this value.
+
+### Step 1.6 — Create the R2 API token (manual, one-time)
+
+1. CF Dashboard → R2 → **Manage R2 API tokens** → **Create API token**.
+2. Name it e.g. `terraform-state-rw`.
+3. Permissions: **Object Read & Write**, scoped to the bucket from Step 1.5.
 4. Copy the **Access Key ID** and **Secret Access Key**.
 
-### Step 1.6 — Seed GitHub Secrets
+### Step 1.7 — Seed GitHub Secrets
 
 In your repo → Settings → Secrets and variables → Actions, add:
 
 | Secret | Value |
 |---|---|
 | `AWS_GH_ACTIONS_ROLE_ARN` | `github_actions_role_arn` from Step 1 |
-| `CF_R2_ACCESS_KEY_ID` | Access key from Step 1.5 |
-| `CF_R2_SECRET_ACCESS_KEY` | Secret key from Step 1.5 |
+| `CF_R2_ACCESS_KEY_ID` | Access key from Step 1.6 |
+| `CF_R2_SECRET_ACCESS_KEY` | Secret key from Step 1.6 |
 | `CF_ACCOUNT_ID` | Your Cloudflare account ID |
 
 Also create a GitHub Environment named `dev` (Settings → Environments) and
@@ -88,7 +88,7 @@ Add a repository variable as well (Settings → Secrets and variables → Action
 
 | Variable | Value |
 |---|---|
-| `TF_STATE_BUCKET` | `r2_bucket_name` from Step 1 |
+| `TF_STATE_BUCKET` | Bucket name from Step 1.5 |
 
 ## Step 2 — Wire up the dev environment backend
 
@@ -117,7 +117,7 @@ comment.
 If something fails:
 
 - `lint` failures → run `terraform fmt -recursive` locally.
-- Auth failures → re-check the GitHub Secrets you set in Step 1.6.
+- Auth failures → re-check the GitHub Secrets you set in Step 1.7.
 - "bucket does not exist" → re-check `backend.tf` matches Step 1 outputs.
 
 ## Step 4 — First apply

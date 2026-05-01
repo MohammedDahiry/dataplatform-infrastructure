@@ -18,9 +18,10 @@ and secured to host them.
 
 ## What is delivered in Phase 1
 
-| Component | Module | Purpose |
+| Component | Module / step | Purpose |
 |---|---|---|
-| Cloudflare R2 bootstrap | `modules/r2-backend-bootstrap` | One-time creation of the TF state bucket on R2 |
+| Terraform state bucket (R2) | **Manual** in Cloudflare (dashboard) | Create the bucket, then scope an R2 API token to it; `TF_STATE_BUCKET` in GitHub. The Terraform module `modules/r2-backend-bootstrap` is reserved for a future automated bootstrap. |
+| GitHub → AWS (CI) | `terraform/bootstrap` | One-time IAM OIDC provider + role for GitHub Actions (`terraform apply` with local state). |
 | KMS keys | `modules/kms` | Customer-managed keys for EBS, secrets, logs |
 | VPC | `modules/vpc` | 3-AZ VPC with public/private subnets, single NAT (cost-optimised) |
 | IAM (IRSA) | `modules/iam` | OIDC provider + cluster-autoscaler / EBS-CSI / external-secrets / load-balancer-controller roles |

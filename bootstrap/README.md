@@ -1,6 +1,6 @@
 # Cluster Bootstrap Manifests
 
-Post-Terraform Kubernetes manifests live here:
+Post-Terraform Kubernetes manifests live here. **`scripts/bootstrap-cluster.sh` applies only the Phase 1 folders below** (not `phase-2/` or `phase-3/`).
 
 - Namespaces
 - RBAC
