@@ -2,7 +2,7 @@
 
 Ce fichier sert de contexte persistant pour reprendre rapidement le projet sans repartir de zero.
 
-**Derniere mise a jour du constat repo:** aligne sur l'etat du code (modules Terraform, `bootstrap/`, phases 2-3 en squelette).
+**Derniere mise a jour:** checkpoints Phase 1/2/3 documentes (`docs/phases/PHASE_CHECKPOINTS.md`), Phase 2 script inclut **cert-manager**, namespace `cert-manager` dans `bootstrap/namespaces/`.
 
 ## 1) Identite du projet
 
@@ -37,17 +37,29 @@ Mettre en place une base d'infrastructure securisee et exploitable pour les phas
   - `terraform/modules/kms`
   - `terraform/modules/iam`
   - `terraform/modules/eks`
-- **`terraform/bootstrap`:** stack **AWS uniquement** — OIDC GitHub + role IAM pour Actions (voir `terraform/bootstrap/README.md`). Pas de creation de bucket R2 dans ce stack.
-- **`terraform/modules/r2-backend-bootstrap`:** implemente (bucket R2); appele depuis `terraform/bootstrap` si `create_r2_state_bucket = true`. Les **cles S3 R2** pour le backend Terraform restent a creer manuellement dans le dashboard Cloudflare.
+- **`terraform/bootstrap`:** OIDC GitHub + role IAM pour Actions + **option** creation bucket R2 (`create_r2_state_bucket`, module `r2-backend-bootstrap`). Voir `terraform/bootstrap/README.md`.
+- **`terraform/modules/r2-backend-bootstrap`:** bucket R2 (`cloudflare_r2_bucket`); `location` normalise en **majuscules** (ENAM, WNAM, …). **Cles S3 R2** pour le backend Terraform (`backend "s3"`) toujours creees **manuellement** dans le dashboard (scopes bucket).
 - **`bootstrap/` (Phase 1 K8s):** present — `namespaces/`, `resource-quotas/`, `network-policies/`, `storage-classes/` + `README.md`.
-- **`bootstrap/phase-2/` et `bootstrap/phase-3/`:** valeurs Helm, manifests d’exemple (secrets `.example.yaml`), runbooks et scripts d’installation; **non** inclus dans le scope “Phase 1 livree” du README racine.
-- **Scripts:** `scripts/tf-init-local.sh`, `scripts/bootstrap-cluster.sh`, `scripts/bootstrap-phase2.sh`, `scripts/bootstrap-phase3.sh`.
+- **`bootstrap/phase-2/` et `bootstrap/phase-3/`:** Helm values + manifests; **Phase 2** inclut desormais **cert-manager** en premier dans `bootstrap-phase2.sh` (aligne specs / `Doc (1).pdf`). Secrets: copier `*.example.yaml` vers fichiers **non** versionnes.
+- **Scripts:** `scripts/tf-init-local.sh`, `scripts/bootstrap-cluster.sh`, `scripts/bootstrap-phase2.sh` (cert-manager → MinIO → CNPG → Hive), `scripts/bootstrap-phase3.sh` (Strimzi → Kafka → NiFi + attentes readiness).
 
 ### Ce qui reste a valider hors-repo
 
 - Un `terraform apply` reel sur le compte AWS cible et un cluster EKS joignables.
 - Secrets GitHub / variables (`TF_STATE_BUCKET`, cles R2, role ARN) et environnement `dev` avec reviewer.
-- Alignement README racine vs `terraform/bootstrap` (le README mentionne parfois un bootstrap R2 “dans Terraform” alors que le bootstrap actuel ne cree que l’IAM GitHub).
+- Re-appliquer `./scripts/bootstrap-cluster.sh` apres ajout du namespace `cert-manager` si le cluster existait deja avant cette evolution.
+
+## 3 bis) Checkpoints projet (ne pas perdre le fil)
+
+Source detaillee: **`docs/phases/PHASE_CHECKPOINTS.md`** (coche Phase 0 → 1 → 2 → 3). Resume:
+
+| Jalons | Condition minimale avant la suite |
+|--------|-------------------------------------|
+| **Phase 1 terminee** | `terraform apply` dev OK, `kubectl get nodes` Ready, `./scripts/bootstrap-cluster.sh` OK, storage class **gp3** presente. |
+| **Demarrer Phase 2** | Secrets Phase 2 copies depuis `*.example.yaml`; puis `./scripts/bootstrap-phase2.sh`. |
+| **Demarrer Phase 3** | Phase 2 stable; verifier capacite cluster pour Kafka (3+ replicas par defaut dans `strimzi-kafka.yaml`) ou reduire les replicas en dev. |
+
+Les trois PDF sous `docs/specs/` sont relies au code via **`docs/specs/SPEC_ALIGNMENT.md`**.
 
 ## 4) Cartographie rapide du repository
 
@@ -56,7 +68,8 @@ Mettre en place une base d'infrastructure securisee et exploitable pour les phas
 - `docs/02-architecture-decision-records.md`: ADR.
 - `terraform/bootstrap/`: IAM OIDC GitHub + role Actions (state local — voir risques).
 - `terraform/environments/dev/`: stack dev (backend R2).
-- `terraform/modules/`: `vpc`, `kms`, `iam`, `eks`, `r2-backend-bootstrap` (stub).
+- `terraform/modules/`: `vpc`, `kms`, `iam`, `eks`, `r2-backend-bootstrap`.
+- `docs/phases/PHASE_CHECKPOINTS.md`: jalons Phase 1/2/3 pour la soutenance.
 - `.github/workflows/`: plan / apply Terraform.
 - `scripts/`: init backend local, bootstrap cluster Phase 1, Phase 2, Phase 3.
 - `bootstrap/`: manifests K8s post-Terraform Phase 1 + dossiers phase-2 / phase-3.
@@ -65,8 +78,8 @@ Mettre en place une base d'infrastructure securisee et exploitable pour les phas
 
 ### Bootstrap one-time (AWS + prerequis R2)
 
-1. Executer `terraform/bootstrap` (role GitHub Actions + OIDC provider si besoin).
-2. Creer le bucket R2 et un token API R2 **manuellement** (dashboard Cloudflare), sauf si le module `r2-backend-bootstrap` est implemente plus tard.
+1. Executer `terraform/bootstrap` (role GitHub Actions + OIDC provider si besoin + **option** bucket R2 si `create_r2_state_bucket = true` et `CLOUDFLARE_API_TOKEN`).
+2. Sinon / en complement: creer le bucket R2 **manuellement**; generer les **cles S3** pour le backend Terraform dans le dashboard.
 3. Recuperer outputs bootstrap (`github_actions_role_arn`, etc.).
 4. Alimenter GitHub Secrets / Variables (`AWS_GH_ACTIONS_ROLE_ARN`, cles R2, `CF_ACCOUNT_ID`, `TF_STATE_BUCKET`).
 5. Configurer l’environnement GitHub `dev` avec approbation requise.
@@ -102,9 +115,9 @@ Source de verite: `docs/02-architecture-decision-records.md`.
 
 ### Critique / important
 
-- **State bootstrap dans le repo:** `terraform/bootstrap/terraform.tfstate*` — a traiter selon politique securite (ne pas versionner, ou chiffrer / remote state).
-- **Module `r2-backend-bootstrap`:** vide; creation bucket R2 reste manuelle — documenter partout de la meme facon.
-- **`bootstrap-cluster.sh`:** limite aux dossiers Phase 1 (plus de apply recursif sur `phase-2`/`phase-3`).
+- **State bootstrap dans le repo:** `terraform/bootstrap/terraform.tfstate*` — a traiter selon politique securite (ne pas versionner, ou remote state / chiffrement).
+- **R2:** bucket peut etre cree par Terraform (module) ou a la main; **cles S3** pour `backend` Terraform toujours manuelles cote Cloudflare.
+- **`bootstrap-cluster.sh`:** limite aux dossiers Phase 1 (pas `phase-2`/`phase-3`). Re-lancer apres ajout du namespace `cert-manager`.
 
 ### Important
 
@@ -133,9 +146,9 @@ Source de verite: `docs/02-architecture-decision-records.md`.
 
 ## 10) Backlog recommande (ordre de delivery — mis a jour)
 
-1. **Poursuivre la couverture spec** (voir `docs/specs/SPEC_ALIGNMENT.md`): Phase 2–4 manifests, observabilite, Lambda cost, Ansible ou justification ecrite.
-2. **Durcir le role GitHub Actions** (remplacer `AdministratorAccess` par politiques limitees Terraform/EKS).
-3. **Valider en cloud:** premier `apply` dev + `bootstrap-cluster` + checks `kubectl` du getting-started.
+1. **Executer Phase 2 puis 3** une fois les checkpoints `PHASE_CHECKPOINTS.md` verts (secrets, capacite Kafka).
+2. **Poursuivre la couverture spec** (`SPEC_ALIGNMENT.md`): Spark/Airflow/Dremio, observabilite, Zero Trust, Lambda cost, Ansible ou memo ecrit de perimeter MVP.
+3. **Durcir le role GitHub Actions** (remplacer `AdministratorAccess` par politiques limitees Terraform/EKS).
 4. **Politique state:** retirer ou externaliser `terraform/bootstrap/terraform.tfstate*`.
 
 ## 11) Secrets et prerequis externes (memo)

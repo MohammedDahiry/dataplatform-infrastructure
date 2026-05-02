@@ -15,14 +15,20 @@ if ! command -v helm >/dev/null 2>&1; then
 fi
 
 echo "Adding Strimzi Helm repository..."
-helm repo add strimzi https://strimzi.io/charts/ >/dev/null
+helm repo add strimzi https://strimzi.io/charts/ >/dev/null 2>&1 || true
 helm repo update >/dev/null
 
 echo "Installing Strimzi operator..."
 helm upgrade --install strimzi-operator strimzi/strimzi-kafka-operator \
-  --namespace platform-ingestion --create-namespace
+  --namespace platform-ingestion --create-namespace \
+  --wait --timeout 10m
 
-echo "Applying Kafka cluster..."
+echo "Waiting for Strimzi cluster operator..."
+if kubectl get deployment strimzi-cluster-operator -n platform-ingestion >/dev/null 2>&1; then
+  kubectl rollout status deployment/strimzi-cluster-operator -n platform-ingestion --timeout=300s
+fi
+
+echo "Applying Kafka cluster (ensure node/storage capacity; edit replicas for small dev clusters)..."
 kubectl apply -f "${PHASE3_DIR}/manifests/kafka/"
 
 echo "Applying NiFi baseline..."

@@ -171,7 +171,7 @@ kubectl get nodes
 # 5 nodes Ready (3 stateful + 2 compute)
 
 kubectl get ns -l app.kubernetes.io/part-of=dataplatform
-# 9 platform-* namespaces
+# platform-* namespaces + cert-manager
 
 kubectl get storageclass
 # gp3 (default), gp2
@@ -187,10 +187,12 @@ If all four show the expected output, the landing zone is live.
 
 ## Where to go from here
 
-Phase 2 is the storage layer (MinIO Operator → Tenant), the catalog
-(CloudNativePG → Hive Metastore), and the security layer (cert-manager,
-Cloudflare Tunnel, External Secrets Operator). All three install via Helm into
-the namespaces the bootstrap created.
+Use **[`docs/phases/PHASE_CHECKPOINTS.md`](phases/PHASE_CHECKPOINTS.md)** before installing workloads: it defines when to run Phase 2 vs Phase 3.
+
+Phase 2 is the storage layer (cert-manager, MinIO Operator → Tenant), the catalog
+(CloudNativePG → Hive Metastore), and later the security layer (Cloudflare Tunnel,
+External Secrets Operator, etc.). Helm installs are scripted in `scripts/bootstrap-phase2.sh`
+into the namespaces Phase 1 created.
 
 ## Cost expectations
 

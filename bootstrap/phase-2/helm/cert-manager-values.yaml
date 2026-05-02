@@ -1,0 +1,10 @@
+# cert-manager (Jetstack) — TLS prerequisite for operators / ingress (spec Phase 2).
+# Override here if you need private ACME, custom resources, or HA replicas.
+
+# Install CRDs via Helm (bootstrap script passes --set crds.enabled=true as well).
+crds:
+  enabled: true
+
+global:
+  leaderElection:
+    namespace: cert-manager

@@ -31,10 +31,23 @@ for f in "${required_secret_files[@]}"; do
 done
 
 echo "Adding Helm repositories..."
+helm repo add jetstack https://charts.jetstack.io >/dev/null 2>&1 || true
 helm repo add minio-operator https://operator.min.io >/dev/null
 helm repo add cnpg https://cloudnative-pg.github.io/charts >/dev/null
 helm repo add bitnami https://charts.bitnami.com/bitnami >/dev/null
 helm repo update >/dev/null
+
+CERT_MANAGER_CHART_VERSION="${CERT_MANAGER_CHART_VERSION:-v1.14.5}"
+
+echo "Installing cert-manager (TLS prerequisite per spec Phase 2)..."
+helm upgrade --install cert-manager jetstack/cert-manager \
+  --namespace cert-manager --create-namespace \
+  --version "${CERT_MANAGER_CHART_VERSION}" \
+  -f "${PHASE2_DIR}/helm/cert-manager-values.yaml" \
+  --wait --timeout 10m
+
+echo "Waiting for cert-manager deployments..."
+kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=300s
 
 echo "Applying RBAC and secrets..."
 kubectl apply -f "${PHASE2_DIR}/manifests/rbac/"

@@ -17,7 +17,7 @@ This matrix ties the **official PDF specifications** in `docs/specs/` to **artif
 | Phase (guide) | Scope | Repo status |
 |---------------|--------|-------------|
 | **1** | VPC, EKS, namespaces, RBAC, storage class, network baseline | **Implemented:** `terraform/modules/{vpc,kms,iam,eks}`, `terraform/environments/dev`, `bootstrap/*`, `scripts/bootstrap-cluster.sh`, `.github/workflows/terraform-*.yml`. |
-| **2** | MinIO Operator + Tenant, CNPG PostgreSQL, Hive Metastore, cert-manager | **Partially scaffolded:** `bootstrap/phase-2/`, `scripts/bootstrap-phase2.sh`. **Gap:** cert-manager, production-grade Hive chart choice vs Bitnami Postgres-only baseline — validate against SoW. |
+| **2** | MinIO Operator + Tenant, CNPG PostgreSQL, Hive Metastore, cert-manager | **Scripted path:** `scripts/bootstrap-phase2.sh` installs **cert-manager first**, then MinIO → CNPG → Hive (`bootstrap/phase-2/`). **Gap:** production-grade Hive vs Bitnami Postgres-only baseline — validate against SoW; tighten TLS/Issuers for real certs. |
 | **3** | Strimzi Kafka, NiFi, CDC | **Partially scaffolded:** `bootstrap/phase-3/`, `scripts/bootstrap-phase3.sh`. **Gap:** CDC flows are procedural (NiFi UI) — document / automate min pour soutenance. |
 | **4** | Spark Operator, dbt, Airflow, Iceberg jobs | **Not in repo** as manifests/scripts yet (guide §5). |
 | **5** | Dremio, Power BI | **Not in repo** (guide §6). |
@@ -51,7 +51,7 @@ This matrix ties the **official PDF specifications** in `docs/specs/` to **artif
 
 ## Suggested next commits (priority order)
 
-1. **Phase 2 end-to-end:** cert-manager → MinIO operator → tenant → CNPG → Hive (single documented path matching `Doc (1).pdf`).
+1. **Run Phase 2 & 3 on a live cluster** using `docs/phases/PHASE_CHECKPOINTS.md` — scripts already order cert-manager → MinIO → CNPG → Hive, then Strimzi → Kafka → NiFi.
 2. **Observability slice:** kube-prometheus-stack + minimal ServiceMonitor stubs (Phase 7 subset).
 3. **Cost story:** Lambda/EventBridge outline for compute node group (Phase 9) — even a documented Terraform stub strengthens the mémoire.
 4. **Ansible:** minimal `ansible/` sync playbooks OR written justification if Terraform+Helm only.

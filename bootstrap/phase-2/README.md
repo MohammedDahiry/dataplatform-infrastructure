@@ -14,21 +14,29 @@ This directory contains baseline manifests and values files for Phase 2 componen
 - `helm` installed locally
 - Copy and edit secrets from `bootstrap/phase-2/manifests/secrets/*.example.yaml`
 
-## Suggested install order
+## Suggested install order (matches `Doc (1).pdf` Phase 2)
 
-1. Install MinIO Operator
-2. Apply MinIO tenant resources
-3. Install CloudNativePG Operator
-4. Apply PostgreSQL cluster resources
-5. Install Hive Metastore
+1. **cert-manager** (TLS prerequisite — installed first by `scripts/bootstrap-phase2.sh`)
+2. Secrets + RBAC (`manifests/secrets`, `manifests/rbac`)
+3. MinIO Operator + Tenant
+4. CloudNativePG Operator + PostgreSQL clusters
+5. Hive metastore database (Bitnami PostgreSQL) + Hive ConfigMap
+
+Gate before you start: complete **Phase 1** checkpoints in [`docs/phases/PHASE_CHECKPOINTS.md`](../../docs/phases/PHASE_CHECKPOINTS.md).
 
 ## Commands
 
 ```bash
+helm repo add jetstack https://charts.jetstack.io
 helm repo add minio-operator https://operator.min.io
 helm repo add cnpg https://cloudnative-pg.github.io/charts
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
+
+helm upgrade --install cert-manager jetstack/cert-manager \
+  --namespace cert-manager --create-namespace \
+  -f bootstrap/phase-2/helm/cert-manager-values.yaml \
+  --set crds.enabled=true --wait --timeout 10m
 
 helm upgrade --install minio-operator minio-operator/operator \
   --namespace platform-storage --create-namespace \

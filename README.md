@@ -77,6 +77,8 @@ sequence — you need to run `terraform/bootstrap/` exactly once before
 
 The official PDFs under [`docs/specs/`](docs/specs/) are mapped to this repo in [`docs/specs/SPEC_ALIGNMENT.md`](docs/specs/SPEC_ALIGNMENT.md) (phases, gaps, next steps).
 
+**Operational checkpoints (when to run Phase 2 vs 3):** [`docs/phases/PHASE_CHECKPOINTS.md`](docs/phases/PHASE_CHECKPOINTS.md).
+
 ## Architecture decisions
 
 See [`docs/02-architecture-decision-records.md`](docs/02-architecture-decision-records.md)
