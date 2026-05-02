@@ -74,7 +74,7 @@ variable "r2_state_bucket_name" {
 }
 
 variable "r2_bucket_location" {
-  description = "R2 location hint (enam, weur, wnam, etc.). See Cloudflare docs."
+  description = "R2 location hint: WNAM, ENAM, WEUR, EEUR, APAC, or OC (case-insensitive)."
   type        = string
-  default     = "enam"
+  default     = "ENAM"
 }

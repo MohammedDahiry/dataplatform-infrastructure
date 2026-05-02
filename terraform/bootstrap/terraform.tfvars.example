@@ -6,7 +6,7 @@ aws_profile = "dataplatform-admin"
 # create_r2_state_bucket = true
 # cloudflare_account_id  = "your-cloudflare-account-id"
 # r2_state_bucket_name   = "dataplatform-tfstate-pfe"
-# r2_bucket_location     = "enam"
+# r2_bucket_location     = "ENAM"
 
 # GitHub org/user that owns this repository
 github_org = "replace-me"

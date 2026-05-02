@@ -9,7 +9,7 @@ variable "bucket_name" {
 }
 
 variable "location" {
-  description = "R2 location hint (e.g. enam, weur). See Cloudflare R2 docs."
+  description = "R2 location hint: WNAM, ENAM, WEUR, EEUR, APAC, or OC (case-insensitive; stored uppercase)."
   type        = string
-  default     = "enam"
+  default     = "ENAM"
 }
