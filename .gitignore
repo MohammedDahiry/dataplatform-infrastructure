@@ -42,5 +42,9 @@ venv/
 *.log
 logs/
 
+# Phase 2 — generated secrets (templates *.example.yaml stay tracked)
+bootstrap/phase-2/manifests/secrets/*.yaml
+!bootstrap/phase-2/manifests/secrets/*.example.yaml
+
 # Local venv for PDF text extraction / tooling (not project runtime)
 .venv-pdf/

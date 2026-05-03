@@ -9,13 +9,24 @@ These templates are intentionally placeholders. Replace values before applying.
 - `pg-hms-app-secret.example.yaml`
 - `hive-db-secret.example.yaml`
 
-## Usage
+## Usage (recommended)
+
+From the repo root, generate non-committed `*.yaml` files with random values:
+
+```bash
+chmod +x scripts/prepare-phase2-secrets.sh
+./scripts/prepare-phase2-secrets.sh
+# Overwrite existing generated files:
+./scripts/prepare-phase2-secrets.sh --force
+```
+
+Then review (or edit) the generated files and run `./scripts/bootstrap-phase2.sh`.
+
+## Manual copy
 
 ```bash
 cp bootstrap/phase-2/manifests/secrets/minio-admin-secret.example.yaml bootstrap/phase-2/manifests/secrets/minio-admin-secret.yaml
-cp bootstrap/phase-2/manifests/secrets/pg-source-app-secret.example.yaml bootstrap/phase-2/manifests/secrets/pg-source-app-secret.yaml
-cp bootstrap/phase-2/manifests/secrets/pg-hms-app-secret.example.yaml bootstrap/phase-2/manifests/secrets/pg-hms-app-secret.yaml
-cp bootstrap/phase-2/manifests/secrets/hive-db-secret.example.yaml bootstrap/phase-2/manifests/secrets/hive-db-secret.yaml
+# ... same for the other three ...
 ```
 
-Then edit all `stringData` values before applying.
+Then replace every `REPLACE_*` placeholder before applying.

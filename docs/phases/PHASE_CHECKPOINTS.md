@@ -30,11 +30,18 @@ This file is the **operational contract** between the three PDF specs (`docs/spe
 
 **Start Phase 2 only when Phase 1 checkpoint above is complete.**
 
-1. Copy secrets: `bootstrap/phase-2/manifests/secrets/*.example.yaml` → real `*.yaml` files (never commit).
+1. Generate secrets (random values, **gitignored**):
+
+   ```bash
+   chmod +x scripts/prepare-phase2-secrets.sh scripts/bootstrap-phase2.sh
+   ./scripts/prepare-phase2-secrets.sh
+   ```
+
+   Or copy/edit manually from `*.example.yaml` per `bootstrap/phase-2/manifests/secrets/README.md`.
+
 2. Run:
 
    ```bash
-   chmod +x scripts/bootstrap-phase2.sh
    ./scripts/bootstrap-phase2.sh
    ```
 

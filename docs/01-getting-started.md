@@ -20,6 +20,16 @@ You will also need:
 - **A Cloudflare account** with an API token that can create R2 buckets.
 - **A GitHub repository** that holds this code — needs admin rights to add Secrets and Environments.
 
+### Using WSL (Ubuntu on Windows)
+
+All commands in this guide assume a normal Linux shell — **WSL2 is supported and recommended** for `kubectl`, `helm`, `terraform`, and `aws` (install them *inside* WSL, not only on Windows).
+
+- Prefer cloning the repo under your Linux home, e.g. `~/projects/...`, not only under `/mnt/c/...`, so file permissions and line endings stay predictable.
+- If a script fails with `bash\r: No such file or directory`, the file has Windows CRLF endings — open it in your editor and set **LF**, or run `sed -i 's/\r$//' scripts/<name>.sh`.
+- `kubectl` uses `~/.kube/config`; run `aws eks update-kubeconfig` **in the same WSL** where you run `./scripts/bootstrap-cluster.sh`.
+
+The assistant cannot reach your WSL or your AWS account; you still run the commands locally even when the repo lives on Windows disks mounted into WSL.
+
 ## Step 0 — Configure AWS profile
 
 ```bash
@@ -188,6 +198,8 @@ If all four show the expected output, the landing zone is live.
 ## Where to go from here
 
 Use **[`docs/phases/PHASE_CHECKPOINTS.md`](phases/PHASE_CHECKPOINTS.md)** before installing workloads: it defines when to run Phase 2 vs Phase 3.
+
+To generate Phase 2 secrets locally (random values, not committed): **`./scripts/prepare-phase2-secrets.sh`**.
 
 Phase 2 is the storage layer (cert-manager, MinIO Operator → Tenant), the catalog
 (CloudNativePG → Hive Metastore), and later the security layer (Cloudflare Tunnel,

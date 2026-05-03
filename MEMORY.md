@@ -56,7 +56,7 @@ Source detaillee: **`docs/phases/PHASE_CHECKPOINTS.md`** (coche Phase 0 â†’ 1 â†
 | Jalons | Condition minimale avant la suite |
 |--------|-------------------------------------|
 | **Phase 1 terminee** | `terraform apply` dev OK, `kubectl get nodes` Ready, `./scripts/bootstrap-cluster.sh` OK, storage class **gp3** presente. |
-| **Demarrer Phase 2** | Secrets Phase 2 copies depuis `*.example.yaml`; puis `./scripts/bootstrap-phase2.sh`. |
+| **Demarrer Phase 2** | `./scripts/prepare-phase2-secrets.sh` (ou copie manuelle); puis `./scripts/bootstrap-phase2.sh`. |
 | **Demarrer Phase 3** | Phase 2 stable; verifier capacite cluster pour Kafka (3+ replicas par defaut dans `strimzi-kafka.yaml`) ou reduire les replicas en dev. |
 
 Les trois PDF sous `docs/specs/` sont relies au code via **`docs/specs/SPEC_ALIGNMENT.md`**.
