@@ -28,10 +28,32 @@ if kubectl get deployment strimzi-cluster-operator -n platform-ingestion >/dev/n
   kubectl rollout status deployment/strimzi-cluster-operator -n platform-ingestion --timeout=300s
 fi
 
-echo "Applying Kafka cluster (ensure node/storage capacity; edit replicas for small dev clusters)..."
-kubectl apply -f "${PHASE3_DIR}/manifests/kafka/"
+KAFKA_VARIANT="${KAFKA_VARIANT:-dev}"
+case "${KAFKA_VARIANT}" in
+  dev)  KAFKA_FILE="${PHASE3_DIR}/manifests/kafka/strimzi-kafka-dev.yaml" ;;
+  prod) KAFKA_FILE="${PHASE3_DIR}/manifests/kafka/strimzi-kafka.yaml" ;;
+  *) echo "Unknown KAFKA_VARIANT=${KAFKA_VARIANT}" >&2; exit 1 ;;
+esac
+
+echo "Applying Kafka cluster (variant: ${KAFKA_VARIANT}) -> ${KAFKA_FILE}..."
+kubectl apply -f "${KAFKA_FILE}"
+
+echo "Waiting for Kafka cluster Ready..."
+kubectl wait kafka/platform-kafka -n platform-ingestion \
+  --for=condition=Ready --timeout=15m || true
+
+echo "Applying Kafka topics (medallion bronze + CDC)..."
+kubectl apply -f "${PHASE3_DIR}/manifests/kafka/topics.yaml"
+
+echo "Applying Kafka Connect + Debezium connector (CDC pg-source -> cdc.pg.*)..."
+kubectl apply -f "${PHASE3_DIR}/manifests/kafka/kafka-connect.yaml"
 
 echo "Applying NiFi baseline..."
 kubectl apply -f "${PHASE3_DIR}/manifests/nifi/"
 
 echo "Phase 3 bootstrap complete."
+cat <<EOF
+Next:
+  kubectl -n platform-ingestion get kafka,kafkatopic,kafkaconnect,kafkaconnector
+  kubectl -n platform-ingestion port-forward svc/nifi 8080:8080
+EOF

@@ -1,0 +1,38 @@
+global:
+  domain: argocd.dataplatform.local
+
+server:
+  service:
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+controller:
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1500m
+      memory: 2Gi
+
+repoServer:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+dex:
+  enabled: false
+
+redis:
+  enabled: true
+
+configs:
+  params:
+    server.insecure: true

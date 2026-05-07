@@ -1,0 +1,15 @@
+{
+  "entityType": "source",
+  "name": "lakehouse",
+  "type": "HIVE",
+  "config": {
+    "hostname": "hive-metastore.platform-metastore.svc.cluster.local",
+    "port": 9083,
+    "enableAsync": true,
+    "propertyList": [
+      { "name": "fs.s3a.endpoint", "value": "http://lakehouse-tenant-hl.platform-storage.svc.cluster.local:9000" },
+      { "name": "fs.s3a.path.style.access", "value": "true" },
+      { "name": "fs.s3a.impl", "value": "org.apache.hadoop.fs.s3a.S3AFileSystem" }
+    ]
+  }
+}

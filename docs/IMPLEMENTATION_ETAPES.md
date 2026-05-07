@@ -173,15 +173,84 @@ En cas de cluster **petit**, surveillez les ressources ; ajustez les values Helm
 
 ---
 
-## Étape 7 — **Phase 3** (optionnel, après Phase 2 stable)
+## Étape 7 — **Phase 3** : Kafka + NiFi + CDC
 
-**But :** Kafka (Strimzi) + NiFi.
+**But :** ingestion temps réel (Strimzi Kafka, KafkaConnect/Debezium, NiFi, topics medallion).
 
 | Qui | Action |
 |-----|--------|
-| **Repo** | `scripts/bootstrap-phase3.sh` |
-| **Vous** | Vérifier la **taille** du Kafka par défaut (`bootstrap/phase-3/manifests/kafka/`) — répliques/volumes ; réduire en **dev** si besoin. |
-| **Vous** | `./scripts/bootstrap-phase3.sh` |
+| **Repo** | `scripts/bootstrap-phase3.sh` (variant dev par défaut, `KAFKA_VARIANT=prod` pour 3 brokers + 3 ZK). |
+| **Repo** | `bootstrap/phase-3/manifests/kafka/{strimzi-kafka.yaml, strimzi-kafka-dev.yaml, topics.yaml, kafka-connect.yaml}` + `manifests/nifi/`. |
+| **Vous** | `./scripts/bootstrap-phase3.sh` puis `kubectl -n platform-ingestion get kafka,kafkatopic,kafkaconnect,kafkaconnector`. |
+
+---
+
+## Étape 8 — **Phase 4** : Spark + Airflow + dbt
+
+**But :** transformations Bronze → Silver → Gold.
+
+| Qui | Action |
+|-----|--------|
+| **Repo** | `scripts/prepare-phase4-secrets.sh` génère `pg-airflow-app-secret.yaml` (gitignoré). |
+| **Repo** | `scripts/bootstrap-phase4.sh` installe Spark Operator (`platform-compute`) + Airflow (`platform-orchestr`) + crée `pg-airflow` (CNPG dans `platform-storage`). |
+| **Repo** | `bootstrap/phase-4/manifests/spark-jobs/{bronze-iceberg-writer.yaml, file-to-iceberg.yaml}` (à éditer : remplacer `REPLACE_ME_REGISTRY/spark-iceberg:3.5.0` par votre image ECR). |
+| **Repo** | `bootstrap/phase-4/dbt/` : project + sources + modèles silver/gold. |
+| **Vous** | Construire l’image `spark-iceberg` (Iceberg 1.4.2, hadoop-aws, dbt-spark) et la pousser sur ECR. |
+| **Vous** | `./scripts/prepare-phase4-secrets.sh && ./scripts/bootstrap-phase4.sh` |
+| **Vous** | Pointer GitSync (`airflow-values.yaml`) vers votre repo `dags/`. |
+
+---
+
+## Étape 9 — **Phase 5** : Dremio (BI / serving)
+
+| Qui | Action |
+|-----|--------|
+| **Repo** | `bootstrap/phase-5/helm/dremio-values.yaml` (1 coordinator + 1 executor + 1 ZK) ; `manifests/dremio/source-hive.json`. |
+| **Repo** | `scripts/bootstrap-phase5.sh`. |
+| **Vous** | `./scripts/bootstrap-phase5.sh`, créer admin via UI (`port-forward 9047`), ajouter la source Hive via REST API. |
+
+---
+
+## Étape 10 — **Phase 6** : Cloudflare Zero Trust
+
+| Qui | Action |
+|-----|--------|
+| **Repo** | `bootstrap/phase-6/{helm/cloudflare-operator-values.yaml, manifests/secrets/*.example.yaml, manifests/cluster-tunnel/, manifests/tunnel-bindings/}`. |
+| **Repo** | `scripts/bootstrap-phase6.sh`. |
+| **Vous** | Créer un Cloudflare Tunnel + un API token dans le dashboard Zero Trust. |
+| **Vous** | Copier `*.example.yaml` → `*.yaml`, remplir tunnel ID / secret / domain, puis `./scripts/bootstrap-phase6.sh`. |
+| **Vous** | Configurer les **Access Applications** (GitHub SSO + politiques) côté dashboard. |
+
+---
+
+## Étape 11 — **Phase 7** : observabilité
+
+| Qui | Action |
+|-----|--------|
+| **Repo** | `bootstrap/phase-7/helm/{kube-prometheus-stack-values.yaml, openobserve-values.yaml, fluent-bit-values.yaml}` + `manifests/servicemonitors/`. |
+| **Repo** | `scripts/bootstrap-phase7.sh`. |
+| **Vous** | `./scripts/bootstrap-phase7.sh`, port-forward Grafana (3000) et OpenObserve (5080), valider les dashboards par défaut. |
+
+---
+
+## Étape 12 — **Phase 9** : optimisation coût (Lambda scaling)
+
+| Qui | Action |
+|-----|--------|
+| **Repo** | `terraform/modules/lambda-scaling/` (Python `scaler.py`, Lambda + EventBridge UP/DOWN, IAM scoped `eks:Update/Describe/ListNodegroup`). |
+| **Repo** | Branché dans `terraform/environments/dev/main.tf` derrière `lambda_scaling_enabled` (défaut `false`). |
+| **Vous** | Dans `terraform.tfvars` : `lambda_scaling_enabled = true`, ajuster crons UTC si besoin, puis `terraform apply`. |
+| **Vous** | Test manuel : `aws lambda invoke --function-name dataplatform-dev-eks-scaler --payload '{"action":"scale_down"}' /tmp/out.json`. |
+
+---
+
+## Étape 13 — **Phase 10 (optionnelle)** : ArgoCD GitOps
+
+| Qui | Action |
+|-----|--------|
+| **Repo** | `bootstrap/phase-10/{helm/argocd-values.yaml, manifests/projects/, manifests/applications/}` + `scripts/bootstrap-phase10.sh`. |
+| **Vous** | Créer un repo `dataplatform-gitops` séparé (Helm values + manifests), puis `./scripts/bootstrap-phase10.sh`. |
+| **Vous** | Remplacer `REPLACE_ME` dans `manifests/applications/*.yaml` par l’URL de ce repo GitOps. |
 
 ---
 
@@ -195,11 +264,21 @@ chmod +x scripts/fasttrack-infra.sh
 # Phase 1 + Phase 2
 ./scripts/fasttrack-infra.sh --auto-approve --with-phase2
 
-# Phase 1 + Phase 2 + Phase 3
-./scripts/fasttrack-infra.sh --auto-approve --with-phase2 --with-phase3
+# Phase 1 + 2 + 3
+./scripts/fasttrack-infra.sh --auto-approve --with-phase3
+
+# Tout (sauf ArgoCD qui reste opt-in)
+./scripts/fasttrack-infra.sh --auto-approve --with-all
+
+# À la carte
+./scripts/fasttrack-infra.sh --auto-approve --with-phase4
+./scripts/fasttrack-infra.sh --auto-approve --with-phase5
+./scripts/fasttrack-infra.sh --auto-approve --with-phase6
+./scripts/fasttrack-infra.sh --auto-approve --with-phase7
+./scripts/fasttrack-infra.sh --auto-approve --with-phase10
 ```
 
-Le script fait: init backend dev → `terraform plan/apply` → kubeconfig → `bootstrap-cluster` → secrets Phase 2 (option) → `bootstrap-phase2` (option) → `bootstrap-phase3` (option).
+Le script fait: init backend dev → `terraform plan/apply` → kubeconfig → `bootstrap-cluster` → puis chaque phase choisie. Les options `--with-phaseN` impliquent les pré-requis (ex: `--with-phase4` active aussi Phase 2).
 
 ---
 
@@ -269,14 +348,32 @@ cd ../../..   # racine
 ./scripts/prepare-phase2-secrets.sh
 ./scripts/bootstrap-phase2.sh
 
-# 7 — Phase 3 (optionnel)
+# 7 — Phase 3 (Kafka, Connect, NiFi)
 ./scripts/bootstrap-phase3.sh
 
-# 8 — Stop facturation (fin de journée)
+# 8 — Phase 4 (Spark, Airflow, dbt)
+./scripts/prepare-phase4-secrets.sh
+./scripts/bootstrap-phase4.sh
+
+# 9 — Phase 5 (Dremio)
+./scripts/bootstrap-phase5.sh
+
+# 10 — Phase 6 (Cloudflare Tunnel)
+./scripts/bootstrap-phase6.sh   # secrets Cloudflare déjà remplis
+
+# 11 — Phase 7 (Observabilité)
+./scripts/bootstrap-phase7.sh
+
+# 12 — Phase 9 (Lambda scaling) — Terraform: lambda_scaling_enabled = true puis terraform apply
+
+# 13 — Phase 10 (ArgoCD optionnel)
+./scripts/bootstrap-phase10.sh
+
+# 14 — Stop facturation (fin de journée)
 ./scripts/teardown-infra.sh --auto-approve
 
-# 9 — Start (lendemain)
-./scripts/fasttrack-infra.sh --auto-approve --with-phase2
+# 15 — Start (lendemain)
+./scripts/fasttrack-infra.sh --auto-approve --with-all
 ```
 
 ---

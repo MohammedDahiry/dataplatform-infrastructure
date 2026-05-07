@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: agency_budget
+        description: "Raw CDC events from PostgreSQL public.agency_budget (Bronze Iceberg)."
+      - name: clients
+        description: "Raw CDC events from PostgreSQL public.clients (Bronze Iceberg)."

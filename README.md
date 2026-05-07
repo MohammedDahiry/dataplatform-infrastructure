@@ -16,18 +16,22 @@ every later phase (MinIO, Hive Metastore, Kafka, Spark, Dremio, ...) lands on.
 It contains **no application workloads**. Just the AWS + Kubernetes substrate, sized
 and secured to host them.
 
-## What is delivered in Phase 1
+## What is delivered
 
-| Component | Module / step | Purpose |
+| Spec phase | Component | Module / scripts |
 |---|---|---|
-| Terraform state bucket (R2) | `modules/r2-backend-bootstrap` (optional) **or** manual R2 UI | Enable `create_r2_state_bucket` in `terraform/bootstrap` **or** create the bucket by hand; then create R2 **S3 API** keys scoped to that bucket for CI/local `terraform init`. |
-| GitHub → AWS (CI) | `terraform/bootstrap` | One-time IAM OIDC provider + role for GitHub Actions (`terraform apply` with local state). |
-| KMS keys | `modules/kms` | Customer-managed keys for EBS, secrets, logs |
-| VPC | `modules/vpc` | 3-AZ VPC with public/private subnets, single NAT (cost-optimised) |
-| IAM (IRSA) | `modules/iam` | OIDC provider + cluster-autoscaler / EBS-CSI / external-secrets / load-balancer-controller roles |
-| EKS | `modules/eks` | EKS 1.30 cluster, two managed node groups (stateful + compute) |
-| Bootstrap | `bootstrap/` | Namespaces, RBAC, storage class, default network policies |
-| CI/CD | `.github/workflows` | OIDC-based GitHub Actions pipeline (plan on PR, apply on merge) |
+| **Phase 1** | Terraform state bucket (R2) | `modules/r2-backend-bootstrap` (optional) **or** manual R2 UI |
+| **Phase 1** | GitHub → AWS (CI) | `terraform/bootstrap` (IAM OIDC + role) + `.github/workflows/` |
+| **Phase 1** | KMS / VPC / IAM-IRSA / EKS | `modules/{kms,vpc,iam,eks}` (3-AZ, 2 node groups, gp3 default) |
+| **Phase 1** | Bootstrap K8s | `bootstrap/{namespaces,storage-classes,resource-quotas,network-policies}/` (9 namespaces per spec §2.2) |
+| **Phase 2** | cert-manager (in `platform-security` per spec) → MinIO Operator + Tenant → CNPG (`pg-source`, `pg-hms`) → Hive Metastore | `bootstrap/phase-2/` + `scripts/bootstrap-phase2.sh` |
+| **Phase 3** | Strimzi Kafka (dev/prod variants) + topics medallion + KafkaConnect+Debezium + NiFi | `bootstrap/phase-3/` + `scripts/bootstrap-phase3.sh` |
+| **Phase 4** | Spark Operator + `SparkApplication` examples + Airflow + dbt-spark skeleton | `bootstrap/phase-4/` + `scripts/bootstrap-phase4.sh` |
+| **Phase 5** | Dremio Nautilus + Hive datasource | `bootstrap/phase-5/` + `scripts/bootstrap-phase5.sh` |
+| **Phase 6** | Cloudflare Operator + ClusterTunnel + TunnelBindings (Airflow, Dremio, Grafana, NiFi) | `bootstrap/phase-6/` + `scripts/bootstrap-phase6.sh` |
+| **Phase 7** | kube-prometheus-stack + Fluent Bit + OpenObserve + ServiceMonitors (Spark, MinIO, CNPG, Strimzi) | `bootstrap/phase-7/` + `scripts/bootstrap-phase7.sh` |
+| **Phase 9** | Lambda + EventBridge scheduled scaling for `compute-ng` | `terraform/modules/lambda-scaling` (toggle `lambda_scaling_enabled`) |
+| **Phase 10** | ArgoCD GitOps (optional) | `bootstrap/phase-10/` + `scripts/bootstrap-phase10.sh` |
 
 ## Architectural choices (and why)
 
@@ -81,8 +85,11 @@ sequence — you need to run `terraform/bootstrap/` exactly once before
 # Stop billing at end of day
 ./scripts/teardown-infra.sh --auto-approve
 
-# Bring everything back next morning
+# Bring everything back next morning (Phase 1 + 2)
 ./scripts/fasttrack-infra.sh --auto-approve --with-phase2
+
+# Or everything (2..7) in one shot
+./scripts/fasttrack-infra.sh --auto-approve --with-all
 ```
 
 `teardown-infra.sh` uninstalls Helm releases, deletes PVCs (releases EBS) and `LoadBalancer` services (releases ELB), then runs `terraform destroy` on `terraform/environments/dev`. It does **not** touch `terraform/bootstrap` nor the R2 state bucket, so the next `terraform apply` reuses the same remote state.

@@ -12,3 +12,10 @@ tags = {
 node_group_compute_desired_size = 1
 node_group_compute_min_size     = 0
 node_group_compute_max_size     = 10
+
+# Phase 9 — Lambda scheduled scaling for compute-ng (spec §12). Disabled by default;
+# enable on demand. Cron is UTC; defaults are weekdays 07:00 up / 17:00 down.
+lambda_scaling_enabled            = false
+lambda_scaling_schedule_enabled   = true
+# lambda_scaling_scale_up_cron    = "cron(0 7 ? * MON-FRI *)"
+# lambda_scaling_scale_down_cron  = "cron(0 17 ? * MON-FRI *)"

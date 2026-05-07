@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: minio-tenant-monitor
+  namespace: platform-monitoring
+  labels:
+    release: monitoring
+    app.kubernetes.io/part-of: dataplatform
+spec:
+  selector:
+    matchLabels:
+      v1.min.io/tenant: lakehouse-tenant
+  namespaceSelector:
+    matchNames: ["platform-storage"]
+  endpoints:
+    - port: http-minio
+      path: /minio/v2/metrics/cluster
+      interval: 30s

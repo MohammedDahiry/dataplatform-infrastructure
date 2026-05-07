@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: dataplatform
+  namespace: platform-security
+spec:
+  description: PFE Cloud Data Platform
+  sourceRepos:
+    - "https://github.com/REPLACE_ME/dataplatform-gitops"
+  destinations:
+    - namespace: "platform-*"
+      server: https://kubernetes.default.svc
+    - namespace: "platform-security"
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

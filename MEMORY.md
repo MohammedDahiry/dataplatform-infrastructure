@@ -64,8 +64,9 @@ Mettre en place une base d'infrastructure securisee et exploitable pour les phas
 - **`terraform/bootstrap`:** OIDC GitHub + role IAM pour Actions + **option** creation bucket R2 (`create_r2_state_bucket`, module `r2-backend-bootstrap`). Voir `terraform/bootstrap/README.md`.
 - **`terraform/modules/r2-backend-bootstrap`:** bucket R2 (`cloudflare_r2_bucket`); `location` normalise en **majuscules** (ENAM, WNAM, …). **Cles S3 R2** pour le backend Terraform (`backend "s3"`) toujours creees **manuellement** dans le dashboard (scopes bucket).
 - **`bootstrap/` (Phase 1 K8s):** present — `namespaces/`, `resource-quotas/`, `network-policies/`, `storage-classes/` + `README.md`.
-- **`bootstrap/phase-2/` et `bootstrap/phase-3/`:** Helm values + manifests; **Phase 2** installe d'abord **cert-manager dans `platform-security`** (alignement strict avec `Specifications_Doc_for_PFE.pdf` §2.2), puis MinIO, CNPG, Hive. Secrets: copier `*.example.yaml` vers fichiers **non** versionnes.
-- **Scripts:** `scripts/tf-init-local.sh`, `scripts/bootstrap-cluster.sh`, `scripts/bootstrap-phase2.sh` (cert-manager dans platform-security → MinIO → CNPG → Hive), `scripts/bootstrap-phase3.sh` (Strimzi → Kafka → NiFi + attentes readiness).
+- **`bootstrap/phase-2..10/`:** Helm values + manifests pour toutes les phases (sauf 8 = CI/CD GitHub Actions, déjà câblé, et 9 = Lambda dans Terraform). **Phase 2** installe d'abord **cert-manager dans `platform-security`** (alignement strict avec `Specifications_Doc_for_PFE.pdf` §2.2), puis MinIO, CNPG, Hive. Secrets: copier `*.example.yaml` vers fichiers **non** versionnes (`prepare-phaseN-secrets.sh`).
+- **Scripts:** `tf-init-local.sh`, `bootstrap-cluster.sh`, `bootstrap-phase2.sh` (cert-manager dans `platform-security` → MinIO → CNPG → Hive), `bootstrap-phase3.sh` (Strimzi → Kafka [`KAFKA_VARIANT=dev|prod`] → topics medallion → KafkaConnect+Debezium → NiFi), `bootstrap-phase4.sh` (`pg-airflow` CNPG → Spark Operator → SparkApplications → Airflow), `bootstrap-phase5.sh` (Dremio), `bootstrap-phase6.sh` (Cloudflare Operator + ClusterTunnel + TunnelBindings), `bootstrap-phase7.sh` (kube-prometheus-stack + OpenObserve + Fluent Bit + ServiceMonitors), `bootstrap-phase10.sh` (ArgoCD optionnel). Orchestrateur unique : `fasttrack-infra.sh --with-phase{2..7,10}` ou `--with-all`.
+- **Phase 9 (Lambda scaling):** module Terraform `terraform/modules/lambda-scaling` (Python `scaler.py` + EventBridge UP/DOWN, IAM `eks:Update/Describe/ListNodegroup`). Activé via `lambda_scaling_enabled = true` dans `terraform.tfvars`. Crons UTC par défaut: 07:00 up / 17:00 down weekdays.
 
 ### Ce qui reste a valider hors-repo
 
@@ -81,7 +82,13 @@ Source detaillee: **`docs/phases/PHASE_CHECKPOINTS.md`** (coche Phase 0 → 1 �
 |--------|-------------------------------------|
 | **Phase 1 terminee** | `terraform apply` dev OK, `kubectl get nodes` Ready, `./scripts/bootstrap-cluster.sh` OK, storage class **gp3** presente. |
 | **Demarrer Phase 2** | `./scripts/prepare-phase2-secrets.sh` (ou copie manuelle); puis `./scripts/bootstrap-phase2.sh`. |
-| **Demarrer Phase 3** | Phase 2 stable; verifier capacite cluster pour Kafka (3+ replicas par defaut dans `strimzi-kafka.yaml`) ou reduire les replicas en dev. |
+| **Demarrer Phase 3** | Phase 2 stable; choisir `KAFKA_VARIANT=dev` (1 broker + 1 ZK) ou `prod` (3+3) avant `./scripts/bootstrap-phase3.sh`. KafkaConnect+Debezium se branchent automatiquement sur `pg-source-cluster`. |
+| **Demarrer Phase 4** | Phase 2 stable; image `spark-iceberg` construite et poussée sur ECR; `prepare-phase4-secrets.sh` puis `bootstrap-phase4.sh`. |
+| **Demarrer Phase 5** | Phase 2 stable (Hive Metastore Ready); `bootstrap-phase5.sh`. |
+| **Demarrer Phase 6** | Cloudflare tunnel + token créés dans le dashboard; secrets remplis; `bootstrap-phase6.sh`. |
+| **Demarrer Phase 7** | Phase 1 OK; `bootstrap-phase7.sh` (kube-prometheus-stack + OpenObserve + Fluent Bit + ServiceMonitors). |
+| **Activer Phase 9** | `lambda_scaling_enabled = true` dans `terraform.tfvars`, puis `terraform apply`. |
+| **Activer Phase 10** | Repo GitOps prêt; `bootstrap-phase10.sh`. |
 
 Les trois PDF sous `docs/specs/` sont relies au code via **`docs/specs/SPEC_ALIGNMENT.md`**.
 
@@ -95,8 +102,9 @@ Les trois PDF sous `docs/specs/` sont relies au code via **`docs/specs/SPEC_ALIG
 - `terraform/modules/`: `vpc`, `kms`, `iam`, `eks`, `r2-backend-bootstrap`.
 - `docs/phases/PHASE_CHECKPOINTS.md`: jalons Phase 1/2/3 pour la soutenance.
 - `.github/workflows/`: plan / apply Terraform.
-- `scripts/`: init backend local, bootstrap cluster Phase 1, Phase 2, Phase 3.
-- `bootstrap/`: manifests K8s post-Terraform Phase 1 + dossiers phase-2 / phase-3.
+- `scripts/`: init backend local, fast-track / teardown, bootstrap-cluster (Phase 1) + bootstrap-phase{2..7,10} + prepare-phase{2,4}-secrets.
+- `bootstrap/`: manifests K8s post-Terraform Phase 1 + dossiers `phase-2/`, `phase-3/`, `phase-4/`, `phase-5/`, `phase-6/`, `phase-7/`, `phase-10/`.
+- `terraform/modules/lambda-scaling/`: Phase 9 — Lambda Python `scaler.py` + EventBridge cron UP/DOWN, scoped IAM `eks:*Nodegroup*`. Activé par `lambda_scaling_enabled` dans l'env `dev`.
 
 ## 5) Flux d'execution et exploitation
 

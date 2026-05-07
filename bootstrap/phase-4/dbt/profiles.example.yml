@@ -1,0 +1,12 @@
+lakehouse:
+  target: dev
+  outputs:
+    dev:
+      type: spark
+      method: thrift
+      schema: silver
+      host: spark-thrift.platform-compute.svc.cluster.local
+      port: 10000
+      user: dbt
+      connect_timeout: 60
+      connect_retries: 5

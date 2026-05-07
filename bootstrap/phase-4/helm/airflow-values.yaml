@@ -1,0 +1,58 @@
+# Apache Airflow Helm chart values (spec §3.6).
+# Uses KubernetesExecutor + external PostgreSQL (CNPG `pg-airflow`).
+executor: KubernetesExecutor
+
+postgresql:
+  enabled: false
+
+data:
+  metadataConnection:
+    user: airflow
+    pass: airflow
+    protocol: postgresql
+    host: pg-airflow-rw.platform-storage.svc.cluster.local
+    port: 5432
+    db: airflow_metadata
+    sslmode: disable
+
+dags:
+  gitSync:
+    enabled: true
+    repo: "https://github.com/REPLACE_ME/dataplatform-airflow-dags"
+    branch: main
+    rev: HEAD
+    depth: 1
+    wait: 30
+    subPath: "dags"
+
+webserver:
+  defaultUser:
+    enabled: true
+    username: admin
+    role: Admin
+    email: admin@example.com
+    firstName: admin
+    lastName: admin
+    password: admin
+
+triggerer:
+  persistence:
+    enabled: false
+
+logs:
+  persistence:
+    enabled: true
+    storageClassName: gp3
+    size: 10Gi
+
+workers:
+  persistence:
+    enabled: false
+
+ingress:
+  enabled: false
+
+nodeSelector:
+  workload: compute
+
+tolerations: []

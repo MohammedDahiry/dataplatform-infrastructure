@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: spark-operator-monitor
+  namespace: platform-monitoring
+  labels:
+    release: monitoring
+    app.kubernetes.io/part-of: dataplatform
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: spark-operator
+  namespaceSelector:
+    matchNames: ["platform-compute"]
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics

@@ -1,0 +1,16 @@
+apiVersion: networking.cfargotunnel.com/v1alpha1
+kind: TunnelBinding
+metadata:
+  name: airflow-tunnel
+  namespace: platform-orchestr
+spec:
+  subjects:
+    - name: airflow-webserver
+      spec:
+        fqdn: airflow.dataplatform.REPLACE_ME_ZONE_EXAMPLE_COM
+        protocol: http
+        servicePort: 8080
+        noTLSVerify: false
+  tunnelRef:
+    kind: ClusterTunnel
+    name: platform-cloudflare-tunnel

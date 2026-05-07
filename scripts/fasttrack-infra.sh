@@ -14,6 +14,11 @@ DEV_DIR="${ROOT_DIR}/terraform/environments/dev"
 
 WITH_PHASE2=false
 WITH_PHASE3=false
+WITH_PHASE4=false
+WITH_PHASE5=false
+WITH_PHASE6=false
+WITH_PHASE7=false
+WITH_PHASE10=false
 AUTO_APPROVE=false
 SKIP_TERRAFORM=false
 FORCE_REGEN_PHASE2_SECRETS=false
@@ -23,11 +28,17 @@ usage() {
 fasttrack-infra.sh
 
 Options:
-  --with-phase2                 Run Phase 2 after Phase 1.
-  --with-phase3                 Run Phase 3 after Phase 2.
+  --with-phase2                 Run Phase 2 (cert-manager, MinIO, CNPG, Hive).
+  --with-phase3                 Run Phase 3 (Kafka, Connect, NiFi).
+  --with-phase4                 Run Phase 4 (Spark Operator, Airflow, dbt).
+  --with-phase5                 Run Phase 5 (Dremio).
+  --with-phase6                 Run Phase 6 (Cloudflare Tunnel + Operator).
+  --with-phase7                 Run Phase 7 (Prometheus, Grafana, Fluent Bit, OpenObserve).
+  --with-phase10                Run Phase 10 (ArgoCD, optional).
+  --with-all                    Phases 2..7 in order (10 stays opt-in).
   --auto-approve                Pass -auto-approve to terraform apply.
   --skip-terraform              Skip Terraform apply (run only K8s/bootstrap phases).
-  --force-regenerate-secrets    Regenerate Phase 2 secrets with --force.
+  --force-regenerate-secrets    Regenerate Phase 2 / Phase 4 secrets with --force.
   --help                        Show this help.
 
 Required env vars for terraform backend init:
@@ -42,6 +53,12 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --with-phase2) WITH_PHASE2=true ;;
     --with-phase3) WITH_PHASE3=true; WITH_PHASE2=true ;;
+    --with-phase4) WITH_PHASE4=true; WITH_PHASE2=true ;;
+    --with-phase5) WITH_PHASE5=true; WITH_PHASE2=true ;;
+    --with-phase6) WITH_PHASE6=true ;;
+    --with-phase7) WITH_PHASE7=true ;;
+    --with-phase10) WITH_PHASE10=true ;;
+    --with-all) WITH_PHASE2=true; WITH_PHASE3=true; WITH_PHASE4=true; WITH_PHASE5=true; WITH_PHASE6=true; WITH_PHASE7=true ;;
     --auto-approve) AUTO_APPROVE=true ;;
     --skip-terraform) SKIP_TERRAFORM=true ;;
     --force-regenerate-secrets) FORCE_REGEN_PHASE2_SECRETS=true ;;
@@ -133,12 +150,39 @@ if [[ "${WITH_PHASE2}" == true ]]; then
 fi
 
 if [[ "${WITH_PHASE3}" == true ]]; then
-  cat <<'EOF'
-==> Phase 3 capacity reminder
-Kafka manifest defaults to 3 Kafka + 3 ZooKeeper replicas with persistent volumes.
-For small dev clusters, adjust replicas/resources in bootstrap/phase-3/manifests/kafka/strimzi-kafka.yaml before continuing.
-EOF
+  echo "==> Phase 3 (Kafka + NiFi). Default variant: dev (1 broker + 1 ZK)."
+  echo "    Override with KAFKA_VARIANT=prod for the 3+3 replicated cluster."
   ./scripts/bootstrap-phase3.sh
+fi
+
+if [[ "${WITH_PHASE4}" == true ]]; then
+  echo "==> Phase 4 (Spark + Airflow + dbt)"
+  if [[ "${FORCE_REGEN_PHASE2_SECRETS}" == true ]]; then
+    ./scripts/prepare-phase4-secrets.sh --force
+  else
+    ./scripts/prepare-phase4-secrets.sh
+  fi
+  ./scripts/bootstrap-phase4.sh
+fi
+
+if [[ "${WITH_PHASE5}" == true ]]; then
+  echo "==> Phase 5 (Dremio)"
+  ./scripts/bootstrap-phase5.sh
+fi
+
+if [[ "${WITH_PHASE6}" == true ]]; then
+  echo "==> Phase 6 (Cloudflare Tunnel) — secrets must be filled manually first"
+  ./scripts/bootstrap-phase6.sh
+fi
+
+if [[ "${WITH_PHASE7}" == true ]]; then
+  echo "==> Phase 7 (Observability)"
+  ./scripts/bootstrap-phase7.sh
+fi
+
+if [[ "${WITH_PHASE10}" == true ]]; then
+  echo "==> Phase 10 (ArgoCD)"
+  ./scripts/bootstrap-phase10.sh
 fi
 
 echo "==> Done"

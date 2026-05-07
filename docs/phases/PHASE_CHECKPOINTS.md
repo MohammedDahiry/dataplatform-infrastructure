@@ -51,29 +51,95 @@ The script installs **cert-manager** first (TLS prerequisite per spec), then Min
 
 ---
 
-## Phase 3 — Ingestion (Kafka, NiFi)
+## Phase 3 — Ingestion (Kafka, KafkaConnect/Debezium, NiFi)
 
-**Aligned with:** `Doc (1).pdf` Phase 3 (Strimzi, NiFi, CDC as procedural).
+**Aligned with:** `Specifications_Doc_for_PFE.pdf` §3.4 + §4.
 
-**Start Phase 3 only when:**
-
-- [ ] Phase 2 checkpoint satisfied (at minimum: `platform-ingestion` usable, storage class bound, no blocking CrashLoops for Phase 2 core).
-- [ ] Cluster has **enough capacity** for Kafka (default manifest uses **3** Kafka + **3** ZooKeeper replicas with persistent volumes). For small dev clusters, reduce replicas in `bootstrap/phase-3/manifests/kafka/strimzi-kafka.yaml` *before* apply.
-
-Then:
+**Start Phase 3 only when** Phase 2 checkpoint satisfied (`platform-ingestion` usable, `pg-source-cluster` Ready for the Debezium connector).
 
 ```bash
-chmod +x scripts/bootstrap-phase3.sh
-./scripts/bootstrap-phase3.sh
+./scripts/bootstrap-phase3.sh                  # dev variant: 1 broker + 1 ZK
+KAFKA_VARIANT=prod ./scripts/bootstrap-phase3.sh   # 3 brokers + 3 ZK
 ```
 
-NiFi / CDC flows are **configured in NiFi UI** (spec expectation) — capture screenshots for the jury.
+Topics applied: `bronze.pg.public.agency-budget`, `bronze.pg.public.clients`, `cdc.pg.public.agency-budget`. KafkaConnect ships Debezium image with a `KafkaConnector` against `pg-source-cluster`. NiFi UI flows are still procedural (capture screenshots for the jury).
 
 ---
 
-## After Phase 3 (spec roadmap, not yet automated here)
+## Phase 4 — Compute (Spark Operator + Airflow + dbt)
 
-Phases 4–10 (Spark, Airflow, Dremio, Zero Trust, full observability, Lambda cost, ArgoCD) are tracked in `docs/specs/SPEC_ALIGNMENT.md`.
+**Aligned with:** `Specifications_Doc_for_PFE.pdf` §3.5, §3.6, §6.1.
+
+**Pre-requisites:**
+
+- [ ] Phase 2 stable; Hive Metastore reachable on `hive-metastore.platform-metastore:9083`.
+- [ ] Image `spark-iceberg:3.5.0` built (`iceberg-spark-runtime-3.5_2.12:1.4.2`, `hadoop-aws`, `dbt-spark`) and pushed to ECR.
+
+```bash
+./scripts/prepare-phase4-secrets.sh
+./scripts/bootstrap-phase4.sh
+```
+
+Verify: `kubectl -n platform-compute get sparkapplications`, `kubectl -n platform-orchestr get pods` (airflow webserver + scheduler Running).
+
+---
+
+## Phase 5 — Serving (Dremio)
+
+```bash
+./scripts/bootstrap-phase5.sh
+kubectl -n platform-serving port-forward svc/dremio-client 9047:9047
+# Add Hive source via REST: bootstrap/phase-5/manifests/dremio/source-hive.json
+```
+
+---
+
+## Phase 6 — Exposure (Cloudflare Zero Trust)
+
+**Pre-requisites:** Cloudflare tunnel created in dashboard; API token + tunnel credentials filled in `bootstrap/phase-6/manifests/secrets/*.yaml`.
+
+```bash
+./scripts/bootstrap-phase6.sh
+```
+
+Verify: `kubectl -n platform-security get clustertunnel,tunnelbinding -A`, then test SSO at `https://airflow.dataplatform.<your-zone>`.
+
+---
+
+## Phase 7 — Observability (Prometheus, Grafana, Fluent Bit, OpenObserve)
+
+```bash
+./scripts/bootstrap-phase7.sh
+kubectl -n platform-monitoring port-forward svc/monitoring-grafana 3000:80
+kubectl -n platform-logging port-forward svc/openobserve 5080:5080
+```
+
+ServiceMonitors / PodMonitors are pre-wired for Spark Operator, MinIO Tenant, CNPG (PG metrics), Strimzi Kafka.
+
+---
+
+## Phase 9 — Cost optimisation (Lambda scaling)
+
+```hcl
+# terraform/environments/dev/terraform.tfvars
+lambda_scaling_enabled = true
+```
+
+```bash
+terraform -chdir=terraform/environments/dev apply
+aws lambda invoke --function-name dataplatform-dev-eks-scaler \
+  --payload '{"action":"scale_down"}' /tmp/out.json && cat /tmp/out.json
+```
+
+---
+
+## Phase 10 — ArgoCD (optional)
+
+```bash
+./scripts/bootstrap-phase10.sh
+kubectl -n platform-security get secret argocd-initial-admin-secret \
+  -o jsonpath='{.data.password}' | base64 -d ; echo
+```
 
 ---
 

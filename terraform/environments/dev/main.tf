@@ -55,3 +55,22 @@ module "iam" {
   oidc_issuer_url = module.eks.oidc_issuer_url
   tags            = local.common_tags
 }
+
+module "lambda_scaling" {
+  source = "../../modules/lambda-scaling"
+  count  = var.lambda_scaling_enabled ? 1 : 0
+
+  environment      = var.environment
+  name_prefix      = var.name_prefix
+  cluster_name     = module.eks.cluster_name
+  node_group_name  = "compute-ng"
+  schedule_enabled = var.lambda_scaling_schedule_enabled
+
+  scale_up_cron         = var.lambda_scaling_scale_up_cron
+  scale_down_cron       = var.lambda_scaling_scale_down_cron
+  scale_up_min_size     = var.lambda_scaling_scale_up_min_size
+  scale_up_desired_size = var.lambda_scaling_scale_up_desired_size
+  scale_up_max_size     = var.lambda_scaling_scale_up_max_size
+
+  tags = local.common_tags
+}

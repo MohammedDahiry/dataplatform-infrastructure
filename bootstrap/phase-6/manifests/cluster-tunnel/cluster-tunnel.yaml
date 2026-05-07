@@ -1,0 +1,11 @@
+apiVersion: networking.cfargotunnel.com/v1alpha1
+kind: ClusterTunnel
+metadata:
+  name: platform-cloudflare-tunnel
+spec:
+  size: 2
+  cloudflare:
+    domain: REPLACE_ME_ZONE_EXAMPLE_COM
+    accountName: REPLACE_ME_CF_ACCOUNT_NAME
+    secret: cloudflare-tunnel-credentials
+    namespace: platform-security

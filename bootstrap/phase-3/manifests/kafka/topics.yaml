@@ -1,0 +1,46 @@
+# Kafka topics for the Medallion CDC + batch pipeline.
+# Naming convention (spec §4.4): <layer>.<source_system>.<schema>.<table>
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: bronze.pg.public.agency-budget
+  namespace: platform-ingestion
+  labels:
+    strimzi.io/cluster: platform-kafka
+    app.kubernetes.io/part-of: dataplatform
+spec:
+  partitions: 6
+  replicas: 1
+  config:
+    retention.ms: 604800000
+    cleanup.policy: delete
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: bronze.pg.public.clients
+  namespace: platform-ingestion
+  labels:
+    strimzi.io/cluster: platform-kafka
+    app.kubernetes.io/part-of: dataplatform
+spec:
+  partitions: 6
+  replicas: 1
+  config:
+    retention.ms: 604800000
+    cleanup.policy: delete
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: cdc.pg.public.agency-budget
+  namespace: platform-ingestion
+  labels:
+    strimzi.io/cluster: platform-kafka
+    app.kubernetes.io/part-of: dataplatform
+spec:
+  partitions: 6
+  replicas: 1
+  config:
+    retention.ms: 1209600000
+    cleanup.policy: compact,delete

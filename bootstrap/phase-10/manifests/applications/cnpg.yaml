@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cnpg
+  namespace: platform-security
+spec:
+  project: dataplatform
+  source:
+    repoURL: https://github.com/REPLACE_ME/dataplatform-gitops
+    targetRevision: HEAD
+    path: helm/cnpg
+    helm:
+      valueFiles:
+        - values/dev.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-storage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

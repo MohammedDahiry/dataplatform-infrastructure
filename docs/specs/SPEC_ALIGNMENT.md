@@ -17,15 +17,15 @@ This matrix ties the **official PDF specifications** in `docs/specs/` to **artif
 | Phase (guide) | Scope | Repo status |
 |---------------|--------|-------------|
 | **1** | VPC, EKS, namespaces, RBAC, storage class, network baseline | **Implemented:** `terraform/modules/{vpc,kms,iam,eks}`, `terraform/environments/dev`, `bootstrap/*`, `scripts/bootstrap-cluster.sh`, `.github/workflows/terraform-*.yml`. |
-| **2** | MinIO Operator + Tenant, CNPG PostgreSQL, Hive Metastore, cert-manager | **Scripted path:** `scripts/bootstrap-phase2.sh` installs **cert-manager first into `platform-security`** (per spec §2.2), then MinIO → CNPG → Hive (`bootstrap/phase-2/`). **Gap:** production-grade Hive vs Bitnami Postgres-only baseline — validate against SoW; tighten TLS/Issuers for real certs. |
-| **3** | Strimzi Kafka, NiFi, CDC | **Partially scaffolded:** `bootstrap/phase-3/`, `scripts/bootstrap-phase3.sh`. **Gap:** CDC flows are procedural (NiFi UI) — document / automate min pour soutenance. |
-| **4** | Spark Operator, dbt, Airflow, Iceberg jobs | **Not in repo** as manifests/scripts yet (guide §5). |
-| **5** | Dremio, Power BI | **Not in repo** (guide §6). |
-| **6** | Cloudflare Zero Trust (Tunnel / operator) | **Not in repo** (guide §7). ADR mentions Tunnel for ingress — align implementation. |
-| **7** | Prometheus, Grafana, OpenObserve, Fluent Bit | **Not in repo** (guide §8). |
+| **2** | MinIO Operator + Tenant, CNPG PostgreSQL, Hive Metastore, cert-manager | **Implemented:** `scripts/bootstrap-phase2.sh` installs **cert-manager first into `platform-security`** (per spec §2.2), then MinIO → CNPG → Hive (`bootstrap/phase-2/`). **Gap:** production-grade Hive vs Bitnami Postgres-only baseline; tighten TLS/Issuers for real certs. |
+| **3** | Strimzi Kafka, NiFi, CDC | **Implemented:** `bootstrap/phase-3/` adds `KAFKA_VARIANT=dev|prod` (single-broker dev variant, 3+3 prod variant), `KafkaTopic` for medallion (`bronze.*`, `cdc.*`), `KafkaConnect` + Debezium `KafkaConnector` against `pg-source-cluster`, and the NiFi StatefulSet. Driver: `scripts/bootstrap-phase3.sh`. |
+| **4** | Spark Operator, dbt, Airflow, Iceberg jobs | **Implemented:** `bootstrap/phase-4/` ships `spark-operator-values.yaml`, `spark-rbac/`, two `SparkApplication` examples (streaming Bronze + file ingestion), Airflow Helm values (KubernetesExecutor + external CNPG), `pg-airflow` CNPG cluster, and a `dbt-spark` project skeleton (`dbt/` with sources + silver/gold models). Driver: `scripts/bootstrap-phase4.sh` + `scripts/prepare-phase4-secrets.sh`. |
+| **5** | Dremio, Power BI | **Implemented:** `bootstrap/phase-5/` (Helm values for Dremio coordinator/executor, dist-storage on MinIO, Hive source JSON for the Dremio REST API). Driver: `scripts/bootstrap-phase5.sh`. Power BI ODBC/Arrow Flight integration documented (configuration only, no infra). |
+| **6** | Cloudflare Zero Trust (Tunnel / operator) | **Implemented:** `bootstrap/phase-6/` (Cloudflare Operator Helm values into `platform-security`, `ClusterTunnel`, `TunnelBinding` examples for Airflow/Dremio/Grafana/NiFi, gitignored secrets templates). Driver: `scripts/bootstrap-phase6.sh`. |
+| **7** | Prometheus, Grafana, OpenObserve, Fluent Bit | **Implemented:** `bootstrap/phase-7/` (kube-prometheus-stack, OpenObserve, Fluent Bit DaemonSet shipping logs to OpenObserve, `ServiceMonitor`/`PodMonitor` for Spark, MinIO, CNPG, Strimzi). Driver: `scripts/bootstrap-phase7.sh`. |
 | **8** | GitHub Actions CI/CD, OIDC | **Implemented** for Terraform plan/apply. **Gap:** spec also mentions Ansible + broader pipeline — optional extensions. |
-| **9** | Lambda node scheduling (cost) | **Not in repo** (guide §9). |
-| **10** | ArgoCD GitOps (optional) | **Not in repo** (guide §11). |
+| **9** | Lambda node scheduling (cost) | **Implemented:** Terraform module `terraform/modules/lambda-scaling` (Python Lambda + EventBridge cron up/down, scoped IAM `eks:Update/Describe/ListNodegroup`). Wired into `terraform/environments/dev` behind `lambda_scaling_enabled` (default `false`). |
+| **10** | ArgoCD GitOps (optional) | **Scaffolded:** `bootstrap/phase-10/` (ArgoCD Helm values, `AppProject dataplatform`, example `Application` CRDs). Driver: `scripts/bootstrap-phase10.sh`. Repo URLs are placeholders — point them at your GitOps repo. |
 
 ---
 
@@ -81,9 +81,9 @@ This matrix ties the **official PDF specifications** in `docs/specs/` to **artif
 
 ## Suggested next commits (priority order)
 
-1. **Run Phase 2 & 3 on a live cluster** using `docs/phases/PHASE_CHECKPOINTS.md` — scripts already order cert-manager → MinIO → CNPG → Hive, then Strimzi → Kafka → NiFi.
-2. **Observability slice:** kube-prometheus-stack + minimal ServiceMonitor stubs (Phase 7 subset).
-3. **Cost story:** Lambda/EventBridge outline for compute node group (Phase 9) — even a documented Terraform stub strengthens the mémoire.
+1. **Build the Spark/dbt image** (`spark 3.5.0 + iceberg-spark-runtime + hadoop-aws + dbt-spark`) and push to ECR; replace `REPLACE_ME_REGISTRY` in `bootstrap/phase-4/manifests/spark-jobs/*.yaml`.
+2. **Wire your domain in Cloudflare Tunnel** (`bootstrap/phase-6/`): create the tunnel, fill `cloudflare-tunnel-credentials.yaml` + `cloudflare-api-token.yaml`, and update FQDNs in `tunnel-bindings/`.
+3. **Build the GitOps repo** (Phase 10) if you adopt ArgoCD; otherwise document why `helm` is enough for the MVP.
 4. **Ansible:** minimal `ansible/` sync playbooks OR written justification if Terraform+Helm only.
 
 ---

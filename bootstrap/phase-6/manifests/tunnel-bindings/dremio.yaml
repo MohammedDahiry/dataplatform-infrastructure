@@ -1,0 +1,16 @@
+apiVersion: networking.cfargotunnel.com/v1alpha1
+kind: TunnelBinding
+metadata:
+  name: dremio-tunnel
+  namespace: platform-serving
+spec:
+  subjects:
+    - name: dremio-client
+      spec:
+        fqdn: dremio.dataplatform.REPLACE_ME_ZONE_EXAMPLE_COM
+        protocol: http
+        servicePort: 9047
+        noTLSVerify: false
+  tunnelRef:
+    kind: ClusterTunnel
+    name: platform-cloudflare-tunnel

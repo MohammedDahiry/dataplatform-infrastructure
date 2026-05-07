@@ -1,0 +1,22 @@
+auth:
+  ZO_ROOT_USER_EMAIL: "admin@dataplatform.local"
+  ZO_ROOT_USER_PASSWORD: "REPLACE_ME_OPENOBSERVE_ADMIN_PASSWORD"
+
+persistence:
+  enabled: true
+  storageClass: gp3
+  size: 30Gi
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1500m
+    memory: 2Gi
+
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: false

@@ -1,0 +1,24 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-airflow
+  namespace: platform-storage
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+    app.kubernetes.io/component: airflow-metadata
+spec:
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  postgresql:
+    parameters:
+      max_connections: "200"
+  bootstrap:
+    initdb:
+      database: airflow_metadata
+      owner: airflow
+      secret:
+        name: pg-airflow-app-secret
+  storage:
+    storageClass: gp3
+    size: 30Gi

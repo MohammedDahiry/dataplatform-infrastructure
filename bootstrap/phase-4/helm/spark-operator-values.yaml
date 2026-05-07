@@ -1,0 +1,21 @@
+# Kubeflow Spark Operator (spec §3.5).
+webhook:
+  enable: true
+
+metrics:
+  enable: true
+  port: 10254
+
+sparkJobNamespaces:
+  - platform-compute
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+leaderElection:
+  enable: true

@@ -1,0 +1,55 @@
+# Streaming Spark job: Kafka cdc.pg.public.* -> Iceberg bronze tables on MinIO.
+# Image must be pre-built with: spark 3.5.0 + iceberg-spark-runtime-3.5_2.12:1.4.2
+# + hadoop-aws + s3a configured.
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: bronze-iceberg-writer
+  namespace: platform-compute
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+spec:
+  type: Python
+  pythonVersion: "3"
+  mode: cluster
+  image: REPLACE_ME_REGISTRY/spark-iceberg:3.5.0
+  imagePullPolicy: Always
+  mainApplicationFile: "s3a://jobs/bronze_writer.py"
+  sparkVersion: "3.5.0"
+  sparkConf:
+    "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions"
+    "spark.sql.catalog.lakehouse": "org.apache.iceberg.spark.SparkCatalog"
+    "spark.sql.catalog.lakehouse.type": "hive"
+    "spark.sql.catalog.lakehouse.uri": "thrift://hive-metastore.platform-metastore.svc.cluster.local:9083"
+    "spark.sql.catalog.lakehouse.warehouse": "s3a://lakehouse/warehouse/"
+    "spark.hadoop.fs.s3a.endpoint": "http://lakehouse-tenant-hl.platform-storage.svc.cluster.local:9000"
+    "spark.hadoop.fs.s3a.path.style.access": "true"
+    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+  driver:
+    cores: 1
+    coreLimit: "1500m"
+    memory: "2g"
+    serviceAccount: spark-sa
+    envSecretKeyRefs:
+      MINIO_ACCESS_KEY:
+        name: minio-admin-secret
+        key: accessKey
+      MINIO_SECRET_KEY:
+        name: minio-admin-secret
+        key: secretKey
+    nodeSelector:
+      workload: compute
+  executor:
+    cores: 1
+    instances: 2
+    memory: "2g"
+    serviceAccount: spark-sa
+    envSecretKeyRefs:
+      MINIO_ACCESS_KEY:
+        name: minio-admin-secret
+        key: accessKey
+      MINIO_SECRET_KEY:
+        name: minio-admin-secret
+        key: secretKey
+    nodeSelector:
+      workload: compute

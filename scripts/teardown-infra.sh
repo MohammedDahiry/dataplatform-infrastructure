@@ -93,6 +93,19 @@ if [[ "${SKIP_K8S}" != true ]]; then
 
     if command -v helm >/dev/null 2>&1; then
       echo "    Uninstalling Helm releases (best-effort)..."
+      # Phase 10
+      helm uninstall argocd -n platform-security >/dev/null 2>&1 || true
+      # Phase 7
+      helm uninstall fluent-bit -n platform-logging >/dev/null 2>&1 || true
+      helm uninstall openobserve -n platform-logging >/dev/null 2>&1 || true
+      helm uninstall monitoring -n platform-monitoring >/dev/null 2>&1 || true
+      # Phase 6
+      helm uninstall cloudflare-operator -n platform-security >/dev/null 2>&1 || true
+      # Phase 5
+      helm uninstall dremio -n platform-serving >/dev/null 2>&1 || true
+      # Phase 4
+      helm uninstall airflow -n platform-orchestr >/dev/null 2>&1 || true
+      helm uninstall spark-operator -n platform-compute >/dev/null 2>&1 || true
       # Phase 3
       helm uninstall strimzi-operator -n platform-ingestion >/dev/null 2>&1 || true
       # Phase 2
@@ -130,7 +143,11 @@ for item in data.get("items", []):
 
     if [[ "${KEEP_NAMESPACES}" != true ]]; then
       echo "    Deleting platform namespaces..."
-      for ns in platform-ingestion platform-metastore platform-storage platform-security cert-manager; do
+      for ns in \
+        platform-ingestion platform-storage platform-metastore \
+        platform-compute platform-orchestr platform-serving \
+        platform-monitoring platform-logging platform-security \
+        cert-manager; do
         kubectl delete ns "${ns}" --wait=false >/dev/null 2>&1 || true
       done
     fi
