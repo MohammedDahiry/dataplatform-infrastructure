@@ -1,10 +1,40 @@
 # cert-manager (Jetstack) — TLS prerequisite for operators / ingress (spec Phase 2).
+# Per Specifications_Doc_for_PFE.pdf §2.2, cert-manager runs in the platform-security
+# namespace alongside the Cloudflare Operator.
+#
 # Override here if you need private ACME, custom resources, or HA replicas.
 
-# Install CRDs via Helm (bootstrap script passes --set crds.enabled=true as well).
 crds:
   enabled: true
 
 global:
   leaderElection:
-    namespace: cert-manager
+    namespace: platform-security
+
+# Schedule on stateful-tainted nodes when compute pool is scaled to 0 (see terraform node_group_compute_*).
+tolerations:
+  - key: workload
+    operator: Equal
+    value: stateful
+    effect: NoSchedule
+
+cainjector:
+  tolerations:
+    - key: workload
+      operator: Equal
+      value: stateful
+      effect: NoSchedule
+
+webhook:
+  tolerations:
+    - key: workload
+      operator: Equal
+      value: stateful
+      effect: NoSchedule
+
+startupapicheck:
+  tolerations:
+    - key: workload
+      operator: Equal
+      value: stateful
+      effect: NoSchedule

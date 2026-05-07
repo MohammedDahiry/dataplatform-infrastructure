@@ -18,7 +18,7 @@ This file is the **operational contract** between the three PDF specs (`docs/spe
 - [ ] `terraform apply` for **dev** completed (VPC, EKS, KMS, IAM).
 - [ ] `aws eks update-kubeconfig` works; `kubectl get nodes` shows Ready nodes.
 - [ ] `./scripts/bootstrap-cluster.sh` ran successfully (idempotent).
-- [ ] `kubectl get ns -l app.kubernetes.io/part-of=dataplatform` includes **`cert-manager`** after you re-ran bootstrap post-upgrade (or `kubectl apply -f bootstrap/namespaces/` once).
+- [ ] `kubectl get ns -l app.kubernetes.io/part-of=dataplatform` lists the **9 spec namespaces** (`platform-ingestion`, `platform-storage`, `platform-metastore`, `platform-compute`, `platform-orchestr`, `platform-serving`, `platform-monitoring`, `platform-logging`, `platform-security`). cert-manager runs **inside `platform-security`** per `Specifications_Doc_for_PFE.pdf` §2.2.
 
 **Stop here** until all boxes are checked. Phase 2 installs operators that assume Phase 1 namespaces and storage class **`gp3`**.
 

@@ -73,6 +73,20 @@ See [`docs/01-getting-started.md`](docs/01-getting-started.md) for the bootstrap
 sequence — you need to run `terraform/bootstrap/` exactly once before
 `terraform/environments/dev/` will work.
 
+**French step-by-step (what you run vs what the repo provides):** [`docs/IMPLEMENTATION_ETAPES.md`](docs/IMPLEMENTATION_ETAPES.md).
+
+### Stop / start cycle (avoid AWS charges)
+
+```bash
+# Stop billing at end of day
+./scripts/teardown-infra.sh --auto-approve
+
+# Bring everything back next morning
+./scripts/fasttrack-infra.sh --auto-approve --with-phase2
+```
+
+`teardown-infra.sh` uninstalls Helm releases, deletes PVCs (releases EBS) and `LoadBalancer` services (releases ELB), then runs `terraform destroy` on `terraform/environments/dev`. It does **not** touch `terraform/bootstrap` nor the R2 state bucket, so the next `terraform apply` reuses the same remote state.
+
 ## Specification traceability (PFE)
 
 The official PDFs under [`docs/specs/`](docs/specs/) are mapped to this repo in [`docs/specs/SPEC_ALIGNMENT.md`](docs/specs/SPEC_ALIGNMENT.md) (phases, gaps, next steps).

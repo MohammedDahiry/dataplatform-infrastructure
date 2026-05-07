@@ -34,7 +34,7 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 helm upgrade --install cert-manager jetstack/cert-manager \
-  --namespace cert-manager --create-namespace \
+  --namespace platform-security --create-namespace \
   -f bootstrap/phase-2/helm/cert-manager-values.yaml \
   --set crds.enabled=true --wait --timeout 10m
 

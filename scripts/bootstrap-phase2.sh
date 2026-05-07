@@ -38,16 +38,20 @@ helm repo add bitnami https://charts.bitnami.com/bitnami >/dev/null
 helm repo update >/dev/null
 
 CERT_MANAGER_CHART_VERSION="${CERT_MANAGER_CHART_VERSION:-v1.14.5}"
+# First install can exceed 10m (images CRDs webhooks). Override with CERT_MANAGER_WAIT_TIMEOUT=30m if needed.
+CERT_MANAGER_WAIT_TIMEOUT="${CERT_MANAGER_WAIT_TIMEOUT:-25m}"
 
-echo "Installing cert-manager (TLS prerequisite per spec Phase 2)..."
+echo "Installing cert-manager into platform-security (spec §2.2)..."
 helm upgrade --install cert-manager jetstack/cert-manager \
-  --namespace cert-manager --create-namespace \
+  --namespace platform-security --create-namespace \
   --version "${CERT_MANAGER_CHART_VERSION}" \
   -f "${PHASE2_DIR}/helm/cert-manager-values.yaml" \
-  --wait --timeout 10m
+  --wait --timeout "${CERT_MANAGER_WAIT_TIMEOUT}"
 
 echo "Waiting for cert-manager deployments..."
-kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=300s
+kubectl wait --for=condition=Available deployment \
+  -l app.kubernetes.io/instance=cert-manager \
+  -n platform-security --timeout=600s
 
 echo "Applying RBAC and secrets..."
 kubectl apply -f "${PHASE2_DIR}/manifests/rbac/"

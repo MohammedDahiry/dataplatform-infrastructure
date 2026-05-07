@@ -4,6 +4,8 @@ End-to-end walkthrough from a fresh clone to a working EKS cluster ready for
 Phase 2 workloads. Budget about 30-45 minutes of wall-clock time, most of which
 is waiting for `terraform apply` to finish.
 
+**Guide d’implémentation étape par étape (FR, vous vs dépôt) :** [`IMPLEMENTATION_ETAPES.md`](IMPLEMENTATION_ETAPES.md).
+
 ## Prerequisites
 
 | Tool | Version | Why |
@@ -181,7 +183,7 @@ kubectl get nodes
 # 5 nodes Ready (3 stateful + 2 compute)
 
 kubectl get ns -l app.kubernetes.io/part-of=dataplatform
-# platform-* namespaces + cert-manager
+# 9 platform-* namespaces (cert-manager lives inside platform-security per spec §2.2)
 
 kubectl get storageclass
 # gp3 (default), gp2
@@ -201,10 +203,11 @@ Use **[`docs/phases/PHASE_CHECKPOINTS.md`](phases/PHASE_CHECKPOINTS.md)** before
 
 To generate Phase 2 secrets locally (random values, not committed): **`./scripts/prepare-phase2-secrets.sh`**.
 
-Phase 2 is the storage layer (cert-manager, MinIO Operator → Tenant), the catalog
-(CloudNativePG → Hive Metastore), and later the security layer (Cloudflare Tunnel,
-External Secrets Operator, etc.). Helm installs are scripted in `scripts/bootstrap-phase2.sh`
-into the namespaces Phase 1 created.
+Phase 2 is cert-manager (in `platform-security` per spec §2.2), the storage layer
+(MinIO Operator → Tenant), the catalog (CloudNativePG → Hive Metastore), and later
+additional security workloads (Cloudflare Tunnel, External Secrets Operator, etc.).
+Helm installs are scripted in `scripts/bootstrap-phase2.sh` into the namespaces
+Phase 1 created.
 
 ## Cost expectations
 

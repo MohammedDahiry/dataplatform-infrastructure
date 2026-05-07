@@ -72,3 +72,21 @@ variable "cluster_endpoint_public_access_cidrs" {
   type        = list(string)
   default     = []
 }
+
+variable "node_group_compute_desired_size" {
+  description = "Compute (untainted) node group desired count. Use >=1 so cert-manager and other operators schedule when only stateful nodes carry workload=stateful taint."
+  type        = number
+  default     = 1
+}
+
+variable "node_group_compute_min_size" {
+  description = "Compute node group minimum."
+  type        = number
+  default     = 0
+}
+
+variable "node_group_compute_max_size" {
+  description = "Compute node group maximum."
+  type        = number
+  default     = 10
+}

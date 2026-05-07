@@ -7,3 +7,8 @@ tags = {
   owner       = "mohammed-dahiry"
   cost_center = "pfe-2025-2026"
 }
+
+# Untainted nodes for operators (cert-manager, etc.). Stateful pool keeps workload=stateful taint.
+node_group_compute_desired_size = 1
+node_group_compute_min_size     = 0
+node_group_compute_max_size     = 10

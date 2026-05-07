@@ -41,6 +41,9 @@ module "eks" {
   cluster_endpoint_public_access       = var.cluster_endpoint_public_access
   cluster_endpoint_private_access      = var.cluster_endpoint_private_access
   cluster_endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
+  node_group_compute_desired_size      = var.node_group_compute_desired_size
+  node_group_compute_min_size          = var.node_group_compute_min_size
+  node_group_compute_max_size          = var.node_group_compute_max_size
   tags                                 = local.common_tags
 }
 

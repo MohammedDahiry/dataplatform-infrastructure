@@ -124,9 +124,9 @@ resource "aws_eks_node_group" "stateful" {
   disk_size      = 100
 
   scaling_config {
-    desired_size = 1
-    min_size     = 1
-    max_size     = 3
+    desired_size = var.node_group_stateful_desired_size
+    min_size     = var.node_group_stateful_min_size
+    max_size     = var.node_group_stateful_max_size
   }
 
   labels = {
@@ -161,9 +161,9 @@ resource "aws_eks_node_group" "compute" {
   disk_size      = 100
 
   scaling_config {
-    desired_size = 0
-    min_size     = 0
-    max_size     = 10
+    desired_size = var.node_group_compute_desired_size
+    min_size     = var.node_group_compute_min_size
+    max_size     = var.node_group_compute_max_size
   }
 
   labels = {

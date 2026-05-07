@@ -17,7 +17,7 @@ This matrix ties the **official PDF specifications** in `docs/specs/` to **artif
 | Phase (guide) | Scope | Repo status |
 |---------------|--------|-------------|
 | **1** | VPC, EKS, namespaces, RBAC, storage class, network baseline | **Implemented:** `terraform/modules/{vpc,kms,iam,eks}`, `terraform/environments/dev`, `bootstrap/*`, `scripts/bootstrap-cluster.sh`, `.github/workflows/terraform-*.yml`. |
-| **2** | MinIO Operator + Tenant, CNPG PostgreSQL, Hive Metastore, cert-manager | **Scripted path:** `scripts/bootstrap-phase2.sh` installs **cert-manager first**, then MinIO → CNPG → Hive (`bootstrap/phase-2/`). **Gap:** production-grade Hive vs Bitnami Postgres-only baseline — validate against SoW; tighten TLS/Issuers for real certs. |
+| **2** | MinIO Operator + Tenant, CNPG PostgreSQL, Hive Metastore, cert-manager | **Scripted path:** `scripts/bootstrap-phase2.sh` installs **cert-manager first into `platform-security`** (per spec §2.2), then MinIO → CNPG → Hive (`bootstrap/phase-2/`). **Gap:** production-grade Hive vs Bitnami Postgres-only baseline — validate against SoW; tighten TLS/Issuers for real certs. |
 | **3** | Strimzi Kafka, NiFi, CDC | **Partially scaffolded:** `bootstrap/phase-3/`, `scripts/bootstrap-phase3.sh`. **Gap:** CDC flows are procedural (NiFi UI) — document / automate min pour soutenance. |
 | **4** | Spark Operator, dbt, Airflow, Iceberg jobs | **Not in repo** as manifests/scripts yet (guide §5). |
 | **5** | Dremio, Power BI | **Not in repo** (guide §6). |
@@ -26,6 +26,36 @@ This matrix ties the **official PDF specifications** in `docs/specs/` to **artif
 | **8** | GitHub Actions CI/CD, OIDC | **Implemented** for Terraform plan/apply. **Gap:** spec also mentions Ansible + broader pipeline — optional extensions. |
 | **9** | Lambda node scheduling (cost) | **Not in repo** (guide §9). |
 | **10** | ArgoCD GitOps (optional) | **Not in repo** (guide §11). |
+
+---
+
+## Kubernetes Namespace Strategy (spec §2.2)
+
+| Spec namespace | Spec workloads | Repo evidence |
+|----------------|----------------|---------------|
+| `platform-ingestion` | NiFi, Kafka, Kafka Connect | `bootstrap/namespaces/namespaces.yaml` + `bootstrap/phase-3/manifests/{kafka,nifi}` |
+| `platform-storage` | MinIO Operator, MinIO Tenant | `bootstrap/phase-2/{helm/minio-operator-values.yaml, manifests/minio/tenant.yaml}` |
+| `platform-metastore` | Hive Metastore, PostgreSQL (HMS) | `bootstrap/phase-2/{helm/hive-postgresql-values.yaml, manifests/hive, manifests/postgres/cnpg-hms-cluster.yaml}` |
+| `platform-compute` | Spark Operator, dbt jobs | quotas + netpol present; manifests Phase 4 (not yet) |
+| `platform-orchestr` | Airflow, JupyterHub | quotas + netpol present; manifests Phase 4 (not yet) |
+| `platform-serving` | Dremio, HMS Analytics | quotas + netpol present; manifests Phase 5 (not yet) |
+| `platform-monitoring` | Prometheus, Grafana, OTel | quotas + netpol present; manifests Phase 6 (not yet) |
+| `platform-logging` | Fluent Bit, OpenObserve | quotas + netpol present; manifests Phase 6 (not yet) |
+| `platform-security` | Cloudflare Operator, **cert-manager** | namespace + quota + netpol present (PSA `privileged`); cert-manager Helm release deployed here by `scripts/bootstrap-phase2.sh` |
+
+**All 9 spec namespaces** exist with matching `ResourceQuota` and `NetworkPolicy` (default-deny + DNS egress + same-namespace ingress). Phase 4–6 workload manifests are deferred per the phased roadmap.
+
+## EKS cluster shape (spec §10, §12)
+
+| Item | Spec | Repo |
+|------|------|------|
+| EKS managed cluster | required | `terraform/modules/eks` ✅ |
+| Two managed node groups (stateful vs compute) | required for cost story §12 | `stateful-ng` (taint `workload=stateful:NoSchedule`) + `compute-ng` (untainted) ✅ |
+| EBS gp3 storage class | required | `bootstrap/storage-classes/gp3-encrypted.yaml` ✅ |
+| OIDC + IRSA | required | `terraform/modules/iam` (cluster-autoscaler, EBS-CSI, ESO, ALB controller) ✅ |
+| KMS CMK (EBS, secrets, logs) | implied | `terraform/modules/kms` ✅ |
+| VPC 3 AZ + NAT | required | `terraform/modules/vpc` ✅ |
+| Terraform state on R2 | required §10.1.1 | `terraform/bootstrap` (optional bucket creation) + `scripts/tf-init-local.sh` ✅ |
 
 ---
 

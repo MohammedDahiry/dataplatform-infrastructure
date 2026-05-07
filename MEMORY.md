@@ -2,7 +2,31 @@
 
 Ce fichier sert de contexte persistant pour reprendre rapidement le projet sans repartir de zero.
 
-**Derniere mise a jour:** checkpoints Phase 1/2/3 documentes (`docs/phases/PHASE_CHECKPOINTS.md`), Phase 2 script inclut **cert-manager**, namespace `cert-manager` dans `bootstrap/namespaces/`.
+**Derniere mise a jour:** plan d'execution A–F (ci-dessous), audit securite **Etape A** sur le depôt (fichiers `*.tfstate` ignores, non versionnes; pas d'historique Git cible sur `*.tfstate` dans ce clone).
+
+## Plan d'execution (A–F) — fil conducteur
+
+Checklist proposée pour la soutenance / prod locale (WSL). Détails techniques: `docs/01-getting-started.md`, `docs/phases/PHASE_CHECKPOINTS.md`, `docs/specs/SPEC_ALIGNMENT.md`.
+
+| Etape | Objectif | Actions cles |
+|-------|----------|--------------|
+| **A** | Audit securite immediat | Verifier `.gitignore` contient `*.tfstate` / `*.tfstate.*` / `*.tfstate.backup` (oui). `git ls-files '*.tfstate'` doit etre **vide**. Si un state a deja ete commite: **retirer de l'historique** (BFG/filter-repo) + **rotations** (cles AWS, token CF, cles R2) selon ce qui a fuite. |
+| **B** | Inspection state **bootstrap** (`terraform/bootstrap/`) | Lire `terraform show` / le JSON du state (ressources: OIDC, role GH). Decider: **(a)** migrer state bootstrap vers backend distant, **(b)** recreer from scratch sur compte propre, **(c)** garder local **sans** le committer (MVP). |
+| **C** | Outils WSL | `kubectl`, `helm`, `aws`, `terraform`; `jq` optionnel (scripts de debug / JSON). |
+| **D** | Specs jury | Lire `docs/specs/*.pdf` + `SPEC_ALIGNMENT.md` + ADR. |
+| **E** | Phase 1 reelle | Backend R2 + secrets GitHub OK → `terraform apply` dans `terraform/environments/dev` (ou CI) → `aws eks update-kubeconfig` → `./scripts/bootstrap-cluster.sh` (namespaces, netpol, storage, quotas). |
+| **F** | Phase 2 | `./scripts/prepare-phase2-secrets.sh` → `./scripts/bootstrap-phase2.sh` (cert-manager, MinIO, CNPG, Hive). |
+
+**Note:** l'etape E suppose le **backend** `dev` initialisé (`scripts/tf-init-local.sh` + variables d'environnement R2) et un acces reseau a l'API EKS (souvent endpoint public temporaire ou tunnel/bastion — voir `docs/01-getting-started.md`).
+
+**Guide pas a pas (vous vs repo, ordre des commandes) :** [`docs/IMPLEMENTATION_ETAPES.md`](docs/IMPLEMENTATION_ETAPES.md).
+
+**Mode accéléré:** script unique `scripts/fasttrack-infra.sh` pour enchaîner Phase 1 puis Phase 2/3 (options) depuis WSL.
+
+**Cycle stop / start (économie AWS):**
+
+- **Stop** (fin de journée) : `./scripts/teardown-infra.sh --auto-approve` → désinstalle Helm, supprime PVCs (libère EBS), services LoadBalancer (libère ELB), puis `terraform destroy` du dev. Préserve `terraform/bootstrap` et le bucket R2 d'état.
+- **Start** (lendemain) : `./scripts/fasttrack-infra.sh --auto-approve --with-phase2`. Le state R2 reste en place donc Terraform reconstruit la même topologie. Les **données** (EBS/MinIO/PG) sont perdues — accepté en MVP, à sauvegarder plus tard via CNPG Barman / MinIO mirror si besoin.
 
 ## 1) Identite du projet
 
@@ -40,14 +64,14 @@ Mettre en place une base d'infrastructure securisee et exploitable pour les phas
 - **`terraform/bootstrap`:** OIDC GitHub + role IAM pour Actions + **option** creation bucket R2 (`create_r2_state_bucket`, module `r2-backend-bootstrap`). Voir `terraform/bootstrap/README.md`.
 - **`terraform/modules/r2-backend-bootstrap`:** bucket R2 (`cloudflare_r2_bucket`); `location` normalise en **majuscules** (ENAM, WNAM, …). **Cles S3 R2** pour le backend Terraform (`backend "s3"`) toujours creees **manuellement** dans le dashboard (scopes bucket).
 - **`bootstrap/` (Phase 1 K8s):** present — `namespaces/`, `resource-quotas/`, `network-policies/`, `storage-classes/` + `README.md`.
-- **`bootstrap/phase-2/` et `bootstrap/phase-3/`:** Helm values + manifests; **Phase 2** inclut desormais **cert-manager** en premier dans `bootstrap-phase2.sh` (aligne specs / `Doc (1).pdf`). Secrets: copier `*.example.yaml` vers fichiers **non** versionnes.
-- **Scripts:** `scripts/tf-init-local.sh`, `scripts/bootstrap-cluster.sh`, `scripts/bootstrap-phase2.sh` (cert-manager → MinIO → CNPG → Hive), `scripts/bootstrap-phase3.sh` (Strimzi → Kafka → NiFi + attentes readiness).
+- **`bootstrap/phase-2/` et `bootstrap/phase-3/`:** Helm values + manifests; **Phase 2** installe d'abord **cert-manager dans `platform-security`** (alignement strict avec `Specifications_Doc_for_PFE.pdf` §2.2), puis MinIO, CNPG, Hive. Secrets: copier `*.example.yaml` vers fichiers **non** versionnes.
+- **Scripts:** `scripts/tf-init-local.sh`, `scripts/bootstrap-cluster.sh`, `scripts/bootstrap-phase2.sh` (cert-manager dans platform-security → MinIO → CNPG → Hive), `scripts/bootstrap-phase3.sh` (Strimzi → Kafka → NiFi + attentes readiness).
 
 ### Ce qui reste a valider hors-repo
 
 - Un `terraform apply` reel sur le compte AWS cible et un cluster EKS joignables.
 - Secrets GitHub / variables (`TF_STATE_BUCKET`, cles R2, role ARN) et environnement `dev` avec reviewer.
-- Re-appliquer `./scripts/bootstrap-cluster.sh` apres ajout du namespace `cert-manager` si le cluster existait deja avant cette evolution.
+- Apres re-creation du cluster: les **9 namespaces** spec §2.2 (platform-ingestion / -storage / -metastore / -compute / -orchestr / -serving / -monitoring / -logging / -security) sont creés par `scripts/bootstrap-cluster.sh`. cert-manager s'installe **dans `platform-security`** (Phase 2) — pas de namespace cert-manager dedie.
 
 ## 3 bis) Checkpoints projet (ne pas perdre le fil)
 
@@ -117,7 +141,7 @@ Source de verite: `docs/02-architecture-decision-records.md`.
 
 - **State bootstrap dans le repo:** `terraform/bootstrap/terraform.tfstate*` — a traiter selon politique securite (ne pas versionner, ou remote state / chiffrement).
 - **R2:** bucket peut etre cree par Terraform (module) ou a la main; **cles S3** pour `backend` Terraform toujours manuelles cote Cloudflare.
-- **`bootstrap-cluster.sh`:** limite aux dossiers Phase 1 (pas `phase-2`/`phase-3`). Re-lancer apres ajout du namespace `cert-manager`.
+- **`bootstrap-cluster.sh`:** limite aux dossiers Phase 1 (pas `phase-2`/`phase-3`). Cree les 9 namespaces spec §2.2 (cert-manager n'a plus de namespace dedie, il vit dans `platform-security`).
 
 ### Important
 

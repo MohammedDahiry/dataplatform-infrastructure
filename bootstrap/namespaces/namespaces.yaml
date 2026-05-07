@@ -65,14 +65,6 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: cert-manager
-  labels:
-    app.kubernetes.io/part-of: dataplatform
-    pod-security.kubernetes.io/enforce: baseline
----
-apiVersion: v1
-kind: Namespace
-metadata:
   name: platform-security
   labels:
     app.kubernetes.io/part-of: dataplatform
