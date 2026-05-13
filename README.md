@@ -43,7 +43,7 @@ and secured to host them.
   AZs route through the NAT in `us-east-1a`. Documented as a known SPOF; promotable
   to per-AZ NAT in `prod`.
 - **No public endpoints** on EKS API. Private endpoint + public CIDR allow-list.
-  Cloudflare Tunnel (Phase 2) is the only ingress path for users.
+  Cloudflare Tunnel (Phase 6) is the intended ingress path for UIs when configured.
 - **IRSA from day one.** No node-attached IAM policies. Every controller that needs
   AWS API access gets a dedicated role bound to a dedicated ServiceAccount.
 - **CMKs everywhere.** EBS volumes, Secrets Manager, CloudWatch logs all use
@@ -79,7 +79,15 @@ sequence — you need to run `terraform/bootstrap/` exactly once before
 
 **French step-by-step (what you run vs what the repo provides):** [`docs/IMPLEMENTATION_ETAPES.md`](docs/IMPLEMENTATION_ETAPES.md).
 
-### Stop / start cycle (avoid AWS charges)
+**Tight deadline / defense prep:** [`docs/SOUTENANCE_EXPRESS.md`](docs/SOUTENANCE_EXPRESS.md) — minimum demo scope, report outline, `fasttrack` ordering.
+
+### Complete startup walkthrough
+
+See **[`docs/STARTUP_GUIDE.md`](docs/STARTUP_GUIDE.md)** — single document that
+covers every step from a fresh clone to a running medallion pipeline (Phases 1
+through 10), Cloudflare tunnel publishing, and the destroy / re-apply cycle.
+
+## Stop / start cycle (avoid AWS charges)
 
 ```bash
 # Stop billing at end of day

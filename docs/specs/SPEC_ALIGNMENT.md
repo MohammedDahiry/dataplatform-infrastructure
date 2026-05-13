@@ -36,14 +36,14 @@ This matrix ties the **official PDF specifications** in `docs/specs/` to **artif
 | `platform-ingestion` | NiFi, Kafka, Kafka Connect | `bootstrap/namespaces/namespaces.yaml` + `bootstrap/phase-3/manifests/{kafka,nifi}` |
 | `platform-storage` | MinIO Operator, MinIO Tenant | `bootstrap/phase-2/{helm/minio-operator-values.yaml, manifests/minio/tenant.yaml}` |
 | `platform-metastore` | Hive Metastore, PostgreSQL (HMS) | `bootstrap/phase-2/{helm/hive-postgresql-values.yaml, manifests/hive, manifests/postgres/cnpg-hms-cluster.yaml}` |
-| `platform-compute` | Spark Operator, dbt jobs | quotas + netpol present; manifests Phase 4 (not yet) |
-| `platform-orchestr` | Airflow, JupyterHub | quotas + netpol present; manifests Phase 4 (not yet) |
-| `platform-serving` | Dremio, HMS Analytics | quotas + netpol present; manifests Phase 5 (not yet) |
-| `platform-monitoring` | Prometheus, Grafana, OTel | quotas + netpol present; manifests Phase 6 (not yet) |
-| `platform-logging` | Fluent Bit, OpenObserve | quotas + netpol present; manifests Phase 6 (not yet) |
+| `platform-compute` | Spark Operator, dbt jobs | `bootstrap/phase-4/` + `scripts/bootstrap-phase4.sh` |
+| `platform-orchestr` | Airflow, JupyterHub | `bootstrap/phase-4/` (Airflow Helm ; JupyterHub hors MVP) |
+| `platform-serving` | Dremio, HMS Analytics | `bootstrap/phase-5/` + `scripts/bootstrap-phase5.sh` |
+| `platform-monitoring` | Prometheus, Grafana, OTel | `bootstrap/phase-7/` (kube-prometheus-stack) |
+| `platform-logging` | Fluent Bit, OpenObserve | `bootstrap/phase-7/` |
 | `platform-security` | Cloudflare Operator, **cert-manager** | namespace + quota + netpol present (PSA `privileged`); cert-manager Helm release deployed here by `scripts/bootstrap-phase2.sh` |
 
-**All 9 spec namespaces** exist with matching `ResourceQuota` and `NetworkPolicy` (default-deny + DNS egress + same-namespace ingress). Phase 4–6 workload manifests are deferred per the phased roadmap.
+**All 9 spec namespaces** exist with matching `ResourceQuota` and `NetworkPolicy` (default-deny + DNS egress + same-namespace ingress). Les manifests Phase 4–7 sont livrés ; Phase 6 (Tunnel Cloudflare) reste optionnelle selon démo.
 
 ## EKS cluster shape (spec §10, §12)
 
@@ -67,7 +67,7 @@ This matrix ties the **official PDF specifications** in `docs/specs/` to **artif
 | **State backend** | Cloudflare R2 | `terraform/bootstrap` **can** create bucket (`create_r2_state_bucket`, module `r2-backend-bootstrap`); R2 **S3 credentials** for Terraform remain manual (dashboard token). |
 | **Security** | IRSA, KMS, private API, network policies | KMS/VPC/EKS/IAM modules; `bootstrap/network-policies/`; docs ADRs. |
 | **Scalability** | Separate node groups (stateful vs compute) | `modules/eks` (per README / ADR). |
-| **Ansible** | Post-bootstrap / app config per spec | **Gap:** no `ansible/` tree in repo yet — Doc (1) §13. Either add playbooks or explicitly scope Ansible “out of MVP” in mémoire with justification. |
+| **Ansible** | Post-bootstrap / app config per spec | **MVP:** pas de playbooks — voir `ansible/README.md` (justification : Terraform + Helm + scripts couvrent le besoin ; Ansible réservé à une évolution hors MVP). |
 
 ---
 
@@ -84,7 +84,7 @@ This matrix ties the **official PDF specifications** in `docs/specs/` to **artif
 1. **Build the Spark/dbt image** (`spark 3.5.0 + iceberg-spark-runtime + hadoop-aws + dbt-spark`) and push to ECR; replace `REPLACE_ME_REGISTRY` in `bootstrap/phase-4/manifests/spark-jobs/*.yaml`.
 2. **Wire your domain in Cloudflare Tunnel** (`bootstrap/phase-6/`): create the tunnel, fill `cloudflare-tunnel-credentials.yaml` + `cloudflare-api-token.yaml`, and update FQDNs in `tunnel-bindings/`.
 3. **Build the GitOps repo** (Phase 10) if you adopt ArgoCD; otherwise document why `helm` is enough for the MVP.
-4. **Ansible:** minimal `ansible/` sync playbooks OR written justification if Terraform+Helm only.
+4. **Ansible:** justification écrite dans `ansible/README.md` (déjà présente pour le MVP).
 
 ---
 

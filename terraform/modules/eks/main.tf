@@ -146,7 +146,12 @@ resource "aws_eks_node_group" "stateful" {
     aws_iam_role_policy_attachment.node_ssm_policy
   ]
 
-  tags = var.tags
+  tags = merge(var.tags, {
+    "k8s.io/cluster-autoscaler/enabled"                      = "true"
+    "k8s.io/cluster-autoscaler/${var.cluster_name}"          = "owned"
+    "k8s.io/cluster-autoscaler/node-template/label/workload" = "stateful"
+    "k8s.io/cluster-autoscaler/node-template/taint/workload" = "stateful:NoSchedule"
+  })
 }
 
 resource "aws_eks_node_group" "compute" {
@@ -177,7 +182,11 @@ resource "aws_eks_node_group" "compute" {
     aws_iam_role_policy_attachment.node_ssm_policy
   ]
 
-  tags = var.tags
+  tags = merge(var.tags, {
+    "k8s.io/cluster-autoscaler/enabled"                      = "true"
+    "k8s.io/cluster-autoscaler/${var.cluster_name}"          = "owned"
+    "k8s.io/cluster-autoscaler/node-template/label/workload" = "compute"
+  })
 }
 
 resource "aws_eks_access_entry" "cluster_admin" {

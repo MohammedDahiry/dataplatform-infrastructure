@@ -9,6 +9,12 @@ spec:
   instances: 3
   primaryUpdateStrategy: unsupervised
   imageName: ghcr.io/cloudnative-pg/postgresql:16
+  affinity:
+    tolerations:
+      - key: workload
+        operator: Equal
+        value: stateful
+        effect: NoSchedule
   bootstrap:
     initdb:
       database: hive_metastore

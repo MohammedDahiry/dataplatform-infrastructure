@@ -4,8 +4,8 @@ output "irsa_prefix" {
 }
 
 output "oidc_provider_arn" {
-  description = "ARN of IAM OIDC provider for EKS."
-  value       = aws_iam_openid_connect_provider.eks.arn
+  description = "ARN of IAM OIDC provider for EKS (same as module.eks output)."
+  value       = var.oidc_provider_arn
 }
 
 output "irsa_role_arns" {

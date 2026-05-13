@@ -41,6 +41,9 @@ module "eks" {
   cluster_endpoint_public_access       = var.cluster_endpoint_public_access
   cluster_endpoint_private_access      = var.cluster_endpoint_private_access
   cluster_endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
+  node_group_stateful_desired_size     = var.node_group_stateful_desired_size
+  node_group_stateful_min_size         = var.node_group_stateful_min_size
+  node_group_stateful_max_size         = var.node_group_stateful_max_size
   node_group_compute_desired_size      = var.node_group_compute_desired_size
   node_group_compute_min_size          = var.node_group_compute_min_size
   node_group_compute_max_size          = var.node_group_compute_max_size
@@ -50,10 +53,21 @@ module "eks" {
 module "iam" {
   source = "../../modules/iam"
 
-  environment     = var.environment
-  name_prefix     = var.name_prefix
-  oidc_issuer_url = module.eks.oidc_issuer_url
-  tags            = local.common_tags
+  environment       = var.environment
+  name_prefix       = var.name_prefix
+  oidc_issuer_url   = module.eks.oidc_issuer_url
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  tags              = local.common_tags
+}
+
+module "ecr" {
+  source = "../../modules/ecr"
+
+  environment  = var.environment
+  name_prefix  = var.name_prefix
+  repositories = var.ecr_repositories
+  kms_key_arn  = module.kms.ebs_key_arn
+  tags         = local.common_tags
 }
 
 module "lambda_scaling" {

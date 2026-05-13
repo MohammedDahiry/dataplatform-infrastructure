@@ -18,3 +18,8 @@ variable "oidc_issuer_url" {
   description = "EKS OIDC issuer URL."
   type        = string
 }
+
+variable "oidc_provider_arn" {
+  description = "IAM OIDC identity provider ARN for the cluster (created in module eks)."
+  type        = string
+}

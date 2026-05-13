@@ -4,7 +4,7 @@ config:
   apiToken:
     secretName: cloudflare-api-token
     secretKey: token
-  accountId: REPLACE_ME_CF_ACCOUNT_ID
+  accountId: 366698543affcfd96a36459d76770fc4
 
 resources:
   requests:

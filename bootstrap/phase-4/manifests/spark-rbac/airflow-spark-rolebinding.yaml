@@ -1,0 +1,38 @@
+# Allow Airflow worker pods (running in platform-orchestr) to create / observe
+# SparkApplication CRDs in platform-compute. Required for SparkKubernetesOperator.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: airflow-spark-launcher
+  namespace: platform-compute
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+rules:
+  - apiGroups: ["sparkoperator.k8s.io"]
+    resources: ["sparkapplications", "scheduledsparkapplications"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "events", "configmaps", "services"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: airflow-spark-launcher-binding
+  namespace: platform-compute
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+subjects:
+  - kind: ServiceAccount
+    name: airflow-worker
+    namespace: platform-orchestr
+  - kind: ServiceAccount
+    name: airflow-scheduler
+    namespace: platform-orchestr
+  - kind: ServiceAccount
+    name: airflow-triggerer
+    namespace: platform-orchestr
+roleRef:
+  kind: Role
+  name: airflow-spark-launcher
+  apiGroup: rbac.authorization.k8s.io

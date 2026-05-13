@@ -73,6 +73,24 @@ variable "cluster_endpoint_public_access_cidrs" {
   default     = []
 }
 
+variable "node_group_stateful_desired_size" {
+  description = "Stateful node group (tainted workload=stateful) desired count."
+  type        = number
+  default     = 1
+}
+
+variable "node_group_stateful_min_size" {
+  description = "Stateful node group minimum."
+  type        = number
+  default     = 1
+}
+
+variable "node_group_stateful_max_size" {
+  description = "Stateful node group maximum."
+  type        = number
+  default     = 3
+}
+
 variable "node_group_compute_desired_size" {
   description = "Compute (untainted) node group desired count. Use >=1 so cert-manager and other operators schedule when only stateful nodes carry workload=stateful taint."
   type        = number
@@ -131,4 +149,10 @@ variable "lambda_scaling_scale_up_max_size" {
   description = "compute-ng max size when scaled up."
   type        = number
   default     = 10
+}
+
+variable "ecr_repositories" {
+  description = "ECR repos to create for platform images (under the name_prefix/* path)."
+  type        = list(string)
+  default     = ["spark-iceberg"]
 }

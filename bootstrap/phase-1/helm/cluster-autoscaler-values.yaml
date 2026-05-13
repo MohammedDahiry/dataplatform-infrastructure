@@ -1,0 +1,45 @@
+autoDiscovery:
+  clusterName: dataplatform-dev
+
+awsRegion: us-east-1
+
+# IRSA role created by terraform/modules/iam (key: cluster_autoscaler).
+rbac:
+  serviceAccount:
+    create: true
+    name: cluster-autoscaler
+    annotations:
+      eks.amazonaws.com/role-arn: REPLACE_ME_CLUSTER_AUTOSCALER_ROLE_ARN
+
+extraArgs:
+  balance-similar-node-groups: true
+  expander: least-waste
+  skip-nodes-with-system-pods: false
+  skip-nodes-with-local-storage: false
+  scale-down-delay-after-add: 5m
+  scale-down-unneeded-time: 5m
+  scale-down-utilization-threshold: 0.5
+  unremovable-node-recheck-timeout: 1m
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# Cluster Autoscaler must run on the always-on stateful node group so it isn't
+# itself scaled down (avoids the cold-start chicken-and-egg problem).
+nodeSelector:
+  workload: stateful
+tolerations:
+  - key: workload
+    operator: Equal
+    value: stateful
+    effect: NoSchedule
+
+podDisruptionBudget:
+  maxUnavailable: 1
+
+priorityClassName: system-cluster-critical

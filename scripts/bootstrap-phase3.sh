@@ -45,6 +45,15 @@ kubectl wait kafka/platform-kafka -n platform-ingestion \
 echo "Applying Kafka topics (medallion bronze + CDC)..."
 kubectl apply -f "${PHASE3_DIR}/manifests/kafka/topics.yaml"
 
+echo "Mirroring pg-source-app-secret from platform-storage -> platform-ingestion (Debezium needs it)..."
+if kubectl -n platform-storage get secret pg-source-app-secret >/dev/null 2>&1; then
+  kubectl -n platform-storage get secret pg-source-app-secret -o yaml \
+    | sed 's/namespace: platform-storage/namespace: platform-ingestion/' \
+    | kubectl apply -f -
+else
+  echo "WARN: pg-source-app-secret not found in platform-storage. Run scripts/prepare-phase2-secrets.sh first." >&2
+fi
+
 echo "Applying Kafka Connect + Debezium connector (CDC pg-source -> cdc.pg.*)..."
 kubectl apply -f "${PHASE3_DIR}/manifests/kafka/kafka-connect.yaml"
 

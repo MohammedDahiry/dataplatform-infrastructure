@@ -22,19 +22,15 @@ Kubernetes Service.
 
 ## Deploy
 
+**Recommended:** run the helper (writes secrets + patches `REPLACE_ME_*` in Helm / tunnel manifests):
+
 ```bash
-chmod +x scripts/prepare-phase6-secrets.sh scripts/bootstrap-phase6.sh
-
-# 1. Fill in your CF API token + tunnel info
-cp bootstrap/phase-6/manifests/secrets/cloudflare-api-token.example.yaml \
-   bootstrap/phase-6/manifests/secrets/cloudflare-api-token.yaml
-cp bootstrap/phase-6/manifests/secrets/cloudflare-tunnel-credentials.example.yaml \
-   bootstrap/phase-6/manifests/secrets/cloudflare-tunnel-credentials.yaml
-$EDITOR bootstrap/phase-6/manifests/secrets/*.yaml
-
-# 2. Deploy
+chmod +x scripts/configure-cloudflare.sh scripts/bootstrap-phase6.sh
+./scripts/configure-cloudflare.sh    # prompts for account ID, API token, tunnel UUID/secret, DNS zone
 ./scripts/bootstrap-phase6.sh
 ```
+
+**Manual:** copy `*.example.yaml` → `*.yaml` under `manifests/secrets/`, edit placeholders, then run `./scripts/bootstrap-phase6.sh`. You must still replace `REPLACE_ME_*` in `helm/`, `cluster-tunnel/`, and `tunnel-bindings/` unless you use `configure-cloudflare.sh`.
 
 The script:
 1. Adds the Cloudflare Helm repo.

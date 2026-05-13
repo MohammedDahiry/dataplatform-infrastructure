@@ -35,7 +35,7 @@ Options:
   --with-phase6                 Run Phase 6 (Cloudflare Tunnel + Operator).
   --with-phase7                 Run Phase 7 (Prometheus, Grafana, Fluent Bit, OpenObserve).
   --with-phase10                Run Phase 10 (ArgoCD, optional).
-  --with-all                    Phases 2..7 in order (10 stays opt-in).
+  --with-all                    Phases 2..7 in order (10 stays opt-in). Phase 6 needs secrets first: ./scripts/configure-cloudflare.sh
   --auto-approve                Pass -auto-approve to terraform apply.
   --skip-terraform              Skip Terraform apply (run only K8s/bootstrap phases).
   --force-regenerate-secrets    Regenerate Phase 2 / Phase 4 secrets with --force.
@@ -71,6 +71,17 @@ while [[ $# -gt 0 ]]; do
   esac
   shift
 done
+
+if [[ "${WITH_PHASE6}" == true ]]; then
+  CF_API="${ROOT_DIR}/bootstrap/phase-6/manifests/secrets/cloudflare-api-token.yaml"
+  CF_TUN="${ROOT_DIR}/bootstrap/phase-6/manifests/secrets/cloudflare-tunnel-credentials.yaml"
+  if [[ ! -f "${CF_API}" || ! -f "${CF_TUN}" ]]; then
+    echo "Phase 6 requires Cloudflare secrets (gitignored YAML files)." >&2
+    echo "Create them with: ./scripts/configure-cloudflare.sh" >&2
+    echo "Docs: docs/SOUTENANCE_EXPRESS.md (section Cloudflare)." >&2
+    exit 1
+  fi
+fi
 
 require_cmd() {
   local cmd="$1"
@@ -136,6 +147,9 @@ kubectl get nodes
 echo "==> Apply Phase 1 bootstrap manifests"
 cd "${ROOT_DIR}"
 ./scripts/bootstrap-cluster.sh
+
+echo "==> Install Cluster Autoscaler (lets compute-ng scale 1 -> 4 on demand)"
+./scripts/bootstrap-cluster-autoscaler.sh || echo "WARN: autoscaler install failed; you can re-run later." >&2
 
 if [[ "${WITH_PHASE2}" == true ]]; then
   echo "==> Generate Phase 2 secrets"

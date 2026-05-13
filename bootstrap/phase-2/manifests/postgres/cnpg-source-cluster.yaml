@@ -9,16 +9,30 @@ spec:
   instances: 3
   primaryUpdateStrategy: unsupervised
   imageName: ghcr.io/cloudnative-pg/postgresql:16
+  affinity:
+    tolerations:
+      - key: workload
+        operator: Equal
+        value: stateful
+        effect: NoSchedule
   postgresql:
     parameters:
       wal_level: logical
       max_replication_slots: "20"
+      max_wal_senders: "20"
+    shared_preload_libraries:
+      - pgaudit
+      - pg_stat_statements
   bootstrap:
     initdb:
       database: source_db
       owner: nifi_user
       secret:
         name: pg-source-app-secret
+      postInitApplicationSQL:
+        - "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+        - "ALTER ROLE nifi_user WITH REPLICATION;"
+        - "CREATE PUBLICATION debezium_pub FOR ALL TABLES;"
   storage:
     storageClass: gp3
     size: 100Gi

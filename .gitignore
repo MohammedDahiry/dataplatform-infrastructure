@@ -46,5 +46,14 @@ logs/
 bootstrap/phase-2/manifests/secrets/*.yaml
 !bootstrap/phase-2/manifests/secrets/*.example.yaml
 
+# Phase 4 — generated secrets + rendered SparkApplication manifests
+bootstrap/phase-4/manifests/secrets/*.yaml
+!bootstrap/phase-4/manifests/secrets/*.example.yaml
+bootstrap/phase-4/manifests/spark-jobs/.rendered/
+
+# Phase 6 — generated Cloudflare secrets
+bootstrap/phase-6/manifests/secrets/*.yaml
+!bootstrap/phase-6/manifests/secrets/*.example.yaml
+
 # Local venv for PDF text extraction / tooling (not project runtime)
 .venv-pdf/

@@ -1,0 +1,65 @@
+# dbt-run SparkApplication: runs `dbt run` against the lakehouse via spark-iceberg image.
+# The dbt project is baked into /opt/dbt of the image. Profiles are rendered
+# at runtime from a Secret/ConfigMap if you need credentials elsewhere; for
+# the MVP we use spark thrift-less mode (writes via Spark SQL on Iceberg catalog).
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: dbt-run
+  namespace: platform-compute
+  labels:
+    app.kubernetes.io/part-of: dataplatform
+spec:
+  type: Python
+  pythonVersion: "3"
+  mode: cluster
+  image: REPLACE_ME_REGISTRY/dataplatform/spark-iceberg:3.5.0
+  imagePullPolicy: IfNotPresent
+  # Use the dbt CLI via spark-submit's python launcher trick: a tiny driver
+  # script that shells out to dbt. We ship it inside the image at /opt/jobs/dbt_runner.py.
+  mainApplicationFile: "local:///opt/jobs/dbt_runner.py"
+  arguments:
+    - "run"
+    - "--project-dir=/opt/dbt"
+    - "--profiles-dir=/opt/dbt"
+    - "--target=dev"
+  sparkVersion: "3.5.0"
+  sparkConf:
+    "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions"
+    "spark.sql.catalog.lakehouse": "org.apache.iceberg.spark.SparkCatalog"
+    "spark.sql.catalog.lakehouse.type": "hive"
+    "spark.sql.catalog.lakehouse.uri": "thrift://hive-metastore.platform-metastore.svc.cluster.local:9083"
+    "spark.sql.catalog.lakehouse.warehouse": "s3a://lakehouse/warehouse/"
+    "spark.hadoop.fs.s3a.endpoint": "http://lakehouse-tenant-hl.platform-storage.svc.cluster.local:9000"
+    "spark.hadoop.fs.s3a.path.style.access": "true"
+    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+  driver:
+    cores: 1
+    coreLimit: "1500m"
+    memory: "2g"
+    serviceAccount: spark-sa
+    envSecretKeyRefs:
+      MINIO_ACCESS_KEY:
+        name: minio-admin-secret
+        key: accessKey
+      MINIO_SECRET_KEY:
+        name: minio-admin-secret
+        key: secretKey
+    nodeSelector:
+      workload: compute
+  executor:
+    cores: 1
+    instances: 1
+    memory: "2g"
+    serviceAccount: spark-sa
+    envSecretKeyRefs:
+      MINIO_ACCESS_KEY:
+        name: minio-admin-secret
+        key: accessKey
+      MINIO_SECRET_KEY:
+        name: minio-admin-secret
+        key: secretKey
+    nodeSelector:
+      workload: compute
+  restartPolicy:
+    type: Never

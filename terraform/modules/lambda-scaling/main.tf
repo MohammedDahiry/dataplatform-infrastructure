@@ -45,13 +45,13 @@ data "archive_file" "scaler_zip" {
 }
 
 resource "aws_lambda_function" "scaler" {
-  function_name = "${var.name_prefix}-${var.environment}-eks-scaler"
-  role          = aws_iam_role.this.arn
-  filename      = data.archive_file.scaler_zip.output_path
+  function_name    = "${var.name_prefix}-${var.environment}-eks-scaler"
+  role             = aws_iam_role.this.arn
+  filename         = data.archive_file.scaler_zip.output_path
   source_code_hash = data.archive_file.scaler_zip.output_base64sha256
-  handler       = "scaler.handler"
-  runtime       = "python3.12"
-  timeout       = 60
+  handler          = "scaler.handler"
+  runtime          = "python3.12"
+  timeout          = 60
 
   environment {
     variables = {

@@ -191,13 +191,26 @@ En cas de cluster **petit**, surveillez les ressources ; ajustez les values Helm
 
 | Qui | Action |
 |-----|--------|
+| **Repo** | `terraform/modules/ecr` créé un repo ECR `dataplatform/spark-iceberg` (output `ecr_registry_url`). |
+| **Repo** | `docker/spark-iceberg/` : Dockerfile + jobs PySpark embarqués + dbt project. |
+| **Repo** | `scripts/build-spark-image.sh` : login ECR + `docker build` + `docker push` (auto-détecte le registry via `terraform output`). |
 | **Repo** | `scripts/prepare-phase4-secrets.sh` génère `pg-airflow-app-secret.yaml` (gitignoré). |
-| **Repo** | `scripts/bootstrap-phase4.sh` installe Spark Operator (`platform-compute`) + Airflow (`platform-orchestr`) + crée `pg-airflow` (CNPG dans `platform-storage`). |
-| **Repo** | `bootstrap/phase-4/manifests/spark-jobs/{bronze-iceberg-writer.yaml, file-to-iceberg.yaml}` (à éditer : remplacer `REPLACE_ME_REGISTRY/spark-iceberg:3.5.0` par votre image ECR). |
-| **Repo** | `bootstrap/phase-4/dbt/` : project + sources + modèles silver/gold. |
-| **Vous** | Construire l’image `spark-iceberg` (Iceberg 1.4.2, hadoop-aws, dbt-spark) et la pousser sur ECR. |
-| **Vous** | `./scripts/prepare-phase4-secrets.sh && ./scripts/bootstrap-phase4.sh` |
-| **Vous** | Pointer GitSync (`airflow-values.yaml`) vers votre repo `dags/`. |
+| **Repo** | `scripts/bootstrap-phase4.sh` installe Spark Operator (`platform-compute`) + Airflow (`platform-orchestr`), crée `pg-airflow`, **substitue `REPLACE_ME_REGISTRY` par votre image ECR au runtime** et applique les `SparkApplication`. |
+| **Vous (1)** | Au prochain `terraform apply` (Phase 1), le module ECR est créé : `aws ecr describe-repositories --repository-names dataplatform/spark-iceberg`. |
+| **Vous (2)** | `./scripts/build-spark-image.sh` — build l'image (~10–15 min la première fois) et la pousse sur ECR. |
+| **Vous (3)** | `./scripts/prepare-phase4-secrets.sh && ./scripts/bootstrap-phase4.sh` — substitue automatiquement le tag image et applique. |
+| **Vous (4)** | Pointer GitSync (`bootstrap/phase-4/helm/airflow-values.yaml`) vers votre repo `dags/`. |
+
+### Détail technique de l'image
+
+L'image `dataplatform/spark-iceberg:3.5.0` empaquète, conformément à `Specifications_Doc_for_PFE.pdf` §3.5, §4.3, §5.1 :
+
+- **Base** : `spark:3.5.0-scala2.12-java17-python3-ubuntu` (image officielle Docker Library).
+- **Jars** dans `$SPARK_HOME/jars/` : `iceberg-spark-runtime-3.5_2.12-1.4.2`, `hadoop-aws-3.3.4`, `aws-java-sdk-bundle-1.12.262`, `spark-excel_2.12-3.5.0_0.20.3`.
+- **Python** : `pyspark`, `pandas`, `pyarrow`, `boto3`, `openpyxl`, `dbt-core`, `dbt-spark`.
+- **Code** : `/opt/jobs/{bronze_writer.py, file_ingestion.py}` + `/opt/dbt/` (mirror du dbt project).
+
+Les `SparkApplication` CRD pointent sur **`local:///opt/jobs/<script>.py`** : pas besoin d'uploader le code sur MinIO. Seules les **données** (XLSX/CSV pour le batch ingestion) doivent être déposées sur `s3a://landing/files/`.
 
 ---
 
@@ -257,6 +270,8 @@ En cas de cluster **petit**, surveillez les ressources ; ajustez les values Helm
 ## Mode accéléré (1 commande)
 
 Si tes prérequis cloud sont prêts (secrets/backend R2, profil AWS, accès réseau API EKS), utilise le script d'orchestration:
+
+**Phase 6 (Cloudflare) :** avant `./scripts/fasttrack-infra.sh … --with-all` ou `--with-phase6`, exécute `./scripts/configure-cloudflare.sh` (tunnel + token ; voir `docs/STARTUP_GUIDE.md` §8). Sinon le script s’arrête avec une erreur explicite.
 
 ```bash
 chmod +x scripts/fasttrack-infra.sh

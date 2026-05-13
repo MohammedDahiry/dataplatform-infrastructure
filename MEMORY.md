@@ -23,6 +23,18 @@ Checklist proposée pour la soutenance / prod locale (WSL). Détails techniques:
 
 **Mode accéléré:** script unique `scripts/fasttrack-infra.sh` pour enchaîner Phase 1 puis Phase 2/3 (options) depuis WSL.
 
+**Guide complet end-to-end:** [`docs/STARTUP_GUIDE.md`](docs/STARTUP_GUIDE.md) — fresh-clone → pipeline médaillon fonctionnel + Cloudflare + cycle destroy/apply.
+
+**Soutenance sous contrainte temps (< 2 mois) :** [`docs/SOUTENANCE_EXPRESS.md`](docs/SOUTENANCE_EXPRESS.md) — périmètre minimal jury, une commande `fasttrack`, plan de rapport.
+
+**Connexions inter-services (auto-câblées):**
+- CNPG `pg-source` crée `debezium_pub` via `postInitApplicationSQL` → KafkaConnect Debezium consomme via slot `debezium_slot`.
+- Le secret `pg-source-app-secret` est miroité de `platform-storage` → `platform-ingestion` par `bootstrap-phase3.sh` (KafkaConnect le lit en `externalConfiguration`).
+- Airflow worker SA reçoit RBAC sur SparkApplications (`bootstrap/phase-4/manifests/spark-rbac/airflow-spark-rolebinding.yaml`).
+- DAGs distribuées via ConfigMap `airflow-dags` (rebuild via `scripts/prepare-airflow-dags.sh`).
+- Cluster Autoscaler installé via `scripts/bootstrap-cluster-autoscaler.sh` (IRSA `cluster_autoscaler`, tags ASG appliqués).
+- Tunnel Cloudflare paramétré via `scripts/configure-cloudflare.sh` (sed sur secrets + ClusterTunnel + TunnelBindings).
+
 **Cycle stop / start (économie AWS):**
 
 - **Stop** (fin de journée) : `./scripts/teardown-infra.sh --auto-approve` → désinstalle Helm, supprime PVCs (libère EBS), services LoadBalancer (libère ELB), puis `terraform destroy` du dev. Préserve `terraform/bootstrap` et le bucket R2 d'état.
@@ -63,9 +75,11 @@ Mettre en place une base d'infrastructure securisee et exploitable pour les phas
   - `terraform/modules/eks`
 - **`terraform/bootstrap`:** OIDC GitHub + role IAM pour Actions + **option** creation bucket R2 (`create_r2_state_bucket`, module `r2-backend-bootstrap`). Voir `terraform/bootstrap/README.md`.
 - **`terraform/modules/r2-backend-bootstrap`:** bucket R2 (`cloudflare_r2_bucket`); `location` normalise en **majuscules** (ENAM, WNAM, …). **Cles S3 R2** pour le backend Terraform (`backend "s3"`) toujours creees **manuellement** dans le dashboard (scopes bucket).
+- **`terraform/modules/ecr`:** repos ECR pour les images plateforme (par defaut `dataplatform/spark-iceberg`). Encryption KMS, lifecycle policy (keep last 10 tagged + expire untagged 7d). Outputs `ecr_registry_url` + `ecr_repository_urls`. Wire dans `terraform/environments/dev/main.tf`.
+- **`docker/spark-iceberg/`:** Dockerfile production-ready (Spark 3.5 + Iceberg 1.4.2 + hadoop-aws 3.3.4 + spark-excel + dbt-spark). Jobs PySpark embarques sous `/opt/jobs/{bronze_writer,file_ingestion}.py` -> `local:///opt/jobs/...` dans les SparkApplication.
 - **`bootstrap/` (Phase 1 K8s):** present — `namespaces/`, `resource-quotas/`, `network-policies/`, `storage-classes/` + `README.md`.
 - **`bootstrap/phase-2..10/`:** Helm values + manifests pour toutes les phases (sauf 8 = CI/CD GitHub Actions, déjà câblé, et 9 = Lambda dans Terraform). **Phase 2** installe d'abord **cert-manager dans `platform-security`** (alignement strict avec `Specifications_Doc_for_PFE.pdf` §2.2), puis MinIO, CNPG, Hive. Secrets: copier `*.example.yaml` vers fichiers **non** versionnes (`prepare-phaseN-secrets.sh`).
-- **Scripts:** `tf-init-local.sh`, `bootstrap-cluster.sh`, `bootstrap-phase2.sh` (cert-manager dans `platform-security` → MinIO → CNPG → Hive), `bootstrap-phase3.sh` (Strimzi → Kafka [`KAFKA_VARIANT=dev|prod`] → topics medallion → KafkaConnect+Debezium → NiFi), `bootstrap-phase4.sh` (`pg-airflow` CNPG → Spark Operator → SparkApplications → Airflow), `bootstrap-phase5.sh` (Dremio), `bootstrap-phase6.sh` (Cloudflare Operator + ClusterTunnel + TunnelBindings), `bootstrap-phase7.sh` (kube-prometheus-stack + OpenObserve + Fluent Bit + ServiceMonitors), `bootstrap-phase10.sh` (ArgoCD optionnel). Orchestrateur unique : `fasttrack-infra.sh --with-phase{2..7,10}` ou `--with-all`.
+- **Scripts:** `tf-init-local.sh`, `bootstrap-cluster.sh`, `build-spark-image.sh` (build & push image `spark-iceberg` sur ECR), `bootstrap-phase2.sh` (cert-manager dans `platform-security` → MinIO → CNPG → Hive), `bootstrap-phase3.sh` (Strimzi → Kafka [`KAFKA_VARIANT=dev|prod`] → topics medallion → KafkaConnect+Debezium → NiFi), `bootstrap-phase4.sh` (`pg-airflow` CNPG → Spark Operator → SparkApplications **avec substitution `REPLACE_ME_REGISTRY` au runtime depuis `terraform output ecr_registry_url`** → Airflow), `bootstrap-phase5.sh` (Dremio), `bootstrap-phase6.sh` (Cloudflare Operator + ClusterTunnel + TunnelBindings), `bootstrap-phase7.sh` (kube-prometheus-stack + OpenObserve + Fluent Bit + ServiceMonitors), `bootstrap-phase10.sh` (ArgoCD optionnel). Orchestrateur unique : `fasttrack-infra.sh --with-phase{2..7,10}` ou `--with-all`.
 - **Phase 9 (Lambda scaling):** module Terraform `terraform/modules/lambda-scaling` (Python `scaler.py` + EventBridge UP/DOWN, IAM `eks:Update/Describe/ListNodegroup`). Activé via `lambda_scaling_enabled = true` dans `terraform.tfvars`. Crons UTC par défaut: 07:00 up / 17:00 down weekdays.
 
 ### Ce qui reste a valider hors-repo

@@ -23,6 +23,13 @@ spec:
     config.storage.replication.factor: 1
     offset.storage.replication.factor: 1
     status.storage.replication.factor: 1
+    config.providers: secrets
+    config.providers.secrets.class: io.strimzi.kafka.KubernetesSecretConfigProvider
+  externalConfiguration:
+    volumes:
+      - name: pg-source-app-secret
+        secret:
+          secretName: pg-source-app-secret
   resources:
     requests:
       cpu: 250m
@@ -46,7 +53,8 @@ spec:
     database.hostname: pg-source-cluster-rw.platform-storage.svc.cluster.local
     database.port: 5432
     database.user: nifi_user
-    database.password: ${secrets:platform-ingestion/pg-source-app-secret:password}
+    # Strimzi mounts the pg-source-app-secret at /opt/kafka/external-configuration/pg-source-app-secret/
+    database.password: ${file:/opt/kafka/external-configuration/pg-source-app-secret/password}
     database.dbname: source_db
     database.server.name: pgsrc
     plugin.name: pgoutput

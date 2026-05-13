@@ -9,7 +9,9 @@ TARGET_DIR="${1:-terraform/environments/dev}"
 : "${CF_R2_SECRET_ACCESS_KEY:?Set CF_R2_SECRET_ACCESS_KEY}"
 
 echo "Running terraform init in ${TARGET_DIR}"
-terraform -chdir="${TARGET_DIR}" init -input=false \
+# -reconfigure: reconnect to the same R2 backend when env/backend-config flags
+# differ slightly from the last init (avoids "Backend configuration changed").
+terraform -chdir="${TARGET_DIR}" init -reconfigure -input=false \
   -backend-config="bucket=${TF_STATE_BUCKET}" \
   -backend-config="key=terraform/dev/terraform.tfstate" \
   -backend-config="region=us-east-1" \

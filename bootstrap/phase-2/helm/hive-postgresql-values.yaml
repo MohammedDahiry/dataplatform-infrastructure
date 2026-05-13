@@ -8,6 +8,11 @@ primary:
     enabled: true
     size: 100Gi
     storageClass: gp3
+  tolerations:
+    - key: workload
+      operator: Equal
+      value: stateful
+      effect: NoSchedule
   resources:
     requests:
       cpu: 500m

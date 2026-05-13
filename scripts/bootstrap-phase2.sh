@@ -40,13 +40,22 @@ helm repo update >/dev/null
 CERT_MANAGER_CHART_VERSION="${CERT_MANAGER_CHART_VERSION:-v1.14.5}"
 # First install can exceed 10m (images CRDs webhooks). Override with CERT_MANAGER_WAIT_TIMEOUT=30m if needed.
 CERT_MANAGER_WAIT_TIMEOUT="${CERT_MANAGER_WAIT_TIMEOUT:-25m}"
+CERT_MANAGER_REPLICAS="${CERT_MANAGER_REPLICAS:-1}"
 
 echo "Installing cert-manager into platform-security (spec §2.2)..."
 helm upgrade --install cert-manager jetstack/cert-manager \
   --namespace platform-security --create-namespace \
   --version "${CERT_MANAGER_CHART_VERSION}" \
   -f "${PHASE2_DIR}/helm/cert-manager-values.yaml" \
+  --set replicaCount="${CERT_MANAGER_REPLICAS}" \
+  --set cainjector.replicaCount="${CERT_MANAGER_REPLICAS}" \
+  --set webhook.replicaCount="${CERT_MANAGER_REPLICAS}" \
   --wait --timeout "${CERT_MANAGER_WAIT_TIMEOUT}"
+
+echo "Ensuring cert-manager deployments are not scaled to zero..."
+kubectl -n platform-security scale deployment \
+  cert-manager cert-manager-cainjector cert-manager-webhook \
+  --replicas="${CERT_MANAGER_REPLICAS}" || true
 
 echo "Waiting for cert-manager deployments..."
 kubectl wait --for=condition=Available deployment \
