@@ -21,6 +21,7 @@ helm repo update >/dev/null
 echo "Installing Strimzi operator..."
 helm upgrade --install strimzi-operator strimzi/strimzi-kafka-operator \
   --namespace platform-ingestion --create-namespace \
+  --version 0.45.0 \
   --wait --timeout 10m
 
 echo "Waiting for Strimzi cluster operator..."
