@@ -1,0 +1,40 @@
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+\begin{center}
+{\color{softline}\rule{0.42\textwidth}{0.7pt}}
+\end{center}
+
+\vspace{0.18cm}
+
+% \begin{center}
+% {\color{softline}\rule{0.42\textwidth}{0.7pt}}
+% \end{center}
+
+% \vspace{0.45cm}
+
+\begingroup
+\enlargethispage{2\baselineskip}
+\small
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.42em}
+\linespread{1.0}\selectfont
+Ce rapport présente la conception et la mise en place progressive d'une \textbf{Cloud Data Platform} moderne, réalisée dans le cadre d'un stage chez \textbf{SEVENAPP} en mission de \textbf{consultant Data} chez \textbf{EQDOM}. Le projet répond à un besoin de centralisation, de fiabilisation et d'exploitation industrielle des données afin de soutenir les usages analytiques, décisionnels et futurs cas d'usage data-driven de l'entreprise.
+
+La solution proposée repose sur une infrastructure cloud établie autour d'une architecture \textbf{Lakehouse} déployée sur \textbf{AWS EKS}. Cette infrastructure permet d'héberger les services nécessaires à l'ingestion, au stockage, au traitement, à la transformation et à l'exposition des données dans un environnement scalable, sécurisé et exploitable. Elle constitue un socle technique unifié pour remplacer les échanges dispersés par une chaîne de traitement gouvernée, traçable et orientée production.
+
+Les sources de données prises en charge couvrent principalement les bases opérationnelles de l'écosystème métier, notamment la \textbf{base Informix}, la \textbf{base ONE} et la \textbf{base CBS}, ainsi que des fichiers métiers de formats variés tels que \textbf{CSV}, \textbf{XLSX}, \textbf{XLS} et autres fichiers structurés. Ces données sont intégrées à travers le pipeline data défini dans les spécifications fonctionnelles et techniques du projet. Elles transitent progressivement par les différentes zones du \textbf{Data Lake}, selon une logique de structuration et de qualité adaptée aux besoins BI.
+
+Le pipeline cible permet d'alimenter le Data Lake, de préparer les données pour les \textbf{jobs BI}, puis de les transformer et les modéliser à l'aide de \textbf{dbt} et \textbf{Apache Spark}. Les traitements visent à produire des jeux de données fiables, historisés, documentés et prêts à l'analyse. Une attention particulière est portée à la protection des informations sensibles : les données confidentielles sont hashées à l'aide d'algorithmes avancés afin de préserver leur confidentialité et d'éviter toute exposition non maîtrisée.
+
+Le projet intègre également une dimension d'exploitation indispensable à une plateforme data professionnelle. Les volets \textbf{monitoring}, \textbf{logging} et \textbf{dashboarding} permettent de suivre l'état de santé de l'infrastructure, d'observer l'exécution des pipelines, de centraliser les journaux applicatifs et de fournir des tableaux de bord facilitant le pilotage opérationnel. Ainsi, la plateforme ne se limite pas au stockage des données : elle propose un environnement complet pour industrialiser les flux, sécuriser les traitements et soutenir les besoins analytiques d'EQDOM.
+
+\vspace{0.12cm}
+\noindent\colorbox{lightpanel}{%
+  \parbox{\dimexpr\linewidth-2\fboxsep\relax}{%
+    \textbf{Mots-clés :} Cloud Data Platform, Lakehouse, Data Lake, AWS EKS, pipeline data, Informix, ONE, CBS, fichiers métiers, BI, dbt, Apache Spark, monitoring, logging, dashboarding, sécurité des données.
+  }%
+}
+\endgroup
+
+\clearpage

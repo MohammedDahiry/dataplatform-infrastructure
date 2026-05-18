@@ -1,0 +1,112 @@
+% =============================================================================
+% Préambule — à personnaliser avant impression
+% =============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{arabtex}
+\usepackage{utf8}
+\setcode{utf8}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+\setlength{\headheight}{15pt}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{eso-pic}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.geometric,arrows.meta}
+\graphicspath{{images/}}
+\newcommand{\maybeimage}[2][width=\linewidth]{%
+  \IfFileExists{#2}{%
+    \includegraphics[#1]{#2}%
+  }{%
+    \fbox{\parbox[c][2.2cm][c]{0.85\linewidth}{\centering\footnotesize Image manquante\\ \texttt{#2}}}%
+  }%
+}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{pdflscape}
+\usepackage{csquotes}
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\addbibresource{bibliography.bib}
+
+\definecolor{mycolor}{RGB}{202, 67, 0}
+\definecolor{codebg}{RGB}{245, 245, 245}
+\definecolor{codeframe}{RGB}{200, 200, 200}
+\definecolor{titlemain}{RGB}{37,55,94}
+\definecolor{titlered}{RGB}{200,16,28}
+\definecolor{titleyellow}{RGB}{246,190,0}
+\definecolor{lightpanel}{RGB}{250,247,238}
+\definecolor{softline}{RGB}{222,184,70}
+\definecolor{tocblueblack}{RGB}{18,34,58}
+\definecolor{tableheader}{RGB}{18,34,58}
+\definecolor{tableline}{RGB}{204,178,92}
+\definecolor{tablealt}{RGB}{248,247,241}
+\definecolor{tablekey}{RGB}{243,239,226}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {ë}{{\"e}}1
+           {à}{{\`a}}1 {â}{{\^a}}1 {ù}{{\`u}}1 {û}{{\^u}}1 {ô}{{\^o}}1
+           {î}{{\^i}}1 {ç}{{\c{c}}}1 {œ}{{\oe}}1 {æ}{{\ae}}1
+}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=tocblueblack,
+  citecolor=tocblueblack,
+  urlcolor=tocblueblack
+}
+
+\titleformat{\chapter}{\normalfont\huge\bfseries\color{mycolor}}{\thechapter}{1em}{}
+\titleformat{\section}{\normalfont\Large\bfseries\color{mycolor}}{\thesection}{1em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\thepage}
+\fancyfoot[C]{Mohammed Dahiry — PFE Cloud Data Platform 2025--2026}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\emergencystretch}{2em}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\PFETableSetup}{%
+  \small
+  \renewcommand{\arraystretch}{1.26}%
+  \setlength{\tabcolsep}{7pt}%
+  \arrayrulecolor{tableline}%
+}
+\newcommand{\PFEHeaderCell}[1]{\color{white}\bfseries #1}
+\newcommand{\PFEKeyCell}[1]{\cellcolor{tablekey}\bfseries #1}
+
+% --- Métadonnées (MODIFIER) ---
+\newcommand{\NomEtudiant}{Mohammed Dahiry}
+\newcommand{\Filiere}{Ingénierie des Données et Intelligence Artificielle}
+\newcommand{\Ecole}{École Nationale des Sciences Appliquées de Safi}
+\newcommand{\TitrePFE}{Conception et déploiement d'une Cloud Data Platform\\sur AWS EKS — Architecture Lakehouse Médaillon}
+\newcommand{\EncadrantAcademique}{Pr. EZZAHAR Jamal}
+\newcommand{\EncadrantPro}{M. EL GHALLAOUI Zine Labidine}
+\newcommand{\ClientMission}{EQDOM}
+\newcommand{\DateDebutStage}{Mars 2026}
+\newcommand{\DateFinStage}{Juillet 2026}
+\newcommand{\DateSoutenance}{26 Juin 2026}
+\newcommand{\AnneeUniv}{2025--2026}

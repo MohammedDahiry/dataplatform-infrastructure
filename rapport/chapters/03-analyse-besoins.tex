@@ -1,0 +1,162 @@
+\chapter{ANALYSE ET SPÉCIFICATION DES BESOINS}
+\label{ch:besoins}
+
+Ce chapitre formalise la problématique, les objectifs et les exigences de la Cloud Data Platform. L'analyse se base sur le cahier des charges du projet, les guides techniques fournis et l'état réel du dépôt d'implémentation. Elle vise à établir un lien clair entre les besoins exprimés, les choix de conception et les artefacts livrés.
+
+%------------------------------------------------------------------------------
+\section{Problématique}
+%------------------------------------------------------------------------------
+
+Les systèmes d'information financiers produisent des données à forte valeur, mais souvent réparties dans plusieurs environnements : bases OLTP, exports bureautiques, outils de reporting, applications internes et flux opérationnels. Cette dispersion entraîne plusieurs difficultés :
+\begin{itemize}
+    \item la consolidation des données nécessite des traitements manuels ou semi-automatisés ;
+    \item les transformations ne sont pas toujours versionnées, testées ou rejouables ;
+    \item les données brutes et les données préparées ne sont pas clairement séparées ;
+    \item les incidents de pipeline sont difficiles à diagnostiquer sans centralisation des logs et métriques ;
+    \item le passage d'un prototype à un socle industrialisé demande une infrastructure reproductible.
+\end{itemize}
+
+La problématique peut donc être formulée ainsi :
+
+\begin{quote}
+\emph{Comment concevoir et mettre en œuvre une plateforme de données cloud-native, reproductible et sécurisée, capable d'ingérer des données batch et streaming, de les structurer selon une architecture Lakehouse médaillon, puis de les exposer à des usages analytiques tout en assurant supervision, traçabilité et maîtrise des coûts ?}
+\end{quote}
+
+%------------------------------------------------------------------------------
+\section{Objectifs du projet}
+%------------------------------------------------------------------------------
+
+Le projet poursuit quatre objectifs complémentaires :
+\begin{enumerate}
+    \item \textbf{Objectif infrastructure} : créer une landing zone AWS/EKS modulaire et automatisée par Terraform.
+    \item \textbf{Objectif data engineering} : mettre en place un pipeline Bronze--Silver--Gold fondé sur MinIO, Iceberg, Spark et dbt.
+    \item \textbf{Objectif opérationnel} : fournir des scripts de déploiement, de destruction, de bootstrap et de validation par phase.
+    \item \textbf{Objectif gouvernance} : documenter les choix d'architecture, les exigences, la sécurité, les limites et les perspectives d'industrialisation.
+\end{enumerate}
+
+%------------------------------------------------------------------------------
+\section{Périmètre fonctionnel}
+%------------------------------------------------------------------------------
+
+\begin{longtable}{@{}p{0.12\textwidth}p{0.55\textwidth}p{0.22\textwidth}@{}}
+\caption{Exigences fonctionnelles principales}
+\label{tab:ef}\\
+\toprule
+\textbf{ID} & \textbf{Exigence} & \textbf{Priorité} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{ID} & \textbf{Exigence} & \textbf{Priorité} \\
+\midrule
+\endhead
+EF-01 & Provisionner une infrastructure AWS comprenant VPC, EKS, IAM, KMS, ECR et backend Terraform distant. & Essentielle \\
+EF-02 & Créer les namespaces Kubernetes de la plateforme avec isolation réseau, quotas et stockage chiffré. & Essentielle \\
+EF-03 & Déployer une couche de stockage Lakehouse basée sur MinIO, Iceberg et Hive Metastore. & Essentielle \\
+EF-04 & Gérer des bases PostgreSQL via CloudNativePG pour la source de démonstration et le métastore. & Essentielle \\
+EF-05 & Capturer les changements d'une base PostgreSQL par Debezium et publier les événements dans Kafka. & Essentielle \\
+EF-06 & Ingérer des fichiers CSV/XLSX vers la couche Bronze à l'aide de Spark. & Importante \\
+EF-07 & Transformer les données Bronze en Silver puis Gold avec dbt-spark. & Essentielle \\
+EF-08 & Orchestrer les traitements au moyen de DAGs Airflow versionnés. & Essentielle \\
+EF-09 & Exposer les tables analytiques via Dremio pour les requêtes SQL et la BI. & Importante \\
+EF-10 & Publier les interfaces web par Cloudflare Zero Trust. & Souhaitable \\
+EF-11 & Collecter les métriques, logs et dashboards nécessaires à l'exploitation. & Essentielle \\
+EF-12 & Préparer une trajectoire GitOps avec ArgoCD. & Optionnelle \\
+\bottomrule
+\end{longtable}
+
+%------------------------------------------------------------------------------
+\section{Exigences non fonctionnelles}
+%------------------------------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\caption{Exigences non fonctionnelles}
+\label{tab:enf}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Y@{}}
+\toprule
+\textbf{Axe} & \textbf{Exigence} \\
+\midrule
+Sécurité & Principe du moindre privilège, IRSA, KMS, secrets hors Git, accès EKS restreint, exposition par tunnel sécurisé. \\
+Reproductibilité & Infrastructure et composants décrits par code : Terraform, Helm, manifests Kubernetes et scripts Bash. \\
+Maintenabilité & Organisation par phases, documentation d'exploitation, séparation entre modules Terraform et manifests applicatifs. \\
+Scalabilité & Node groups spécialisés, capacité de montée en charge du compute et architecture extensible à plusieurs sources. \\
+Coût & Dimensionnement \texttt{dev}, destruction automatisée, NAT unique en MVP et scaling planifié du node group compute. \\
+Observabilité & Supervision des ressources, logs centralisés, dashboards et alertes sur les services critiques. \\
+Traçabilité & Correspondance entre cahier des charges, exigences, décisions d'architecture et fichiers du dépôt. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%------------------------------------------------------------------------------
+\section{Acteurs et responsabilités}
+%------------------------------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\caption{Acteurs du système}
+\label{tab:acteurs}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.25\textwidth}Y@{}}
+\toprule
+\textbf{Acteur} & \textbf{Responsabilités} \\
+\midrule
+Data Engineer & Déploiement de la plateforme, ingestion des sources, développement des jobs Spark/dbt, maintenance des DAGs. \\
+Analyste BI & Exploration des tables Gold via Dremio et création de tableaux de bord métier. \\
+Administrateur Cloud/SRE & Supervision du cluster, gestion des incidents, coûts, accès, logs et métriques. \\
+Encadrant technique & Validation de l'architecture, revue des choix, contrôle de l'alignement avec le cahier des charges. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%------------------------------------------------------------------------------
+\section{Scénario de référence du pipeline data}
+%------------------------------------------------------------------------------
+
+Le scénario de référence sert de fil conducteur au projet. Il illustre le fonctionnement attendu d'un pipeline complet :
+\begin{enumerate}
+    \item une table PostgreSQL source reçoit de nouvelles lignes ou des modifications ;
+    \item Debezium capture ces changements et les publie dans un topic Kafka ;
+    \item un job Spark consomme le flux Kafka et écrit une table Iceberg Bronze ;
+    \item des modèles dbt transforment la donnée en tables Silver puis Gold ;
+    \item Dremio interroge les tables Gold et les rend disponibles pour la BI ;
+    \item Prometheus, Grafana, Fluent Bit et OpenObserve permettent de suivre l'exécution.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{Critères d'acceptation du scénario de référence}
+\label{tab:acceptation}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Y@{}}
+\toprule
+\textbf{Composant} & \textbf{Critère de validation} \\
+\midrule
+PostgreSQL / Debezium & Une modification source génère un événement CDC dans Kafka. \\
+Kafka & Le topic attendu existe et contient les messages produits. \\
+Spark / Iceberg & Le job Spark écrit une table Bronze visible dans le catalogue Hive. \\
+dbt & Les modèles Silver et Gold s'exécutent sans erreur et produisent des tables requêtables. \\
+Dremio & Les tables Gold sont accessibles par requête SQL. \\
+Observabilité & Les métriques et logs du pipeline sont consultables dans Grafana et OpenObserve. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%------------------------------------------------------------------------------
+\section{Contraintes de réalisation}
+%------------------------------------------------------------------------------
+
+Le projet est soumis à plusieurs contraintes :
+\begin{itemize}
+    \item \textbf{contrainte de coût} : l'environnement cible est un environnement \texttt{dev}, dimensionné pour démontrer la solution sans reproduire tous les coûts d'une production ;
+    \item \textbf{contrainte de secrets} : les credentials AWS, Cloudflare, R2 et GitHub ne peuvent pas être versionnés ;
+    \item \textbf{contrainte de temps} : certaines phases sont livrées sous forme d'artefacts prêts à déployer et nécessitent une validation finale sur cluster ;
+    \item \textbf{contrainte de périmètre} : les données réelles EQDOM et certains aspects de production, comme les sauvegardes avancées ou la haute disponibilité complète, sont hors MVP.
+\end{itemize}
+
+\section*{Conclusion du chapitre}
+\addcontentsline{toc}{section}{Conclusion du chapitre 3}
+
+L'analyse des besoins met en évidence un périmètre clair : construire une plateforme de données cloud-native complète dans sa conception, automatisée dans son déploiement et extensible vers un contexte de production. Le chapitre suivant décrit l'architecture retenue pour répondre à ces exigences.
+
+\clearpage

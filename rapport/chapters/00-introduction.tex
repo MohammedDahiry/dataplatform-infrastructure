@@ -1,0 +1,53 @@
+\chapter*{Introduction générale}
+\markboth{Introduction générale}{Introduction générale}
+\addcontentsline{toc}{chapter}{Introduction générale}
+
+\begin{center}
+{\color{softline}\rule{0.48\textwidth}{0.8pt}}
+\end{center}
+
+\vspace{0.2cm}
+
+\begingroup
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.72em}
+
+\begin{quote}
+\itshape
+Dans un contexte où la donnée devient un actif stratégique, la capacité à la collecter, la fiabiliser, la transformer et l'exposer de manière gouvernée constitue un enjeu majeur pour les organisations financières.
+\end{quote}
+
+\vspace{0.1cm}
+
+Les organisations financières exploitent aujourd'hui des volumes de données de plus en plus importants, issus de systèmes transactionnels, d'applications métier, de fichiers opérationnels et d'outils analytiques. Cette richesse informationnelle devient cependant difficile à valoriser lorsque les données restent dispersées dans plusieurs silos, lorsque les traitements sont exécutés par des scripts isolés, ou lorsque l'absence d'observabilité rend les incidents difficiles à diagnostiquer. Dans ce contexte, la mise en place d'une plateforme de données industrialisée constitue un levier stratégique pour fiabiliser la collecte, structurer la transformation et accélérer l'accès aux indicateurs décisionnels.
+
+Le présent Projet de Fin d'Études s'inscrit dans cette problématique. Réalisé dans le cadre d'un stage chez \textbf{SEVENAPP}, en mission de consultant Data auprès de \textbf{EQDOM}, il porte sur la conception et la mise en œuvre d'une \textbf{Cloud Data Platform} moderne, déployée sur \textbf{AWS EKS}, fondée sur une architecture \textbf{Lakehouse} et structurée selon le modèle \textbf{médaillon} : Bronze, Silver et Gold.
+
+L'objectif du projet n'est pas seulement d'assembler des outils open source. Il s'agit de construire un socle reproductible, sécurisé et exploitable, capable de couvrir l'ensemble du cycle de vie de la donnée : ingestion batch et streaming, stockage objet, catalogage, transformations distribuées, orchestration, exposition SQL/BI, supervision et automatisation de l'infrastructure. Le projet accorde également une attention particulière aux contraintes opérationnelles : gestion des secrets, isolation Kubernetes, optimisation des coûts, traçabilité des choix d'architecture et capacité à maintenir un environnement fiable et industrialisable.
+
+La solution proposée repose sur un ensemble cohérent de technologies : Terraform pour l'Infrastructure as Code, Cloudflare R2 pour le backend d'état Terraform, Amazon EKS pour l'orchestration Kubernetes, MinIO pour le stockage S3-compatible, Apache Iceberg et Hive Metastore pour la couche Lakehouse, Kafka/Strimzi et Debezium pour la capture de changements, Spark et dbt pour les transformations, Airflow pour l'orchestration, Dremio pour la virtualisation SQL, puis Prometheus, Grafana, Fluent Bit et OpenObserve pour l'observabilité.
+
+Ce rapport présente successivement le contexte professionnel et méthodologique du projet, l'état de l'art des architectures data modernes, l'analyse des besoins, la conception retenue, la réalisation technique de la plateforme, ainsi que les limites et perspectives d'évolution. Les phases encore dépendantes d'un déploiement complet sur compte cloud sont intégrées comme trajectoire d'industrialisation, afin de fournir une vision complète et défendable de la plateforme cible.
+
+\vspace{0.25cm}
+
+\begin{center}
+{\color{softline}\rule{0.26\textwidth}{0.7pt}}\\[0.2cm]
+\textbf{\large Organisation du mémoire}\\[-0.1cm]
+{\color{softline}\rule{0.26\textwidth}{0.7pt}}
+\end{center}
+
+\vspace{0.05cm}
+
+\begin{itemize}[leftmargin=1.2cm, itemsep=0.28em]
+    \item le chapitre 1 présente l'organisme d'accueil, le contexte client et la méthodologie de travail ;
+    \item le chapitre 2 introduit les concepts et technologies nécessaires à la compréhension de la solution ;
+    \item le chapitre 3 formalise les besoins fonctionnels et non fonctionnels ;
+    \item le chapitre 4 décrit la conception globale et les choix d'architecture ;
+    \item le chapitre 5 détaille la réalisation technique et l'état d'avancement ;
+    \item le chapitre 6 conclut le travail et propose les perspectives d'amélioration.
+\end{itemize}
+
+\endgroup
+
+\clearpage

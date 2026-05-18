@@ -1,0 +1,51 @@
+\chapter{CONCLUSION ET PERSPECTIVES}
+\label{ch:conclusion}
+
+%------------------------------------------------------------------------------
+\section{Bilan du projet}
+%------------------------------------------------------------------------------
+
+Ce Projet de Fin d'Études, conduit chez \textbf{SEVENAPP} en mission \textbf{consultant Data} chez \textbf{EQDOM}, a permis de concevoir et d'implémenter progressivement une \textbf{Cloud Data Platform} alignée sur un cahier des charges académique exigeant : architecture Lakehouse médaillon, Kubernetes operators, Infrastructure as Code, sécurité, observabilité et optimisation des coûts.
+
+Les apports principaux :
+\begin{itemize}
+    \item une \textbf{landing zone AWS/EKS} modulaire (Terraform, IRSA, KMS, deux node groups) ;
+    \item une \textbf{chaîne data bout en bout} documentée et préparée (CDC, Iceberg, dbt, Dremio, Power BI) ;
+    \item une \textbf{industrialisation} par scripts, CI/CD et ADR ;
+    \item une \textbf{traçabilité} explicite pour la soutenance (\texttt{SPEC\_ALIGNMENT.md}) ;
+    \item une \textbf{couche d'observabilité} couvrant monitoring, logging et dashboarding technique.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Limites}
+%------------------------------------------------------------------------------
+
+\begin{itemize}
+    \item Environnement \texttt{dev} unique ; haute disponibilité production (NAT multi-AZ, backups CNPG/Barman) non déployée ;
+    \item Ansible et ArgoCD restent des extensions ou scaffolds ;
+    \item validation E2E et jeux de données réels EQDOM hors périmètre strict du MVP académique ;
+    \item TLS production (Let's Encrypt / ACME) à durcir au-delà du MVP cert-manager.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Perspectives}
+%------------------------------------------------------------------------------
+
+\begin{itemize}
+    \item Passage en \texttt{prod} : multi-NAT, sauvegardes, politiques de rétention Iceberg ;
+    \item Activation \texttt{lambda\_scaling\_enabled} pour optimisation des coûts ;
+    \item Intégration Power BI, dashboards métier et catalogues de données EQDOM ;
+    \item GitOps ArgoCD et dépôt d'applications dédié ;
+    \item Renforcement qualité : tests automatisés pipeline, Data Quality (Great Expectations), alerting fonctionnel sur fraîcheur et complétude des données.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Apports personnels}
+%------------------------------------------------------------------------------
+
+Ce stage a consolidé les compétences en \textbf{data engineering cloud-native} : Terraform, Kubernetes operators, streaming CDC et architecture médaillon — compétences directement transférables aux projets de transformation data du secteur financier.
+
+\vspace{1cm}
+\hfill \NomEtudiant
+
+\clearpage

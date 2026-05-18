@@ -1,0 +1,42 @@
+\chapter{Checklist des phases (soutenance)}
+\label{ann:phases}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{@{}p{0.06\textwidth}p{0.34\textwidth}p{0.52\textwidth}@{}}
+\toprule
+\textbf{\#} & \textbf{Script} & \textbf{Validation minimale} \\
+\midrule
+1 & \texttt{bootstrap-cluster.sh} & \texttt{kubectl get nodes} Ready ; 9 NS \\
+2 & \texttt{bootstrap-phase2.sh} & MinIO, CNPG Ready, Hive up \\
+3 & \texttt{bootstrap-phase3.sh} & Kafka Ready ; connector RUNNING \\
+4 & \texttt{bootstrap-phase4.sh} & Spark SA ; Airflow web UI \\
+5 & \texttt{bootstrap-phase5.sh} & Dremio coordinator Ready \\
+6 & \texttt{bootstrap-phase6.sh} & Tunnel CONNECTED \\
+7 & \texttt{bootstrap-phase7.sh} & Grafana ; logs dans OpenObserve \\
+8 & GitHub Actions & \texttt{terraform plan/apply} via OIDC \\
+9 & \texttt{lambda\_scaling\_enabled} & EventBridge déclenche le scaling \texttt{compute-ng} \\
+10 & \texttt{bootstrap-phase10.sh} & ArgoCD UI accessible ; Applications synchronisables \\
+\bottomrule
+\end{tabular}
+\caption{Jalons opérationnels (\texttt{docs/phases/PHASE\_CHECKPOINTS.md})}
+\end{table}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{@{}p{0.24\textwidth}p{0.64\textwidth}@{}}
+\toprule
+\textbf{Preuve soutenance} & \textbf{Commande ou écran attendu} \\
+\midrule
+Namespaces & \texttt{kubectl get ns -l app.kubernetes.io/part-of=dataplatform} \\
+CDC Kafka & \texttt{kubectl -n platform-ingestion get kafkaconnector,kafkatopic} \\
+Spark / Airflow & Airflow DAGs visibles ; \texttt{kubectl -n platform-compute get sparkapplications} \\
+Tables Iceberg & Requête Dremio sur \texttt{lakehouse.bronze}, \texttt{silver}, \texttt{gold} \\
+Monitoring & Grafana : cluster, pods, Kafka, Spark, CNPG, MinIO \\
+Logging & OpenObserve : logs filtrés par namespace, pod et DAG/job \\
+\bottomrule
+\end{tabular}
+\caption{Preuves recommandées pour la démonstration}
+\end{table}

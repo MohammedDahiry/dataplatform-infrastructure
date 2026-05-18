@@ -1,0 +1,33 @@
+\documentclass[12pt,a4paper,oneside,openany]{report}
+\input{preamble}
+
+\begin{document}
+
+% --- Pages liminaires ---
+\input{front/title}
+\input{front/dedicace}
+\input{front/remerciements}
+\input{front/resume}
+\input{front/abstract}
+\input{front/resume_ar}
+\tableofcontents
+\listoffigures
+\listoftables
+\input{front/acronymes}
+
+% --- Corps ---
+\input{chapters/00-introduction}
+\input{chapters/01-contexte}
+\input{chapters/02-etat-art}
+\input{chapters/03-analyse-besoins}
+\input{chapters/04-conception}
+\input{chapters/05-realisation}
+\input{chapters/06-conclusion}
+
+\appendix
+\input{chapters/annexe-adrs}
+\input{chapters/annexe-phases}
+
+\printbibliography[heading=bibintoc,title={Bibliographie}]
+
+\end{document}

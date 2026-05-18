@@ -1,0 +1,141 @@
+\begin{titlepage}
+\thispagestyle{empty}
+\begingroup
+\setlength{\parindent}{0pt}
+
+\AddToShipoutPictureBG*{%
+  \AtPageUpperLeft{%
+    \raisebox{-0.72cm}{\color{titlered}\rule{\paperwidth}{0.72cm}}%
+  }%
+  \AtPageUpperLeft{%
+    \raisebox{-0.80cm}{\color{titleyellow}\rule{\paperwidth}{0.08cm}}%
+  }%
+  \AtPageLowerLeft{%
+    \raisebox{0.72cm}{\color{titleyellow}\rule{\paperwidth}{0.08cm}}%
+  }%
+  \AtPageLowerLeft{%
+    \color{titlered}\rule{\paperwidth}{0.72cm}%
+  }%
+}
+
+\newcommand{\logoplaceholder}[3][1.45cm]{%
+  \IfFileExists{#2}{%
+    \includegraphics[height=#1,width=\linewidth,keepaspectratio]{#2}%
+  }{%
+    \fbox{\begin{minipage}[c][#1][c]{0.95\linewidth}
+      \centering\scriptsize #3\\[-0.1cm]
+      \texttt{#2}
+    \end{minipage}}%
+  }%
+}
+
+\vspace*{0.25cm}
+
+\begin{minipage}{0.47\textwidth}
+  \raggedright
+  \logoplaceholder[2.15cm]{images/logo-ensas.png}{Logo ENSAS}
+\end{minipage}
+\hfill
+\begin{minipage}{0.46\textwidth}
+  \raggedleft
+  \begingroup
+  \setlength{\fboxsep}{7pt}
+  \color{softline}\fbox{%
+    \color{black}%
+    \begin{minipage}{0.92\linewidth}
+      \centering
+      {\scriptsize\scshape Partenaires du projet}\\[0.12cm]
+      {\color{titleyellow}\rule{0.72\linewidth}{0.6pt}}\\[0.14cm]
+      \begin{minipage}[c]{0.45\linewidth}
+        \centering
+        \logoplaceholder[1.05cm]{images/seven-logo.jpg}{Logo SEVENAPP}\\[-0.02cm]
+        {\tiny\itshape Organisme d'accueil}
+      \end{minipage}
+      \hfill
+      {\color{softline}\vrule width 0.45pt height 1.3cm}
+      \hfill
+      \begin{minipage}[c]{0.45\linewidth}
+        \centering
+        \logoplaceholder[1.05cm]{images/eqdom-logo.png}{Logo EQDOM}\\[-0.02cm]
+        {\tiny\itshape Mission client}
+      \end{minipage}
+    \end{minipage}%
+  }
+  \endgroup
+  \color{black}
+\end{minipage}
+
+\vspace{0.32cm}
+
+\begin{center}
+{\Large\scshape Université Cadi Ayyad}\\[0.12cm]
+{\large\scshape École Nationale des Sciences Appliquées de Safi}\\[0.35cm]
+
+{\color{softline}\rule{0.52\textwidth}{0.7pt}}\\[0.28cm]
+{\large\textbf{Filière : \Filiere}}\\[0.28cm]
+
+\setlength{\fboxsep}{8pt}
+\color{softline}\fbox{%
+\color{black}%
+\begin{minipage}{0.67\textwidth}
+  \centering
+  {\Large\bfseries Mémoire de Projet de Fin d'Études}\\[-0.02cm]
+  {\small\itshape Pour l'obtention du diplôme d'Ingénieur d'État en Informatique}
+\end{minipage}}
+\color{black}
+
+\vspace{0.72cm}
+{\color{titlered}\rule{0.2\textwidth}{0.9pt}\hspace{0.025\textwidth}\color{titleyellow}\rule{0.57\textwidth}{0.9pt}}\\[0.4cm]
+\color{black}
+
+{\Huge\bfseries Conception et Déploiement}\\[0.18cm]
+{\Huge\bfseries d'une Cloud Data Platform}\\[0.18cm]
+{\Large\itshape Architecture Lakehouse sur AWS EKS}\\[0.36cm]
+
+{\color{titleyellow}\rule{0.57\textwidth}{0.9pt}\hspace{0.025\textwidth}\color{titlered}\rule{0.2\textwidth}{0.9pt}}\\[0.42cm]
+\color{black}
+
+{\small\itshape Rédigé et soutenu par :}\\[0.12cm]
+{\Large\bfseries \NomEtudiant}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{minipage}[t]{0.47\textwidth}
+{\color{titleyellow}\rule{0.16\textwidth}{0.7pt}\color{titlered}\rule{0.22\textwidth}{0.7pt}}\\[0.12cm]
+\color{black}
+{\bfseries\itshape Sous la direction de :}\\[0.16cm]
+{\bfseries \EncadrantAcademique}\\
+{\scriptsize Encadrant académique -- ENSA Safi}\\[0.18cm]
+{\bfseries \EncadrantPro}\\
+{\scriptsize Encadrant professionnel -- SEVENAPP}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.39\textwidth}
+\raggedleft
+{\color{titlered}\rule{0.22\textwidth}{0.7pt}\color{titleyellow}\rule{0.16\textwidth}{0.7pt}}\\[0.12cm]
+\color{black}
+{\bfseries\itshape Membres du Jury :}\\[0.16cm]
+{\bfseries Pr. EZZAHAR Jamal}\\
+{\bfseries Pr. MADIAFI Mohammed}\\
+{\bfseries Pr. HARZALLA Driss}\\
+{\bfseries Pr. BENDAIDA Fatiha}
+\end{minipage}
+
+\vfill
+
+\begin{center}
+\colorbox{lightpanel}{%
+\begin{minipage}{0.76\textwidth}
+  \centering\small
+  Stage effectué chez \textbf{SEVENAPP} -- Mission client : \textbf{\ClientMission}\\[0.08cm]
+  Période : \DateDebutStage\ au \DateFinStage
+  \quad \textbullet \quad
+  Soutenance : \DateSoutenance
+\end{minipage}}\\[0.24cm]
+{\small\scshape Année universitaire \AnneeUniv}
+\end{center}
+
+\endgroup
+\end{titlepage}
+\clearpage

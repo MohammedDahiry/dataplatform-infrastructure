@@ -1,0 +1,227 @@
+\subsection{Présentation du client}
+
+\textbf{EQDOM} est un acteur marocain du financement et du crédit à la consommation. Son activité repose sur la gestion de parcours clients, de dossiers de financement, de données opérationnelles et d'indicateurs de pilotage. Dans ce type d'environnement, la donnée joue un rôle central : elle alimente l'analyse du risque, le suivi commercial, la conformité, le reporting interne et les tableaux de bord décisionnels.
+
+\begin{figure}[H]
+\centering
+\maybeimage[height=2cm]{images/eqdom-logo.png}
+\caption{Logo EQDOM}
+\end{figure}
+
+\subsection{Fiche signalétique}
+
+\begin{table}[H]
+\centering
+\caption{Fiche signalétique d'EQDOM}
+\label{tab:fiche-eqdom}
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{tabularx}{\textwidth}{@{}p{0.30\textwidth}Y@{}}
+\rowcolor{tableheader}
+\PFEHeaderCell{Élément} & \PFEHeaderCell{Description} \\
+\midrule
+\PFEKeyCell{Dénomination sociale} & EQDOM \\
+\PFEKeyCell{Forme juridique} & Société anonyme à Conseil d'Administration \\
+\PFEKeyCell{Date de création} & Septembre 1974 \\
+\PFEKeyCell{Siège social} & 127, Boulevard Zerktouni, Casablanca \\
+\PFEKeyCell{Secteur d'activité} & Crédit à la consommation et financement automobile \\
+\PFEKeyCell{Produits principaux} & Prêts personnels, crédit automobile, financement d'équipement et solutions de crédit affecté \\
+\PFEKeyCell{Réseau commercial} & 24 agences réparties dans les principales villes du Royaume, complétées par des intermédiaires agréés et des partenaires distributeurs \\
+\PFEKeyCell{Contexte de la mission} & Client final de la mission Data portée par SEVENAPP, avec un besoin de modernisation et de fiabilisation des flux de données \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Aperçu historique}
+
+EQDOM est considérée comme l'une des premières sociétés marocaines spécialisées dans le financement et le crédit à la consommation. Créée en 1974 à l'initiative de la Société Nationale d'Investissement et de la Caisse de Dépôt et de Gestion, elle avait initialement pour vocation de faciliter l'acquisition de biens d'équipement par les ménages marocains et de soutenir le développement du secteur de l'électroménager.
+
+L'entreprise a connu une première étape structurante en 1978 avec son introduction à la Bourse de Casablanca. À partir des années 1990, EQDOM a engagé une dynamique d'élargissement de son activité, marquée par la diversification de ses produits et l'extension progressive de son réseau d'agences. Cette évolution lui a permis de passer d'un positionnement centré sur le financement d'équipement à une offre plus large couvrant les prêts personnels, le crédit automobile et les solutions de financement affecté.
+
+Dans les années 2000, l'entreprise a renforcé son ancrage dans le secteur financier marocain à travers son adossement à un groupe bancaire de référence. Plus récemment, l'évolution du paysage bancaire marocain et les opérations de réorganisation actionnariale ont inscrit EQDOM dans une nouvelle phase de transformation. Dans ce contexte, la donnée devient un levier essentiel pour améliorer le pilotage commercial, fiabiliser le reporting, suivre les risques et accompagner la digitalisation des parcours clients.
+
+\subsection{Organigramme simplifié}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+    box/.style={rectangle, rounded corners=2pt, draw=tocblueblack, fill=lightpanel, align=center, minimum height=0.9cm, text width=3.25cm, font=\small},
+    main/.style={box, fill=white, line width=0.8pt, text width=4.4cm, font=\small\bfseries},
+    arr/.style={-{Latex[length=2mm]}, draw=tocblueblack}
+]
+\node[main] (dg) {Direction générale};
+\node[box, below left=1.1cm and 2.6cm of dg] (commerce) {Direction commerciale\\Réseau et partenariats};
+\node[box, below=1.1cm of dg] (risque) {Direction risques\\Conformité et contrôle};
+\node[box, below right=1.1cm and 2.6cm of dg] (ops) {Direction opérations\\Crédits et back-office};
+\node[box, below left=1.1cm and 0.3cm of risque] (finance) {Direction financière\\Pilotage et reporting};
+\node[box, below right=1.1cm and 0.3cm of risque] (si) {Direction SI / Data\\Applications et données};
+\draw[arr] (dg) -- (commerce);
+\draw[arr] (dg) -- (risque);
+\draw[arr] (dg) -- (ops);
+\draw[arr] (dg) -- (finance);
+\draw[arr] (dg) -- (si);
+\end{tikzpicture}
+}
+\caption{Organigramme simplifié d'EQDOM}
+\label{fig:organigramme-eqdom}
+\end{figure}
+
+\subsection{Réseau d'agences}
+
+EQDOM s'appuie sur un réseau de distribution directe afin d'assurer une présence de proximité auprès de ses clients, de ses partenaires automobiles et des organismes conventionnés. La documentation institutionnelle consultée indique un total de \textbf{24 agences} réparties dans les principales villes du Royaume.
+
+\begin{table}[H]
+\centering
+\caption{Répartition des agences EQDOM par ville}
+\label{tab:agences-eqdom}
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{tabularx}{0.86\textwidth}{@{}XrXr@{}}
+\rowcolor{tableheader}
+\PFEHeaderCell{Ville} & \PFEHeaderCell{Agences} & \PFEHeaderCell{Ville} & \PFEHeaderCell{Agences} \\
+\midrule
+\PFEKeyCell{Casablanca} & 6 & \PFEKeyCell{Rabat} & 3 \\
+\PFEKeyCell{Marrakech} & 2 & \PFEKeyCell{Tanger} & 2 \\
+\PFEKeyCell{Settat} & 1 & \PFEKeyCell{Fès} & 1 \\
+\PFEKeyCell{Salé} & 1 & \PFEKeyCell{Oujda} & 1 \\
+\PFEKeyCell{Agadir} & 1 & \PFEKeyCell{Safi} & 1 \\
+\PFEKeyCell{Tétouan} & 1 & \PFEKeyCell{Meknès} & 1 \\
+\PFEKeyCell{El Jadida} & 1 & \PFEKeyCell{Kénitra} & 1 \\
+\PFEKeyCell{Béni Mellal} & 1 & \PFEKeyCell{Total} & \textbf{24} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.88\textwidth}{!}{%
+\begin{tikzpicture}[every node/.style={font=\scriptsize}]
+    \definecolor{mapfill}{RGB}{200,16,28}
+    \definecolor{mapline}{RGB}{18,34,58}
+    \definecolor{mapborder}{RGB}{255,229,194}
+    \definecolor{mapdot}{RGB}{255,205,0}
+    \definecolor{mapmuted}{RGB}{92,96,106}
+
+    % Silhouette schématique inspirée de la carte administrative du Maroc,
+    % étendue de Tanger à Lagouira.
+    \filldraw[fill=mapfill, draw=mapfill, line width=0.9pt]
+        (3.95,14.10) -- (4.52,14.18) -- (4.88,13.82) -- (5.42,13.70)
+        -- (5.88,13.92) -- (6.72,13.55) -- (7.56,13.02) -- (8.08,12.28)
+        -- (8.42,11.42) -- (8.16,10.68) -- (7.28,10.52) -- (6.58,10.58)
+        -- (6.28,9.98) -- (6.82,9.60) -- (6.66,8.86) -- (5.92,8.38)
+        -- (5.12,8.10) -- (4.32,7.88) -- (3.72,7.42) -- (3.70,5.18)
+        -- (2.28,5.18) -- (2.28,3.72) -- (1.52,3.42) -- (1.08,2.78)
+        -- (0.64,2.24) -- (0.40,1.46) -- (0.16,0.82) -- (0.12,0.12)
+        -- (1.66,0.12) -- (1.66,1.74) -- (2.50,2.08) -- (2.50,4.66)
+        -- (3.40,4.66) -- (3.40,7.62) -- (2.62,7.78) -- (2.02,8.22)
+        -- (1.78,8.96) -- (2.10,9.68) -- (2.82,10.22) -- (3.24,10.88)
+        -- (3.36,11.58) -- (3.64,12.18) -- (3.78,12.88) -- cycle;
+
+    % Limites administratives stylisées pour rappeler la carte de référence.
+    \draw[mapborder, line width=0.35pt, opacity=0.85]
+        (4.30,13.90) -- (4.18,13.12) -- (4.52,12.50) -- (4.45,11.78)
+        -- (4.15,11.10) -- (4.36,10.36) -- (4.02,9.74) -- (4.10,8.72)
+        -- (3.72,7.98);
+    \draw[mapborder, line width=0.35pt, opacity=0.85]
+        (5.00,13.54) -- (5.10,12.74) -- (5.72,12.28) -- (5.64,11.38)
+        -- (6.28,10.58);
+    \draw[mapborder, line width=0.35pt, opacity=0.85]
+        (5.88,13.86) -- (5.84,13.10) -- (6.34,12.50) -- (6.86,12.18)
+        -- (7.82,12.20);
+    \draw[mapborder, line width=0.35pt, opacity=0.85]
+        (3.10,10.48) -- (3.78,10.34) -- (4.38,10.00) -- (5.05,10.02)
+        -- (5.86,9.76) -- (6.76,9.42);
+    \draw[mapborder, line width=0.35pt, opacity=0.85]
+        (2.18,8.06) -- (3.12,7.78) -- (3.70,7.42);
+    \draw[mapborder, line width=0.35pt, opacity=0.85]
+        (1.00,2.54) -- (1.68,2.72) -- (2.28,3.02);
+    \draw[mapborder, line width=0.35pt, opacity=0.85]
+        (0.36,1.06) -- (0.92,1.50) -- (1.66,1.74);
+
+    \node[anchor=west, font=\small\bfseries, text=mapline] at (8.90,13.50) {Réseau EQDOM};
+    \node[anchor=west, align=left, text=mapline] at (8.90,13.05) {Carte schématique complète\\de Tanger à Lagouira};
+
+    \newcommand{\agencycity}[3]{%
+        \fill[white, opacity=0.95] (#1,#2) circle[radius=#3];
+        \fill[mapdot] (#1,#2) circle[radius=0.48*#3];
+        \draw[mapline, line width=0.35pt] (#1,#2) circle[radius=#3];
+    }
+
+    % Points proportionnels au nombre d'agences.
+    \agencycity{3.98}{13.92}{4.3pt}
+    \agencycity{4.68}{13.58}{3.1pt}
+    \agencycity{3.48}{11.32}{3.1pt}
+    \agencycity{3.38}{10.98}{5.2pt}
+    \agencycity{3.62}{10.82}{3.1pt}
+    \agencycity{3.02}{10.18}{8.0pt}
+    \agencycity{2.66}{9.54}{3.1pt}
+    \agencycity{2.44}{8.52}{3.1pt}
+    \agencycity{3.48}{9.42}{3.1pt}
+    \agencycity{4.76}{10.82}{3.1pt}
+    \agencycity{5.30}{10.96}{3.1pt}
+    \agencycity{7.22}{11.42}{3.1pt}
+    \agencycity{4.72}{8.92}{3.1pt}
+    \agencycity{3.60}{8.18}{4.3pt}
+    \agencycity{2.58}{8.02}{3.1pt}
+
+    % Repères géographiques pour montrer l'extension complète de la carte.
+    \fill[white] (2.02,3.62) circle (1.4pt);
+    \node[anchor=east, text=mapline, font=\tiny] at (1.82,3.62) {Laâyoune};
+    \fill[white] (1.12,1.56) circle (1.4pt);
+    \node[anchor=east, text=mapline, font=\tiny] at (0.92,1.56) {Dakhla};
+    \fill[white] (0.20,0.28) circle (1.4pt);
+    \node[anchor=west, text=mapline, font=\tiny] at (0.48,0.28) {Lagouira};
+
+    % Légende.
+    \node[anchor=west, font=\bfseries, text=mapline] at (8.90,12.10) {Légende};
+    \fill[white, opacity=0.95] (9.10,11.55) circle[radius=3.1pt];
+    \fill[mapdot] (9.10,11.55) circle[radius=1.5pt];
+    \draw[mapline, line width=0.35pt] (9.10,11.55) circle[radius=3.1pt];
+    \node[anchor=west] at (9.42,11.55) {1 agence};
+    \fill[white, opacity=0.95] (9.10,11.00) circle[radius=5.2pt];
+    \fill[mapdot] (9.10,11.00) circle[radius=2.5pt];
+    \draw[mapline, line width=0.35pt] (9.10,11.00) circle[radius=5.2pt];
+    \node[anchor=west] at (9.42,11.00) {3 agences};
+    \fill[white, opacity=0.95] (9.10,10.30) circle[radius=8.0pt];
+    \fill[mapdot] (9.10,10.30) circle[radius=3.8pt];
+    \draw[mapline, line width=0.35pt] (9.10,10.30) circle[radius=8.0pt];
+    \node[anchor=west] at (9.42,10.30) {6 agences};
+    \fill[white] (9.10,9.55) circle (1.4pt);
+    \node[anchor=west, text=mapmuted] at (9.42,9.55) {Repère sud};
+
+    \node[anchor=west, font=\bfseries, text=mapline] at (8.90,8.70) {Agences par ville};
+    \node[anchor=north west, text=mapline] at (8.90,8.35) {%
+        \begin{tabular}{@{}lr@{\hspace{0.45cm}}lr@{}}
+        Casablanca & 6 & Rabat & 3 \\
+        Tanger & 2 & Marrakech & 2 \\
+        Agadir & 1 & Béni Mellal & 1 \\
+        El Jadida & 1 & Fès & 1 \\
+        Kénitra & 1 & Meknès & 1 \\
+        Oujda & 1 & Safi & 1 \\
+        Salé & 1 & Settat & 1 \\
+        Tétouan & 1 & Total & \textbf{24}
+        \end{tabular}
+    };
+\end{tikzpicture}
+}
+\caption{Carte schématique complète de la répartition des agences EQDOM au Maroc}
+\label{fig:carte-agences-eqdom}
+\end{figure}
+
+\subsection{Enjeux data du contexte financier}
+
+Le contexte financier impose des exigences particulières :
+\begin{itemize}
+    \item \textbf{fiabilité} : les traitements doivent produire des résultats cohérents et vérifiables ;
+    \item \textbf{traçabilité} : les données doivent pouvoir être suivies depuis la source jusqu'à l'indicateur ;
+    \item \textbf{sécurité} : les accès aux infrastructures et aux interfaces doivent être contrôlés ;
+    \item \textbf{scalabilité} : la plateforme doit pouvoir absorber l'évolution des volumes et des usages ;
+    \item \textbf{observabilité} : les erreurs, lenteurs et indisponibilités doivent être détectables rapidement.
+\end{itemize}
+
+\subsection{Motivation de la mission}
+
+La mission consiste à proposer une base technique permettant de centraliser les flux de données et de les organiser sous forme de Lakehouse. Le projet n'a pas vocation à remplacer immédiatement tous les systèmes existants ; il fournit un socle reproductible et extensible sur lequel des cas d'usage métiers peuvent ensuite être branchés progressivement.
+
+Le scénario de démonstration retenu s'appuie sur des données représentatives, notamment des tables telles que \texttt{clients} ou \texttt{agency\_budget}. Ce choix permet d'illustrer la chaîne complète : ingestion depuis une source PostgreSQL, capture CDC, écriture Bronze, transformations Silver/Gold et exposition SQL.

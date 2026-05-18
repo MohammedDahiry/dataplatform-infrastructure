@@ -1,0 +1,26 @@
+\chapter{Architecture Decision Records (synthèse)}
+\label{ann:adr}
+
+Résumé des ADR du dépôt (\texttt{docs/02-architecture-decision-records.md}).
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}clp{8cm}@{}}
+\toprule
+\textbf{ADR} & \textbf{Décision} & \textbf{Justification courte} \\
+\midrule
+001 & 2 node groups & Scale compute à 0 sans toucher stateful \\
+002 & 1 NAT gateway & Coût MVP ; SPOF documenté \\
+003 & 3 CMK KMS & Rotation et audit par usage \\
+004 & Access entries EKS & Plus de aws-auth ConfigMap \\
+005 & API EKS privée & Défense en profondeur \\
+006 & IRSA uniquement & Blast radius minimal \\
+007 & State sur R2 & Hors compte AWS \\
+008 & Prefix delegation CNI & Plus de pods par nœud \\
+009 & PSA baseline & Sécurité pods par défaut \\
+010 & use\_lockfile & Pas de DynamoDB sur R2 \\
+\bottomrule
+\end{tabular}
+\caption{Synthèse des ADR}
+\end{table}

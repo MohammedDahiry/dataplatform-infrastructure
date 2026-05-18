@@ -1,0 +1,171 @@
+\chapter{CONTEXTE GÉNÉRAL DU PROJET}
+\label{ch:contexte}
+
+Ce chapitre présente le cadre professionnel du Projet de Fin d'Études, l'organisme d'accueil, le contexte client et la démarche de conduite adoptée. Il permet de situer la contribution technique dans un environnement réel de transformation digitale et de data engineering.
+
+%==============================================================================
+\section{Organisme d'accueil : SEVENAPP}
+%==============================================================================
+
+\textbf{SEVENAPP}, opérant sous la marque \textbf{Seven}, est une entreprise de services numériques spécialisée dans l'accompagnement des organisations autour de la transformation digitale, de la data et de l'intelligence artificielle. Son positionnement consiste à intervenir comme partenaire technologique auprès d'acteurs publics et privés, en mettant à disposition des consultants capables de concevoir, industrialiser et documenter des solutions numériques.
+
+\begin{figure}[H]
+\centering
+\maybeimage[height=2cm]{images/seven-logo.jpg}
+\caption{Logo SEVENAPP}
+\label{fig:seven-logo}
+\end{figure}
+
+Dans le cadre de ce stage, le rôle occupé est celui de \textbf{consultant Data}. La mission s'inscrit dans une logique d'ingénierie : comprendre un besoin de plateforme, proposer une architecture, produire une implémentation reproductible, documenter les choix et préparer une démonstration technique.
+
+\subsection{Fiche signalétique}
+
+\begin{table}[H]
+\centering
+\caption{Fiche signalétique de SEVENAPP}
+\label{tab:fiche-sevenapp}
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{tabularx}{\textwidth}{@{}p{0.28\textwidth}Y@{}}
+\rowcolor{tableheader}
+\PFEHeaderCell{Élément} & \PFEHeaderCell{Description} \\
+\midrule
+\PFEKeyCell{Dénomination} & SEVENAPP, opérant sous la marque Seven \\
+\PFEKeyCell{Nature} & Entreprise de Services du Numérique orientée Digital, Data et Intelligence Artificielle \\
+\PFEKeyCell{Date de création} & 2018 \\
+\PFEKeyCell{Siège} & Casablanca, Maroc \\
+\PFEKeyCell{Positionnement} & Accompagnement des organisations dans la transformation digitale, l'industrialisation des produits data et l'intégration de solutions innovantes \\
+\PFEKeyCell{Domaines d'expertise} & Consulting, Digital, Data, Intelligence Artificielle, plateformes banking, Data Lakehouse et IA générative \\
+\PFEKeyCell{Effectif public communiqué} & Plus de 45 consultants et experts \\
+\PFEKeyCell{Rôle dans le projet} & Organisme d'accueil du stage et cadre de réalisation de la mission de consultant Data auprès d'EQDOM \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Domaines d'intervention}
+
+Les activités de l'organisme d'accueil peuvent être regroupées autour de trois axes :
+\begin{itemize}
+    \item \textbf{transformation digitale} : modernisation des processus, intégration d'applications et accompagnement métier ;
+    \item \textbf{data engineering} : pipelines, plateformes, gouvernance, ingestion, transformation et exposition des données ;
+    \item \textbf{intelligence artificielle} : exploitation avancée des données, automatisation et cas d'usage analytiques.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=0.82\textwidth]{images/sect_act_seven.png}
+\caption{Domaines d'intervention de SEVENAPP}
+\label{fig:secteurs-activite-seven}
+\end{figure}
+
+\subsection{Références clients}
+
+La diversité des références clients de SEVENAPP illustre son positionnement transversal auprès d'acteurs financiers, d'organismes publics et d'entreprises issues de secteurs variés. Ces missions couvrent notamment la refonte de parcours digitaux, la mise en place de solutions CRM, la structuration de dispositifs data, l'automatisation de processus et l'accompagnement à la gouvernance des données.
+
+\begin{figure}[H]
+\centering
+\maybeimage[height=0.72\textheight,keepaspectratio]{images/Clients.png}
+\caption{Exemples de références clients de SEVENAPP}
+\label{fig:clients-sevenapp}
+\end{figure}
+
+\subsection{Organigramme simplifié}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+    box/.style={rectangle, rounded corners=2pt, draw=tocblueblack, fill=lightpanel, align=center, minimum height=0.9cm, text width=3.2cm, font=\small},
+    main/.style={box, fill=white, line width=0.8pt, text width=4.2cm, font=\small\bfseries},
+    arr/.style={-{Latex[length=2mm]}, draw=tocblueblack}
+]
+\node[main] (dir) {Direction générale};
+\node[box, below left=1.1cm and 2.6cm of dir] (consulting) {Pôle Consulting\\Stratégie et cadrage};
+\node[box, below=1.1cm of dir] (digital) {Pôle Digital\\Applications et produits};
+\node[box, below right=1.1cm and 2.6cm of dir] (data) {Pôle Data \& IA\\Plateformes, BI et IA};
+\node[box, below=1.1cm of digital] (support) {Fonctions support\\RH, administratif, commercial};
+\draw[arr] (dir) -- (consulting);
+\draw[arr] (dir) -- (digital);
+\draw[arr] (dir) -- (data);
+\draw[arr] (dir) -- (support);
+\end{tikzpicture}
+}
+\caption{Organigramme simplifié de SEVENAPP}
+\label{fig:organigramme-sevenapp}
+\end{figure}
+
+%==============================================================================
+\section{Contexte client : EQDOM}
+%==============================================================================
+
+\input{07_3_presentation_eqdom.tex}
+
+Le secteur du crédit et du financement exige des systèmes d'information fiables, auditables et capables de produire rapidement des indicateurs opérationnels. Les données doivent être disponibles pour les équipes analytiques tout en respectant des contraintes de sécurité, de traçabilité et de gouvernance. Cette exigence justifie l'intérêt d'une plateforme de données structurée, automatisée et observable.
+
+%==============================================================================
+\section{Cadre du projet}
+%==============================================================================
+
+Le projet consiste à concevoir et déployer une \textbf{Cloud Data Platform} sur AWS EKS. La plateforme doit couvrir le cycle de vie complet des données : ingestion depuis des sources opérationnelles, stockage dans un Lakehouse, transformation en couches analytiques, orchestration des traitements, exposition SQL/BI et supervision.
+
+Le livrable principal est le dépôt \texttt{dataplatform-infrastructure}. Il contient :
+\begin{itemize}
+    \item les modules Terraform de la landing zone AWS ;
+    \item les manifests Kubernetes et Helm des différentes phases ;
+    \item les scripts de déploiement, destruction, préparation des secrets et construction d'image ;
+    \item les DAGs Airflow et jobs Spark/dbt ;
+    \item la documentation d'exploitation, de traçabilité et de soutenance.
+\end{itemize}
+
+%==============================================================================
+\section{Méthodologie de conduite}
+%==============================================================================
+
+La démarche adoptée suit une approche itérative inspirée de Scrum. Le projet a été découpé en phases techniques cohérentes, chacune produisant un incrément exploitable : socle cloud, stockage, ingestion, compute, serving, exposition, observabilité et automatisation.
+
+\begin{figure}[H]
+\centering
+\maybeimage[height=5.2cm]{images/agile.png}
+\caption{Démarche agile appliquée au projet}
+\label{fig:agile}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Planification synthétique du projet}
+\label{tab:sprints}
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{tabularx}{\textwidth}{@{}p{0.13\textwidth}p{0.22\textwidth}Y@{}}
+\rowcolor{tableheader}
+\PFEHeaderCell{Sprint} & \PFEHeaderCell{Phase} & \PFEHeaderCell{Livrables principaux} \\
+\midrule
+\PFEKeyCell{Sprint 1} & Socle cloud & VPC, EKS, KMS, IAM, backend R2, CI Terraform, namespaces Kubernetes. \\
+\PFEKeyCell{Sprint 2} & Stockage & MinIO, CloudNativePG, Hive Metastore, secrets, stockage \texttt{gp3}. \\
+\PFEKeyCell{Sprint 3} & Ingestion & Kafka Strimzi, topics, KafkaConnect, Debezium, NiFi. \\
+\PFEKeyCell{Sprint 4} & Compute & Image Spark Iceberg, SparkApplication, dbt, Airflow et DAGs. \\
+\PFEKeyCell{Sprint 5} & Serving / sécurité & Dremio, source Hive, Cloudflare Tunnel et exposition des interfaces. \\
+\PFEKeyCell{Sprint 6} & Observabilité & Prometheus, Grafana, Fluent Bit, OpenObserve, ServiceMonitors et documentation finale. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%==============================================================================
+\section{Apports attendus}
+%==============================================================================
+
+Le projet apporte une base technique réutilisable pour construire une plateforme data moderne :
+\begin{itemize}
+    \item une infrastructure cloud décrite par code et reconstruisible ;
+    \item une architecture Lakehouse compatible avec les standards open source ;
+    \item une organisation par phases qui facilite le déploiement progressif ;
+    \item une documentation permettant d'expliquer les choix techniques et les limites du MVP ;
+    \item une trajectoire claire vers l'industrialisation : GitOps, monitoring avancé, data quality et BI métier.
+\end{itemize}
+
+\section*{Conclusion du chapitre}
+\addcontentsline{toc}{section}{Conclusion du chapitre 1}
+
+Ce chapitre a situé le projet dans son contexte professionnel et méthodologique. Le chapitre suivant présente les concepts techniques et l'état de l'art nécessaires à la compréhension de l'architecture retenue.
+
+\clearpage

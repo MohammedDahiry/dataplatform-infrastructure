@@ -1,0 +1,171 @@
+\chapter{CONCEPTION DE LA SOLUTION}
+\label{ch:conception}
+
+Ce chapitre présente l'architecture cible de la Cloud Data Platform. La conception reprend la logique en sept couches décrite dans les spécifications, puis la projette sur AWS EKS, Kubernetes et les artefacts du dépôt.
+
+%------------------------------------------------------------------------------
+\section{Architecture globale}
+%------------------------------------------------------------------------------
+
+La plateforme comporte sept couches logiques~\cite{pfe-spec,pfe-guide} : sources, ingestion, stockage, calcul, virtualisation, présentation et observabilité. Elle est hébergée sur \textbf{AWS EKS} en environnement \texttt{dev}, avec un design compatible avec une évolution multi-cloud ou on-premise grâce à Kubernetes, MinIO et Iceberg.
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox{0.92\textwidth}{\centering\vspace{0.5cm}
+\begin{tabular}{c}
+\textbf{Sources} : PostgreSQL, fichiers CSV/XLSX, systèmes métier \\
+$\Downarrow$ \\
+\textbf{Ingestion} : NiFi, Kafka, Debezium, Spark file ingestion \\
+$\Downarrow$ \\
+\textbf{Lakehouse} : MinIO + Apache Iceberg + Hive Metastore \\
+$\Downarrow$ \\
+\textbf{Compute} : Spark Operator + dbt-spark + Airflow \\
+$\Downarrow$ \\
+\textbf{Serving} : Dremio SQL, Power BI / dashboards analytiques \\
+\end{tabular}\\[0.4cm]
+\textbf{Transverse} : Terraform, KMS, IRSA, NetworkPolicies, Prometheus, Grafana, Fluent Bit, OpenObserve
+\vspace{0.5cm}}}
+\caption{Architecture logique en couches de la Cloud Data Platform}
+\label{fig:arch-globale}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{Déploiement physique sur AWS EKS}
+%------------------------------------------------------------------------------
+
+\subsection{Landing zone}
+
+La landing zone est composée d'un VPC multi-AZ, de sous-réseaux privés et publics, d'un NAT Gateway unique en environnement \texttt{dev}, de clés KMS dédiées et d'un cluster EKS managé. Les modules Terraform \texttt{vpc}, \texttt{kms}, \texttt{iam}, \texttt{eks}, \texttt{ecr} et \texttt{lambda-scaling} isolent les responsabilités et permettent une évolution contrôlée.
+
+\subsection{Node groups}
+
+Deux groupes de nœuds séparent les contraintes stateful et compute :
+\begin{itemize}
+    \item \texttt{stateful-ng} : workloads persistants comme MinIO, PostgreSQL, Hive et Kafka ;
+    \item \texttt{compute-ng} : workloads élastiques comme Spark, Airflow, Dremio, observabilité et jobs ponctuels.
+\end{itemize}
+
+Cette séparation rend possible le \textbf{scale-to-zero} du compute sans arrêter les services de stockage, ce qui répond à la contrainte d'optimisation des coûts.
+
+%------------------------------------------------------------------------------
+\section{Stratégie des namespaces Kubernetes}
+%------------------------------------------------------------------------------
+
+\begin{table}[H]
+\centering
+\caption{Namespaces \texttt{platform-*} alignés avec le cahier des charges}
+\label{tab:namespaces}
+\small
+\begin{tabular}{@{}p{0.26\textwidth}p{0.6\textwidth}@{}}
+\toprule
+\textbf{Namespace} & \textbf{Workloads prévus} \\
+\midrule
+\texttt{platform-ingestion} & Strimzi Kafka, Kafka Connect, Debezium, NiFi \\
+\texttt{platform-storage} & MinIO Operator, MinIO Tenant, PostgreSQL source \\
+\texttt{platform-metastore} & Hive Metastore, PostgreSQL HMS \\
+\texttt{platform-compute} & Spark Operator, SparkApplication, dbt jobs \\
+\texttt{platform-orchestr} & Airflow, base metadata Airflow \\
+\texttt{platform-serving} & Dremio, services SQL/BI \\
+\texttt{platform-monitoring} & Prometheus, Alertmanager, Grafana \\
+\texttt{platform-logging} & Fluent Bit, OpenObserve \\
+\texttt{platform-security} & cert-manager, Cloudflare Operator, secrets d'exposition \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Chaque namespace reçoit une \texttt{ResourceQuota}, une \texttt{NetworkPolicy} de base et un niveau Pod Security Admission adapté. Cette stratégie limite le blast radius et facilite l'explication de l'architecture au jury.
+
+%------------------------------------------------------------------------------
+\section{Conception du pipeline médaillon}
+%------------------------------------------------------------------------------
+
+Le pipeline est conçu autour d'un flux principal PostgreSQL $\rightarrow$ Kafka $\rightarrow$ Iceberg, complété par une ingestion fichiers. La séparation Bronze/Silver/Gold permet d'organiser la qualité et la finalité des données.
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{0.5cm}
+\begin{tabular}{ccccc}
+\textbf{PostgreSQL} & $\xrightarrow{\text{Debezium}}$ & \textbf{Kafka CDC} & $\xrightarrow{\text{Spark}}$ & \textbf{Bronze Iceberg} \\
+ & & & & $\Downarrow$ dbt \\
+\textbf{Fichiers} & $\xrightarrow{\text{Spark batch}}$ & \textbf{Bronze fichiers} & $\xrightarrow{\text{dbt}}$ & \textbf{Silver / Gold} \\
+\end{tabular}\\[0.4cm]
+\textbf{Dremio} interroge les tables via Hive Metastore ; \textbf{Power BI} consomme la couche Gold.
+\vspace{0.5cm}}}
+\caption{Flux de données médaillon cible}
+\label{fig:flux-medallion}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Rôle des couches médaillon}
+\label{tab:medallion}
+\small
+\begin{tabular}{@{}p{0.18\textwidth}p{0.68\textwidth}@{}}
+\toprule
+\textbf{Couche} & \textbf{Rôle} \\
+\midrule
+Bronze & Données brutes, historisées, proches de la source, écrites en Iceberg pour conserver la traçabilité. \\
+Silver & Données nettoyées, typées, dédupliquées et prêtes pour les jointures métier. \\
+Gold & Agrégats orientés analyse, indicateurs stabilisés et tables consommables par BI. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%------------------------------------------------------------------------------
+\section{Sécurité et gouvernance technique}
+%------------------------------------------------------------------------------
+
+La sécurité est intégrée dès la conception :
+\begin{itemize}
+    \item \textbf{identité} : OIDC GitHub vers AWS et IRSA pour les controllers Kubernetes ;
+    \item \textbf{chiffrement} : clés KMS distinctes pour EBS, secrets et logs ;
+    \item \textbf{réseau} : API EKS privée par défaut, NetworkPolicies et exposition UI via Cloudflare Tunnel ;
+    \item \textbf{secrets} : templates versionnés, valeurs réelles générées localement et exclues de Git ;
+    \item \textbf{traçabilité} : ADR et matrice \texttt{SPEC\_ALIGNMENT.md}.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Observabilité, logging et dashboarding}
+%------------------------------------------------------------------------------
+
+L'observabilité est conçue comme une couche transversale, et non comme un ajout final. Les métriques Kubernetes et applicatives sont collectées par Prometheus ; Grafana fournit les dashboards techniques ; Fluent Bit route les logs vers OpenObserve ; les ServiceMonitors ciblent les composants critiques.
+
+\begin{table}[H]
+\centering
+\caption{Conception de l'observabilité}
+\label{tab:observabilite-conception}
+\small
+\begin{tabular}{@{}p{0.22\textwidth}p{0.64\textwidth}@{}}
+\toprule
+\textbf{Pilier} & \textbf{Mise en œuvre prévue} \\
+\midrule
+Métriques & kube-prometheus-stack, métriques Kubernetes, Spark Operator, MinIO, CNPG, Strimzi, Airflow et Dremio. \\
+Logs & Fluent Bit en DaemonSet, enrichissement Kubernetes, sortie OpenObserve, recherche par namespace/pod/job. \\
+Dashboards & Grafana pour santé cluster, ressources, Kafka, PostgreSQL, Spark, Airflow et stockage ; Power BI pour indicateurs métier Gold. \\
+Alerting & Alertmanager pour alertes techniques : pods crashloop, PVC presque pleins, jobs échoués, connecteurs CDC indisponibles. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%------------------------------------------------------------------------------
+\section{Organisation du dépôt}
+%------------------------------------------------------------------------------
+
+\begin{lstlisting}[language=bash,caption={Structure technique du dépôt}]
+dataplatform-infrastructure/
+  terraform/modules/{vpc,kms,iam,eks,ecr,lambda-scaling}
+  terraform/environments/dev/
+  bootstrap/phase-2..phase-10/
+  docker/spark-iceberg/
+  dags/
+  scripts/bootstrap-phase*.sh
+  docs/specs/, docs/phases/, docs/02-architecture-decision-records.md
+  rapport/
+\end{lstlisting}
+
+\section*{Conclusion du chapitre}
+\addcontentsline{toc}{section}{Conclusion du chapitre 4}
+
+La conception articule une architecture Lakehouse, un socle EKS sécurisé, un pipeline médaillon et une observabilité transverse. Le chapitre suivant détaille l'état d'implémentation réel et les phases prévues pour finaliser la démonstration.
+
+\clearpage

@@ -1,0 +1,131 @@
+\chapter{ÉTAT DE L'ART}
+\label{ch:etat-art}
+
+Ce chapitre présente les fondements techniques sur lesquels repose la solution. Il ne s'agit pas d'une simple liste d'outils, mais d'une analyse des concepts qui structurent les plateformes de données modernes : Lakehouse, architecture médaillon, Kubernetes, operators, ingestion temps réel, transformation distribuée, virtualisation SQL et observabilité.
+
+%------------------------------------------------------------------------------
+\section{Évolution des plateformes de données}
+%------------------------------------------------------------------------------
+
+Les premières architectures décisionnelles reposaient principalement sur des entrepôts de données centralisés. Ces solutions offraient de bonnes performances analytiques, mais elles étaient souvent coûteuses, rigides face aux données semi-structurées et difficiles à faire évoluer rapidement. Les data lakes ont ensuite permis de stocker de grands volumes de données brutes à moindre coût, généralement sur stockage objet. En contrepartie, ils ont introduit de nouveaux défis : gouvernance insuffisante, qualité variable, absence de transactions fiables et difficulté à exposer les données aux utilisateurs métiers.
+
+Les architectures \textbf{Lakehouse} répondent à cette tension en combinant la flexibilité du data lake avec certaines garanties du data warehouse. Elles s'appuient sur des formats de tables ouverts, comme Apache Iceberg, qui apportent un catalogue, une évolution de schéma, des snapshots, une meilleure isolation des écritures et une exploitation efficace par plusieurs moteurs de calcul.
+
+\begin{table}[H]
+\centering
+\caption{Comparaison synthétique des architectures data}
+\label{tab:data-architectures}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}YYY@{}}
+\toprule
+\textbf{Critère} & \textbf{Data Warehouse} & \textbf{Data Lake} & \textbf{Lakehouse} \\
+\midrule
+Type de données & Structurées & Brutes, variées & Structurées et semi-structurées \\
+Coût de stockage & Élevé & Faible & Faible à modéré \\
+Gouvernance & Forte & Variable & Renforcée par catalogue et formats ouverts \\
+Évolution de schéma & Contrôlée mais rigide & Souple mais risquée & Souple avec métadonnées transactionnelles \\
+Cas d'usage & BI classique & Archivage, exploration & BI, ML, streaming, batch \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%------------------------------------------------------------------------------
+\section{Architecture Lakehouse et modèle médaillon}
+%------------------------------------------------------------------------------
+
+Le modèle \textbf{médaillon} organise les données selon leur niveau de qualité et de préparation. Il est particulièrement adapté à un projet de plateforme, car il sépare clairement les responsabilités :
+\begin{description}
+    \item[Bronze] couche d'atterrissage contenant les données brutes, proches de la source, historisées et rejouables ;
+    \item[Silver] couche nettoyée et standardisée, où les types, règles de qualité et premières jointures sont appliqués ;
+    \item[Gold] couche orientée usage, contenant des agrégats, indicateurs et tables prêtes pour la BI.
+\end{description}
+
+Dans ce projet, Apache Iceberg fournit la structure transactionnelle du Lakehouse, tandis que MinIO apporte le stockage objet compatible S3. Hive Metastore joue le rôle de catalogue central pour permettre aux moteurs Spark et Dremio de partager la même représentation des tables.
+
+%------------------------------------------------------------------------------
+\section{Kubernetes et approche cloud-native}
+%------------------------------------------------------------------------------
+
+Kubernetes s'est imposé comme standard d'orchestration des applications conteneurisées. Dans une plateforme data, il permet de déployer de manière homogène des composants hétérogènes : bases de données, brokers Kafka, jobs Spark, orchestrateurs, services SQL et outils d'observabilité.
+
+L'intérêt de Kubernetes dans ce projet repose sur quatre points :
+\begin{itemize}
+    \item \textbf{portabilité} : la plateforme peut être adaptée à AWS, à un autre cloud ou à un environnement on-premise ;
+    \item \textbf{isolation} : les namespaces, RBAC, quotas et NetworkPolicies structurent la sécurité ;
+    \item \textbf{élasticité} : les workloads compute peuvent être dimensionnés selon le besoin ;
+    \item \textbf{automatisation} : les operators encapsulent la logique d'exploitation des systèmes complexes.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Pattern Operator}
+%------------------------------------------------------------------------------
+
+Un \textbf{operator} Kubernetes étend l'API du cluster au moyen de Custom Resource Definitions (CRD). Il permet de décrire un système complexe par un objet déclaratif, puis de laisser un contrôleur réconcilier l'état réel avec l'état désiré. Cette approche réduit les opérations manuelles et standardise le déploiement.
+
+\begin{table}[H]
+\centering
+\caption{Operators mobilisés dans le projet}
+\label{tab:operators}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.25\textwidth}Yp{0.23\textwidth}@{}}
+\toprule
+\textbf{Operator} & \textbf{Rôle} & \textbf{Couche} \\
+\midrule
+CloudNativePG & Déploiement et gestion de clusters PostgreSQL & Source / Metastore \\
+MinIO Operator & Gestion d'un tenant de stockage objet compatible S3 & Stockage \\
+Strimzi & Déploiement de Kafka, topics et KafkaConnect & Ingestion \\
+Spark Operator & Soumission de traitements Spark comme ressources Kubernetes & Calcul \\
+Cloudflare Operator & Publication contrôlée des services via tunnels Zero Trust & Sécurité / Exposition \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%------------------------------------------------------------------------------
+\section{Ingestion batch et streaming}
+%------------------------------------------------------------------------------
+
+Une plateforme de données doit couvrir plusieurs modes d'ingestion. Les fichiers CSV/XLSX sont fréquents dans les processus opérationnels et nécessitent une ingestion batch robuste. Les bases transactionnelles, quant à elles, doivent pouvoir alimenter la plateforme sans exports complets répétés. La \textbf{Change Data Capture} répond à ce besoin en capturant les insertions, mises à jour et suppressions directement depuis le journal de transaction.
+
+Le couple \textbf{Kafka + Debezium} constitue une solution standard pour ce cas d'usage. Kafka sert de buffer durable et découple la source des consommateurs. Debezium transforme les changements de PostgreSQL en événements exploitables par les jobs Spark. Apache NiFi complète l'ensemble en offrant une interface orientée flux pour certains scénarios d'ingestion fichier ou semi-structurée.
+
+%------------------------------------------------------------------------------
+\section{Transformation distribuée et orchestration}
+%------------------------------------------------------------------------------
+
+Apache Spark est retenu pour les traitements distribués, notamment l'écriture de tables Iceberg et la consommation de flux Kafka. dbt complète Spark en introduisant une approche déclarative des transformations SQL, avec un modèle de projet versionné, testable et compréhensible par les profils data.
+
+Airflow joue le rôle d'orchestrateur. Il permet de planifier les traitements, de suivre leur exécution et de structurer les dépendances entre ingestion Bronze, transformation Silver et production Gold. Dans la solution, les DAGs Airflow soumettent des ressources SparkApplication, ce qui conserve une séparation claire entre orchestration et calcul.
+
+%------------------------------------------------------------------------------
+\section{Virtualisation SQL et Business Intelligence}
+%------------------------------------------------------------------------------
+
+Dremio est utilisé comme couche de virtualisation SQL. Son rôle est de permettre l'interrogation des tables Iceberg sans déplacer les données vers un entrepôt propriétaire. Cette approche facilite l'accès aux données par les analystes tout en conservant le stockage principal dans le Lakehouse. La couche Gold peut ensuite être consommée par des outils BI, notamment Power BI, via une connexion SQL/ODBC ou Arrow Flight selon l'environnement cible.
+
+%------------------------------------------------------------------------------
+\section{Infrastructure as Code et CI/CD}
+%------------------------------------------------------------------------------
+
+L'Infrastructure as Code constitue un pilier du projet. Terraform décrit les ressources cloud : réseau, cluster, IAM, clés KMS, ECR et scaling. Le choix d'un backend Cloudflare R2 pour l'état Terraform permet de séparer la gestion de l'état du compte AWS déployé, ce qui réduit le couplage opérationnel.
+
+La CI/CD avec GitHub Actions permet d'exécuter les plans Terraform et de contrôler les déploiements. L'authentification OIDC évite l'usage de clés AWS statiques longues durées, ce qui constitue une bonne pratique de sécurité.
+
+%------------------------------------------------------------------------------
+\section{Observabilité}
+%------------------------------------------------------------------------------
+
+Une plateforme de données n'est exploitable que si elle est observable. Les trois piliers retenus sont :
+\begin{itemize}
+    \item \textbf{métriques} : consommation CPU/mémoire, état des pods, performances Kafka, état PostgreSQL, jobs Spark ;
+    \item \textbf{logs} : journaux Airflow, Spark, Kafka, Dremio et opérateurs Kubernetes ;
+    \item \textbf{dashboards et alertes} : visualisation Grafana et alertes sur les défaillances critiques.
+\end{itemize}
+
+Le projet s'appuie sur Prometheus, Grafana, Fluent Bit et OpenObserve. Cette combinaison permet de couvrir à la fois le monitoring technique et l'analyse des incidents applicatifs.
+
+\section*{Conclusion du chapitre}
+\addcontentsline{toc}{section}{Conclusion du chapitre 2}
+
+L'état de l'art montre que la solution retenue s'inscrit dans les standards actuels du data engineering cloud-native : formats ouverts, orchestration Kubernetes, séparation stockage/calcul, pipelines reproductibles et observabilité intégrée. Ces principes guident l'analyse des besoins présentée au chapitre suivant.
+
+\clearpage
