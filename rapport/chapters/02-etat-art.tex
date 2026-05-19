@@ -1,15 +1,56 @@
 \chapter{ÉTAT DE L'ART}
 \label{ch:etat-art}
 
-Ce chapitre présente les fondements techniques sur lesquels repose la solution. Il ne s'agit pas d'une simple liste d'outils, mais d'une analyse des concepts qui structurent les plateformes de données modernes : Lakehouse, architecture médaillon, Kubernetes, operators, ingestion temps réel, transformation distribuée, virtualisation SQL et observabilité.
+Ce chapitre présente les fondements techniques sur lesquels repose la solution. Il ne s'agit pas d'une simple liste d'outils, mais d'une analyse des concepts qui structurent les plateformes de données modernes : Lakehouse, architecture médaillon, Kubernetes, operators, ingestion temps réel, transformation distribuée, virtualisation SQL et observabilité. L'objectif est de relier chaque concept à son rôle concret dans la plateforme cible.
+
+\definecolor{etatBlue}{RGB}{37,99,235}
+\definecolor{etatGreen}{RGB}{22,163,74}
+\definecolor{etatOrange}{RGB}{245,124,0}
+\definecolor{etatPurple}{RGB}{124,58,237}
+\definecolor{etatGray}{RGB}{245,247,250}
+\definecolor{etatLine}{RGB}{98,115,135}
+\tikzset{
+    etatbox/.style={rectangle, rounded corners=3pt, draw=etatLine, fill=etatGray, align=center, minimum height=0.82cm, text width=2.75cm, font=\sffamily\scriptsize},
+    etatboxwide/.style={etatbox, text width=3.8cm},
+    etatblue/.style={etatbox, draw=etatBlue, fill=etatBlue!7},
+    etatgreen/.style={etatbox, draw=etatGreen, fill=etatGreen!7},
+    etatorange/.style={etatbox, draw=etatOrange, fill=etatOrange!9},
+    etatpurple/.style={etatbox, draw=etatPurple, fill=etatPurple!7},
+    etatarrow/.style={-{Latex[length=2mm]}, draw=etatLine, line width=0.55pt},
+    etatdash/.style={-{Latex[length=2mm]}, draw=etatPurple, line width=0.55pt, dashed}
+}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\textwidth]{images/architecturePFE.png}
+\caption{Architecture générale de la plateforme Data Lakehouse sur Kubernetes}
+\label{fig:architecture-pfe-etat-art}
+\end{figure}
+
+La figure~\ref{fig:architecture-pfe-etat-art} synthétise l'architecture cible du projet. Les sources de données alimentent une couche d'ingestion composée de NiFi, Debezium et Kafka. Les données sont ensuite stockées dans un Lakehouse fondé sur MinIO, Iceberg et Hive Metastore. Les traitements Spark et dbt produisent les couches analytiques, Airflow orchestre les workflows, Dremio expose les données en SQL et Power BI les consomme côté métier. Les briques d'observabilité, de sécurité, d'Infrastructure as Code et de CI/CD permettent de rendre l'ensemble exploitable, reproductible et gouverné.
 
 %------------------------------------------------------------------------------
 \section{Évolution des plateformes de données}
 %------------------------------------------------------------------------------
 
-Les premières architectures décisionnelles reposaient principalement sur des entrepôts de données centralisés. Ces solutions offraient de bonnes performances analytiques, mais elles étaient souvent coûteuses, rigides face aux données semi-structurées et difficiles à faire évoluer rapidement. Les data lakes ont ensuite permis de stocker de grands volumes de données brutes à moindre coût, généralement sur stockage objet. En contrepartie, ils ont introduit de nouveaux défis : gouvernance insuffisante, qualité variable, absence de transactions fiables et difficulté à exposer les données aux utilisateurs métiers.
+Les premières architectures décisionnelles reposaient principalement sur des entrepôts de données centralisés. Ces solutions offraient de bonnes performances analytiques, mais elles étaient coûteuses, rigides face aux données semi-structurées et difficiles à faire évoluer rapidement. Les data lakes ont ensuite permis de stocker de grands volumes de données brutes à moindre coût, généralement sur stockage objet. En contrepartie, ils ont introduit de nouveaux défis : gouvernance insuffisante, qualité variable, absence de transactions fiables et difficulté à exposer les données aux utilisateurs métiers.
 
-Les architectures \textbf{Lakehouse} répondent à cette tension en combinant la flexibilité du data lake avec certaines garanties du data warehouse. Elles s'appuient sur des formats de tables ouverts, comme Apache Iceberg, qui apportent un catalogue, une évolution de schéma, des snapshots, une meilleure isolation des écritures et une exploitation efficace par plusieurs moteurs de calcul.
+Les architectures \textbf{Lakehouse} répondent à cette tension en combinant la flexibilité du data lake avec certaines garanties du data warehouse. Elles s'appuient sur des formats de tables ouverts, comme Apache Iceberg, qui apportent un catalogue, une évolution de schéma, des snapshots, une meilleure isolation des écritures et une exploitation efficace par plusieurs moteurs de calcul. Dans le cadre du projet, ce modèle est pertinent car il permet d'unifier stockage brut, transformation analytique et consommation BI sans multiplier les silos.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}
+\node[etatblue] (dw) at (0,0) {Data Warehouse\\structuré, performant\\mais rigide};
+\node[etatorange] (dl) at (6.2,0) {Data Lake\\souple, économique\\mais peu gouverné};
+\node[etatgreen] (lh) at (12.4,0) {Lakehouse\\stockage ouvert\\et gouvernance};
+\draw[etatarrow] (dw.east) -- node[above=0.42cm, fill=white, inner xsep=4pt, font=\sffamily\scriptsize] {volumes et diversité} (dl.west);
+\draw[etatarrow] (dl.east) -- node[above=0.42cm, fill=white, inner xsep=4pt, font=\sffamily\scriptsize] {qualité et transactions} (lh.west);
+\end{tikzpicture}
+}
+\caption{Évolution des architectures de données vers le Lakehouse}
+\label{fig:evolution-plateformes-data}
+\end{figure}
 
 \begin{table}[H]
 \centering
@@ -33,34 +74,87 @@ Cas d'usage & BI classique & Archivage, exploration & BI, ML, streaming, batch \
 \section{Architecture Lakehouse et modèle médaillon}
 %------------------------------------------------------------------------------
 
-Le modèle \textbf{médaillon} organise les données selon leur niveau de qualité et de préparation. Il est particulièrement adapté à un projet de plateforme, car il sépare clairement les responsabilités :
-\begin{description}
-    \item[Bronze] couche d'atterrissage contenant les données brutes, proches de la source, historisées et rejouables ;
-    \item[Silver] couche nettoyée et standardisée, où les types, règles de qualité et premières jointures sont appliqués ;
-    \item[Gold] couche orientée usage, contenant des agrégats, indicateurs et tables prêtes pour la BI.
-\end{description}
+Le modèle \textbf{médaillon} organise les données selon leur niveau de qualité et de préparation. La couche Bronze conserve les données brutes et historisées, ce qui permet de rejouer les traitements en cas d'erreur. La couche Silver applique les règles de nettoyage, de typage, de déduplication et de standardisation. La couche Gold produit des tables orientées usages métiers : indicateurs, agrégats, référentiels analytiques et jeux de données prêts pour la BI.
 
-Dans ce projet, Apache Iceberg fournit la structure transactionnelle du Lakehouse, tandis que MinIO apporte le stockage objet compatible S3. Hive Metastore joue le rôle de catalogue central pour permettre aux moteurs Spark et Dremio de partager la même représentation des tables.
+Dans ce projet, Apache Iceberg fournit la structure transactionnelle du Lakehouse, tandis que MinIO apporte le stockage objet compatible S3. Hive Metastore joue le rôle de catalogue central afin que Spark, dbt et Dremio partagent la même représentation des tables. Cette séparation entre stockage, catalogue et moteurs de calcul évite l'enfermement dans un entrepôt propriétaire et facilite l'évolution de la plateforme.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}
+\node[etatboxwide] (sources) at (0,0) {Sources\\bases, fichiers, API};
+\node[etatorange] (bronze) at (4,0) {Bronze\\données brutes\\auditables};
+\node[etatblue] (silver) at (8,0) {Silver\\données nettoyées\\et conformées};
+\node[etatgreen] (gold) at (12,0) {Gold\\données métier\\prêtes BI};
+\node[etatpurple] (catalog) at (8,-1.7) {Catalogue Iceberg / Hive\\schémas, partitions, snapshots};
+\draw[etatarrow] (sources) -- (bronze);
+\draw[etatarrow] (bronze) -- (silver);
+\draw[etatarrow] (silver) -- (gold);
+\draw[etatarrow] (catalog) -- (bronze);
+\draw[etatarrow] (catalog) -- (silver);
+\draw[etatarrow] (catalog) -- (gold);
+\end{tikzpicture}
+}
+\caption{Organisation du Lakehouse selon le modèle médaillon}
+\label{fig:modele-medaillon}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \section{Kubernetes et approche cloud-native}
 %------------------------------------------------------------------------------
 
-Kubernetes s'est imposé comme standard d'orchestration des applications conteneurisées. Dans une plateforme data, il permet de déployer de manière homogène des composants hétérogènes : bases de données, brokers Kafka, jobs Spark, orchestrateurs, services SQL et outils d'observabilité.
+Kubernetes s'est imposé comme standard d'orchestration des applications conteneurisées. Dans une plateforme data, il permet de déployer de manière homogène des composants hétérogènes : bases de données, brokers Kafka, jobs Spark, orchestrateurs, services SQL et outils d'observabilité. Chaque composant est empaqueté sous forme de conteneur, puis exécuté dans un cluster qui gère le placement, le redémarrage, l'exposition réseau et la montée en charge.
 
-L'intérêt de Kubernetes dans ce projet repose sur quatre points :
-\begin{itemize}
-    \item \textbf{portabilité} : la plateforme peut être adaptée à AWS, à un autre cloud ou à un environnement on-premise ;
-    \item \textbf{isolation} : les namespaces, RBAC, quotas et NetworkPolicies structurent la sécurité ;
-    \item \textbf{élasticité} : les workloads compute peuvent être dimensionnés selon le besoin ;
-    \item \textbf{automatisation} : les operators encapsulent la logique d'exploitation des systèmes complexes.
-\end{itemize}
+L'intérêt de Kubernetes repose sur quatre axes. La \textbf{portabilité} permet d'adapter la plateforme à AWS, à un autre cloud ou à un environnement on-premise. L'\textbf{isolation} structure les responsabilités grâce aux namespaces, RBAC, quotas et NetworkPolicies. L'\textbf{élasticité} permet de dimensionner les traitements selon la charge. L'\textbf{automatisation} facilite l'exploitation au moyen d'operators et de manifests déclaratifs.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.94\textwidth}{!}{%
+\begin{tikzpicture}
+\node[etatboxwide] (cluster) at (5.8,1.2) {Cluster Kubernetes EKS};
+\node[etatblue] (ing) at (0,0) {Namespace ingestion\\Kafka, NiFi};
+\node[etatorange] (sto) at (3.9,0) {Namespace storage\\MinIO, Metastore};
+\node[etatgreen] (comp) at (7.8,0) {Namespace compute\\Spark, dbt};
+\node[etatpurple] (obs) at (11.7,0) {Namespace monitoring\\Prometheus, Grafana};
+\draw[etatarrow] (cluster) -- (ing);
+\draw[etatarrow] (cluster) -- (sto);
+\draw[etatarrow] (cluster) -- (comp);
+\draw[etatarrow] (cluster) -- (obs);
+\end{tikzpicture}
+}
+\caption{Rôle de Kubernetes dans l'isolation et l'orchestration des composants}
+\label{fig:kubernetes-cloud-native}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \section{Pattern Operator}
 %------------------------------------------------------------------------------
 
-Un \textbf{operator} Kubernetes étend l'API du cluster au moyen de Custom Resource Definitions (CRD). Il permet de décrire un système complexe par un objet déclaratif, puis de laisser un contrôleur réconcilier l'état réel avec l'état désiré. Cette approche réduit les opérations manuelles et standardise le déploiement.
+Un \textbf{operator} Kubernetes étend l'API du cluster au moyen de Custom Resource Definitions (CRD). Au lieu de déployer manuellement chaque objet technique, l'équipe décrit l'état souhaité dans une ressource déclarative. Le contrôleur de l'operator observe ensuite l'état réel, détecte les écarts et applique les actions nécessaires : création de pods, configuration, sauvegardes, montée de version ou réparation.
+
+Cette logique est particulièrement utile pour les composants stateful et complexes. Déployer Kafka, PostgreSQL, MinIO ou Spark à la main demande de maîtriser de nombreuses règles d'exploitation. Les operators encapsulent cette expertise et rendent les déploiements plus reproductibles. Ils ne remplacent pas la compréhension technique, mais réduisent fortement les opérations répétitives et les risques d'erreur.
+
+\begin{figure}[H]
+\centering
+\vspace{0.4em}
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}
+\node[etatboxwide] (yaml) at (0,0) {Manifeste YAML\\état désiré};
+\node[etatblue, text width=3.1cm] (crd) at (4.8,0) {Custom Resource\\Kafka, MinIO, Spark};
+\node[etatpurple, text width=3.2cm] (op) at (9.6,0) {Operator\\boucle de réconciliation};
+\node[etatgreen, text width=3.1cm] (real) at (14.4,0) {État réel\\pods, services, volumes};
+\draw[etatarrow] (yaml.east) -- (crd.west);
+\draw[etatarrow] (crd.east) -- (op.west);
+\draw[etatarrow] (op.east) -- (real.west);
+\draw[etatdash] (real.south) to[bend left=22]
+  node[below=0.35cm, font=\sffamily\scriptsize] {observation continue} (op.south);
+\end{tikzpicture}
+}
+\vspace{0.6em}
+\caption{Principe de fonctionnement du pattern Operator}
+\label{fig:pattern-operator}
+\end{figure}
+\vspace{0.8em}
 
 \begin{table}[H]
 \centering
@@ -84,48 +178,148 @@ Cloudflare Operator & Publication contrôlée des services via tunnels Zero Trus
 \section{Ingestion batch et streaming}
 %------------------------------------------------------------------------------
 
-Une plateforme de données doit couvrir plusieurs modes d'ingestion. Les fichiers CSV/XLSX sont fréquents dans les processus opérationnels et nécessitent une ingestion batch robuste. Les bases transactionnelles, quant à elles, doivent pouvoir alimenter la plateforme sans exports complets répétés. La \textbf{Change Data Capture} répond à ce besoin en capturant les insertions, mises à jour et suppressions directement depuis le journal de transaction.
+Une plateforme de données doit couvrir plusieurs modes d'ingestion. Les fichiers CSV/XLSX sont fréquents dans les processus opérationnels et nécessitent une ingestion batch robuste : contrôle du format, validation, routage et enrichissement. Les bases transactionnelles, quant à elles, doivent pouvoir alimenter la plateforme sans exports complets répétés. La \textbf{Change Data Capture} répond à ce besoin en capturant les insertions, mises à jour et suppressions directement depuis le journal de transaction.
 
-Le couple \textbf{Kafka + Debezium} constitue une solution standard pour ce cas d'usage. Kafka sert de buffer durable et découple la source des consommateurs. Debezium transforme les changements de PostgreSQL en événements exploitables par les jobs Spark. Apache NiFi complète l'ensemble en offrant une interface orientée flux pour certains scénarios d'ingestion fichier ou semi-structurée.
+Le couple \textbf{Kafka + Debezium} constitue une solution standard pour ce cas d'usage. Kafka sert de buffer durable et découple la source des consommateurs. Debezium transforme les changements de PostgreSQL, SQL Server ou Informix en événements exploitables. Apache NiFi complète l'ensemble en offrant une interface orientée flux pour les scénarios fichier ou semi-structurés. Les données convergent ensuite vers la couche Bronze, où elles restent rejouables et traçables.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}
+\node[etatboxwide] (files) at (0,0.8) {Fichiers\\CSV, XLSX, XLS};
+\node[etatboxwide] (db) at (0,-0.8) {Bases transactionnelles\\PostgreSQL, SQL Server};
+\node[etatblue] (nifi) at (4,0.8) {NiFi\\ingestion batch};
+\node[etatorange] (deb) at (4,-0.8) {Debezium\\CDC};
+\node[etatpurple] (kafka) at (8,0) {Kafka\\buffer durable};
+\node[etatgreen] (bronze) at (12,0) {Bronze\\atterrissage Lakehouse};
+\draw[etatarrow] (files) -- (nifi);
+\draw[etatarrow] (db) -- (deb);
+\draw[etatarrow] (nifi) -- (kafka);
+\draw[etatarrow] (deb) -- (kafka);
+\draw[etatarrow] (kafka) -- (bronze);
+\end{tikzpicture}
+}
+\caption{Modes d'ingestion batch et streaming vers la couche Bronze}
+\label{fig:ingestion-batch-streaming}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \section{Transformation distribuée et orchestration}
 %------------------------------------------------------------------------------
 
-Apache Spark est retenu pour les traitements distribués, notamment l'écriture de tables Iceberg et la consommation de flux Kafka. dbt complète Spark en introduisant une approche déclarative des transformations SQL, avec un modèle de projet versionné, testable et compréhensible par les profils data.
+Apache Spark est retenu pour les traitements distribués, notamment l'écriture de tables Iceberg et la consommation de flux Kafka. Sa capacité à paralléliser les traitements permet d'absorber des volumes importants tout en conservant une logique de transformation programmable en SQL ou PySpark. dbt complète Spark en introduisant une approche déclarative des transformations SQL, avec un modèle de projet versionné, testable et compréhensible par les profils data.
 
-Airflow joue le rôle d'orchestrateur. Il permet de planifier les traitements, de suivre leur exécution et de structurer les dépendances entre ingestion Bronze, transformation Silver et production Gold. Dans la solution, les DAGs Airflow soumettent des ressources SparkApplication, ce qui conserve une séparation claire entre orchestration et calcul.
+Airflow joue le rôle d'orchestrateur. Il permet de planifier les traitements, de suivre leur exécution et de structurer les dépendances entre ingestion Bronze, transformation Silver et production Gold. Dans la solution, les DAGs Airflow soumettent des ressources SparkApplication, ce qui conserve une séparation claire entre orchestration et calcul : Airflow décide quand exécuter, Spark exécute le traitement, dbt formalise une partie des transformations analytiques.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}
+\node[etatpurple] (airflow) at (0,0) {Airflow\\DAGs et dépendances};
+\node[etatblue] (spark) at (4,0) {Spark\\traitements distribués};
+\node[etatgreen] (dbt) at (8,0) {dbt\\modèles SQL et tests};
+\node[etatorange] (lakehouse) at (12,0) {Tables Iceberg\\Silver et Gold};
+\draw[etatarrow] (airflow) -- node[above, font=\sffamily\scriptsize] {soumet} (spark);
+\draw[etatarrow] (spark) -- node[above, font=\sffamily\scriptsize] {alimente} (dbt);
+\draw[etatarrow] (dbt) -- node[above, font=\sffamily\scriptsize] {publie} (lakehouse);
+\end{tikzpicture}
+}
+\caption{Chaîne de transformation et d'orchestration des traitements}
+\label{fig:transformation-orchestration}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \section{Virtualisation SQL et Business Intelligence}
 %------------------------------------------------------------------------------
 
-Dremio est utilisé comme couche de virtualisation SQL. Son rôle est de permettre l'interrogation des tables Iceberg sans déplacer les données vers un entrepôt propriétaire. Cette approche facilite l'accès aux données par les analystes tout en conservant le stockage principal dans le Lakehouse. La couche Gold peut ensuite être consommée par des outils BI, notamment Power BI, via une connexion SQL/ODBC ou Arrow Flight selon l'environnement cible.
+Dremio est utilisé comme couche de virtualisation SQL. Son rôle est de permettre l'interrogation des tables Iceberg sans déplacer les données vers un entrepôt propriétaire. Les analystes peuvent ainsi accéder aux données au moyen d'un moteur SQL, tandis que le stockage principal reste dans le Lakehouse. Cette approche réduit les duplications, simplifie la gouvernance et facilite l'exposition progressive des jeux de données Gold.
+
+La couche BI, représentée par Power BI dans l'architecture cible, consomme les datasets publiés par Dremio. Les rapports peuvent être construits à partir de vues sémantiques, d'agrégats Gold ou de requêtes contrôlées. Le point essentiel est la séparation des responsabilités : le Lakehouse conserve les données, Dremio sert de couche d'accès SQL et Power BI porte la visualisation métier.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.88\textwidth}{!}{%
+\begin{tikzpicture}
+\node[etatorange] (gold) at (0,0) {Gold\\tables métier};
+\node[etatpurple] (dremio) at (4,0) {Dremio\\virtualisation SQL};
+\node[etatblue] (semantic) at (8,0) {Vues sémantiques\\requêtes contrôlées};
+\node[etatgreen] (bi) at (12,0) {Power BI\\tableaux de bord};
+\draw[etatarrow] (gold) -- (dremio);
+\draw[etatarrow] (dremio) -- (semantic);
+\draw[etatarrow] (semantic) -- (bi);
+\end{tikzpicture}
+}
+\caption{Exposition SQL et consommation BI des données Gold}
+\label{fig:virtualisation-bi}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \section{Infrastructure as Code et CI/CD}
 %------------------------------------------------------------------------------
 
-L'Infrastructure as Code constitue un pilier du projet. Terraform décrit les ressources cloud : réseau, cluster, IAM, clés KMS, ECR et scaling. Le choix d'un backend Cloudflare R2 pour l'état Terraform permet de séparer la gestion de l'état du compte AWS déployé, ce qui réduit le couplage opérationnel.
+L'Infrastructure as Code constitue un pilier du projet. Terraform décrit les ressources cloud : réseau, cluster, IAM, clés KMS, ECR et scaling. Le choix d'un backend Cloudflare R2 pour l'état Terraform permet de séparer la gestion de l'état du compte AWS déployé, ce qui réduit le couplage opérationnel. Les manifests Kubernetes, charts Helm et configurations applicatives complètent cette logique déclarative côté cluster.
 
-La CI/CD avec GitHub Actions permet d'exécuter les plans Terraform et de contrôler les déploiements. L'authentification OIDC évite l'usage de clés AWS statiques longues durées, ce qui constitue une bonne pratique de sécurité.
+La CI/CD avec GitHub Actions permet d'exécuter les contrôles, les plans Terraform et les déploiements. L'authentification OIDC évite l'usage de clés AWS statiques longues durées, ce qui constitue une bonne pratique de sécurité. L'ensemble forme une chaîne reproductible : le code décrit l'infrastructure, la pipeline vérifie les changements, puis le déploiement applique les versions validées.
+
+\begin{figure}[H]
+\centering
+\vspace{0.4em}
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}
+\node[etatboxwide] (git) at (0,0) {Repository Git\\code et manifests};
+\node[etatblue, text width=3.1cm] (ci) at (4.9,0) {GitHub Actions\\tests et plans};
+\node[etatorange, text width=3.1cm] (tf) at (9.8,0) {Terraform / Helm\\provisioning};
+\node[etatgreen, text width=3.1cm] (aws) at (14.7,0) {AWS EKS\\plateforme déployée};
+\node[etatpurple, text width=3.4cm] (oidc) at (4.9,-2.1) {OIDC\\authentification sans clé longue durée};
+\draw[etatarrow] (git.east) -- (ci.west);
+\draw[etatarrow] (ci.east) -- (tf.west);
+\draw[etatarrow] (tf.east) -- (aws.west);
+\draw[etatdash] (oidc.north) -- (ci.south);
+\draw[etatdash] (oidc.east) -- (aws.south west);
+\end{tikzpicture}
+}
+\vspace{0.6em}
+\caption{Chaîne Infrastructure as Code et CI/CD}
+\label{fig:iac-cicd}
+\end{figure}
+\vspace{0.8em}
 
 %------------------------------------------------------------------------------
 \section{Observabilité}
 %------------------------------------------------------------------------------
 
-Une plateforme de données n'est exploitable que si elle est observable. Les trois piliers retenus sont :
-\begin{itemize}
-    \item \textbf{métriques} : consommation CPU/mémoire, état des pods, performances Kafka, état PostgreSQL, jobs Spark ;
-    \item \textbf{logs} : journaux Airflow, Spark, Kafka, Dremio et opérateurs Kubernetes ;
-    \item \textbf{dashboards et alertes} : visualisation Grafana et alertes sur les défaillances critiques.
-\end{itemize}
+Une plateforme de données n'est exploitable que si elle est observable. Les métriques indiquent l'état technique des composants : CPU, mémoire, disponibilité des pods, performances Kafka, état PostgreSQL ou exécution des jobs Spark. Les logs donnent le détail des événements applicatifs et facilitent l'analyse des incidents. Les dashboards et alertes permettent enfin d'identifier rapidement les défaillances et d'enclencher les actions correctives.
 
-Le projet s'appuie sur Prometheus, Grafana, Fluent Bit et OpenObserve. Cette combinaison permet de couvrir à la fois le monitoring technique et l'analyse des incidents applicatifs.
+Le projet s'appuie sur Prometheus, Grafana, Fluent Bit et OpenObserve. Prometheus collecte les métriques, Grafana les visualise, Fluent Bit transporte les logs et OpenObserve centralise leur exploration. Cette combinaison couvre à la fois le monitoring technique, la traçabilité des traitements et le suivi opérationnel des services exposés.
+
+\begin{figure}[H]
+\centering
+\vspace{0.4em}
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}
+\node[etatboxwide] (apps) at (0,0) {Services plateforme\\Kafka, Spark, Dremio};
+\node[etatblue, text width=2.9cm] (metrics) at (4.8,1.05) {Métriques\\Prometheus};
+\node[etatorange, text width=2.9cm] (logs) at (4.8,-1.05) {Logs\\Fluent Bit};
+\node[etatgreen, text width=2.9cm] (grafana) at (9.6,1.05) {Dashboards\\Grafana};
+\node[etatpurple, text width=2.9cm] (open) at (9.6,-1.05) {Analyse logs\\OpenObserve};
+\node[etatboxwide] (alerts) at (14.4,0) {Alertes\\diagnostic et action};
+\draw[etatarrow] (apps.east) -- (metrics.west);
+\draw[etatarrow] (apps.east) -- (logs.west);
+\draw[etatarrow] (metrics.east) -- (grafana.west);
+\draw[etatarrow] (logs.east) -- (open.west);
+\draw[etatarrow] (grafana.east) -- (alerts.west);
+\draw[etatarrow] (open.east) -- (alerts.west);
+\end{tikzpicture}
+}
+\vspace{0.6em}
+\caption{Piliers d'observabilité de la plateforme}
+\label{fig:observabilite}
+\end{figure}
+\vspace{0.8em}
 
 \section*{Conclusion du chapitre}
 \addcontentsline{toc}{section}{Conclusion du chapitre 2}
 
-L'état de l'art montre que la solution retenue s'inscrit dans les standards actuels du data engineering cloud-native : formats ouverts, orchestration Kubernetes, séparation stockage/calcul, pipelines reproductibles et observabilité intégrée. Ces principes guident l'analyse des besoins présentée au chapitre suivant.
+L'état de l'art montre que la solution retenue s'inscrit dans les standards actuels du data engineering cloud-native : formats ouverts, orchestration Kubernetes, séparation stockage/calcul, pipelines reproductibles et observabilité intégrée. L'architecture globale présentée dans ce chapitre relie ces principes à une implémentation concrète : ingestion multi-source, stockage Lakehouse, transformation distribuée, exposition BI, sécurité, automatisation et supervision. Ces principes guident l'analyse des besoins présentée au chapitre suivant.
 
 \clearpage
