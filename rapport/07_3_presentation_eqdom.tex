@@ -44,23 +44,50 @@ Dans les années 2000, l'entreprise a renforcé son ancrage dans le secteur fina
 
 \begin{figure}[H]
 \centering
-\resizebox{0.95\textwidth}{!}{%
+\definecolor{orgprimary}{RGB}{23,72,86}
+\definecolor{orgsecondary}{RGB}{34,122,118}
+\definecolor{orgaccent}{RGB}{218,96,76}
+\definecolor{orgsoft}{RGB}{247,250,249}
+\definecolor{orgline}{RGB}{35,67,79}
+\resizebox{0.98\textwidth}{!}{%
 \begin{tikzpicture}[
-    box/.style={rectangle, rounded corners=2pt, draw=tocblueblack, fill=lightpanel, align=center, minimum height=0.9cm, text width=3.25cm, font=\small},
-    main/.style={box, fill=white, line width=0.8pt, text width=4.4cm, font=\small\bfseries},
-    arr/.style={-{Latex[length=2mm]}, draw=tocblueblack}
+    orgdark/.style={rectangle, rounded corners=4pt, draw=orgprimary, fill=orgprimary, text=white, align=center, minimum height=0.78cm, text width=4.05cm, inner xsep=5pt, inner ysep=4pt, font=\sffamily\footnotesize\bfseries},
+    orgbox/.style={rectangle, rounded corners=4pt, draw=orgline, fill=orgsoft, text=orgline, align=center, minimum height=0.78cm, text width=3.05cm, inner xsep=5pt, inner ysep=4pt, font=\sffamily\footnotesize},
+    orgaccentbox/.style={rectangle, rounded corners=4pt, draw=orgsecondary, fill=orgsecondary, text=white, align=center, minimum height=0.78cm, text width=4.05cm, inner xsep=5pt, inner ysep=4pt, font=\sffamily\footnotesize\bfseries},
+    orgfocus/.style={orgbox, draw=orgaccent, fill=orgaccent!6, line width=1pt, text width=3.05cm, font=\sffamily\footnotesize\bfseries},
+    link/.style={draw=orgline, line width=0.5pt}
 ]
-\node[main] (dg) {Direction générale};
-\node[box, below left=1.1cm and 2.6cm of dg] (commerce) {Direction commerciale\\Réseau et partenariats};
-\node[box, below=1.1cm of dg] (risque) {Direction risques\\Conformité et contrôle};
-\node[box, below right=1.1cm and 2.6cm of dg] (ops) {Direction opérations\\Crédits et back-office};
-\node[box, below left=1.1cm and 0.3cm of risque] (finance) {Direction financière\\Pilotage et reporting};
-\node[box, below right=1.1cm and 0.3cm of risque] (si) {Direction SI / Data\\Applications et données};
-\draw[arr] (dg) -- (commerce);
-\draw[arr] (dg) -- (risque);
-\draw[arr] (dg) -- (ops);
-\draw[arr] (dg) -- (finance);
-\draw[arr] (dg) -- (si);
+\node[orgdark] (ca) at (0,0) {Conseil d'Administration};
+\node[orgdark, below=0.78cm of ca] (dg) {Direction générale};
+
+\node[orgbox] (commerce) at (-6.0,-3.1) {Direction commerciale\\Réseau et partenariats};
+\node[orgbox] (risque) at (-2.0,-3.1) {Direction risques\\Conformité et contrôle};
+\node[orgdark] (ops) at (2.0,-3.1) {Direction opérations\\Crédits et back-office};
+\node[orgbox] (finance) at (6.0,-3.1) {Direction financière\\Pilotage et reporting};
+
+\node[orgaccentbox, below=1.25cm of ops] (sidata) {Direction SI / Data};
+
+\node[orgbox] (apps) at (-5.1,-6.65) {Applications\\métiers};
+\node[orgbox] (data) at (-1.7,-6.65) {Data\\et reporting};
+\node[orgbox] (infra) at (1.7,-6.65) {Infrastructure\\et sécurité};
+\node[orgfocus] (lakehouse) at (5.1,-6.65) {Plateforme\\Lakehouse};
+
+\begin{pgfonlayer}{background}
+\draw[link] (ca.south) -- (dg.north);
+\draw[link] (-6.0,-2.25) -- (6.0,-2.25);
+\draw[link] (-6.0,-2.25) -- (commerce.north);
+\draw[link] (-2.0,-2.25) -- (risque.north);
+\draw[link] (2.0,-2.25) -- (ops.north);
+\draw[link] (6.0,-2.25) -- (finance.north);
+\draw[link] (ops.south) -- (sidata.north);
+\draw[link] (sidata.south) -- (2.0,-6.02);
+\draw[link] (-5.1,-6.02) -- (5.1,-6.02);
+\draw[link] (-5.1,-6.02) -- (apps.north);
+\draw[link] (-1.7,-6.02) -- (data.north);
+\draw[link] (1.7,-6.02) -- (infra.north);
+\draw[link] (5.1,-6.02) -- (lakehouse.north);
+\end{pgfonlayer}
+\draw[link] (dg.south) -- (0,-2.25);
 \end{tikzpicture}
 }
 \caption{Organigramme simplifié d'EQDOM}
@@ -103,44 +130,35 @@ EQDOM s'appuie sur un réseau de distribution directe afin d'assurer une présen
     \definecolor{mapdot}{RGB}{255,205,0}
     \definecolor{mapmuted}{RGB}{92,96,106}
 
-    % Silhouette schématique inspirée de la carte administrative du Maroc,
-    % étendue de Tanger à Lagouira.
+    % Silhouette schématique centrée sur la zone où EQDOM dispose d'agences.
     \filldraw[fill=mapfill, draw=mapfill, line width=0.9pt]
-        (3.95,14.10) -- (4.52,14.18) -- (4.88,13.82) -- (5.42,13.70)
-        -- (5.88,13.92) -- (6.72,13.55) -- (7.56,13.02) -- (8.08,12.28)
-        -- (8.42,11.42) -- (8.16,10.68) -- (7.28,10.52) -- (6.58,10.58)
-        -- (6.28,9.98) -- (6.82,9.60) -- (6.66,8.86) -- (5.92,8.38)
-        -- (5.12,8.10) -- (4.32,7.88) -- (3.72,7.42) -- (3.70,5.18)
-        -- (2.28,5.18) -- (2.28,3.72) -- (1.52,3.42) -- (1.08,2.78)
-        -- (0.64,2.24) -- (0.40,1.46) -- (0.16,0.82) -- (0.12,0.12)
-        -- (1.66,0.12) -- (1.66,1.74) -- (2.50,2.08) -- (2.50,4.66)
-        -- (3.40,4.66) -- (3.40,7.62) -- (2.62,7.78) -- (2.02,8.22)
-        -- (1.78,8.96) -- (2.10,9.68) -- (2.82,10.22) -- (3.24,10.88)
-        -- (3.36,11.58) -- (3.64,12.18) -- (3.78,12.88) -- cycle;
+        (4.34,14.56) -- (4.84,14.64) -- (5.16,14.28) -- (5.68,14.12)
+        -- (6.08,14.32) -- (6.78,14.08) -- (7.44,13.76) -- (8.06,13.34)
+        -- (8.50,12.70) -- (8.88,11.82) -- (8.64,11.08) -- (7.74,10.92)
+        -- (6.98,11.00) -- (6.62,10.36) -- (7.26,10.00) -- (7.08,9.24)
+        -- (6.34,8.76) -- (5.48,8.42) -- (4.74,8.16) -- (4.20,7.76)
+        -- (3.70,7.28) -- (3.02,7.42) -- (2.42,7.82) -- (1.92,8.42)
+        -- (1.70,9.12) -- (2.10,9.86) -- (2.86,10.38) -- (3.22,11.02)
+        -- (3.52,11.86) -- (3.88,12.62) -- (4.12,13.48) -- cycle;
 
     % Limites administratives stylisées pour rappeler la carte de référence.
     \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (4.30,13.90) -- (4.18,13.12) -- (4.52,12.50) -- (4.45,11.78)
-        -- (4.15,11.10) -- (4.36,10.36) -- (4.02,9.74) -- (4.10,8.72)
-        -- (3.72,7.98);
+        (4.46,14.36) -- (4.28,13.45) -- (4.70,12.78) -- (4.60,11.84)
+        -- (4.28,11.08) -- (4.50,10.38) -- (4.12,9.68) -- (4.22,8.74)
+        -- (4.02,7.84);
     \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (5.00,13.54) -- (5.10,12.74) -- (5.72,12.28) -- (5.64,11.38)
-        -- (6.28,10.58);
+        (5.36,14.10) -- (5.46,13.18) -- (6.08,12.70) -- (6.02,11.84)
+        -- (6.54,11.04);
     \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (5.88,13.86) -- (5.84,13.10) -- (6.34,12.50) -- (6.86,12.18)
-        -- (7.82,12.20);
+        (6.68,14.00) -- (6.62,13.14) -- (7.08,12.56) -- (7.58,12.22)
+        -- (8.20,12.22);
     \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (3.10,10.48) -- (3.78,10.34) -- (4.38,10.00) -- (5.05,10.02)
-        -- (5.86,9.76) -- (6.76,9.42);
+        (3.10,10.40) -- (3.86,10.28) -- (4.52,9.96) -- (5.20,9.98)
+        -- (6.10,9.70) -- (7.02,9.38);
     \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (2.18,8.06) -- (3.12,7.78) -- (3.70,7.42);
-    \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (1.00,2.54) -- (1.68,2.72) -- (2.28,3.02);
-    \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (0.36,1.06) -- (0.92,1.50) -- (1.66,1.74);
-
+        (2.44,8.26) -- (3.22,8.04) -- (4.02,7.62);
     \node[anchor=west, font=\small\bfseries, text=mapline] at (8.90,13.50) {Réseau EQDOM};
-    \node[anchor=west, align=left, text=mapline] at (8.90,13.05) {Carte schématique complète\\de Tanger à Lagouira};
+    \node[anchor=west, align=left, text=mapline] at (8.90,13.05) {Carte des villes\\couvertes par les agences};
 
     \newcommand{\agencycity}[3]{%
         \fill[white, opacity=0.95] (#1,#2) circle[radius=#3];
@@ -165,14 +183,6 @@ EQDOM s'appuie sur un réseau de distribution directe afin d'assurer une présen
     \agencycity{3.60}{8.18}{4.3pt}
     \agencycity{2.58}{8.02}{3.1pt}
 
-    % Repères géographiques pour montrer l'extension complète de la carte.
-    \fill[white] (2.02,3.62) circle (1.4pt);
-    \node[anchor=east, text=mapline, font=\tiny] at (1.82,3.62) {Laâyoune};
-    \fill[white] (1.12,1.56) circle (1.4pt);
-    \node[anchor=east, text=mapline, font=\tiny] at (0.92,1.56) {Dakhla};
-    \fill[white] (0.20,0.28) circle (1.4pt);
-    \node[anchor=west, text=mapline, font=\tiny] at (0.48,0.28) {Lagouira};
-
     % Légende.
     \node[anchor=west, font=\bfseries, text=mapline] at (8.90,12.10) {Légende};
     \fill[white, opacity=0.95] (9.10,11.55) circle[radius=3.1pt];
@@ -187,11 +197,8 @@ EQDOM s'appuie sur un réseau de distribution directe afin d'assurer une présen
     \fill[mapdot] (9.10,10.30) circle[radius=3.8pt];
     \draw[mapline, line width=0.35pt] (9.10,10.30) circle[radius=8.0pt];
     \node[anchor=west] at (9.42,10.30) {6 agences};
-    \fill[white] (9.10,9.55) circle (1.4pt);
-    \node[anchor=west, text=mapmuted] at (9.42,9.55) {Repère sud};
-
-    \node[anchor=west, font=\bfseries, text=mapline] at (8.90,8.70) {Agences par ville};
-    \node[anchor=north west, text=mapline] at (8.90,8.35) {%
+    \node[anchor=west, font=\bfseries, text=mapline] at (8.90,9.45) {Agences par ville};
+    \node[anchor=north west, text=mapline] at (8.90,9.10) {%
         \begin{tabular}{@{}lr@{\hspace{0.45cm}}lr@{}}
         Casablanca & 6 & Rabat & 3 \\
         Tanger & 2 & Marrakech & 2 \\
@@ -205,7 +212,7 @@ EQDOM s'appuie sur un réseau de distribution directe afin d'assurer une présen
     };
 \end{tikzpicture}
 }
-\caption{Carte schématique complète de la répartition des agences EQDOM au Maroc}
+\caption{Carte schématique des villes couvertes par les agences EQDOM}
 \label{fig:carte-agences-eqdom}
 \end{figure}
 
@@ -220,8 +227,9 @@ Le contexte financier impose des exigences particulières :
     \item \textbf{observabilité} : les erreurs, lenteurs et indisponibilités doivent être détectables rapidement.
 \end{itemize}
 
+\normalfont\normalsize
 \subsection{Motivation de la mission}
 
 La mission consiste à proposer une base technique permettant de centraliser les flux de données et de les organiser sous forme de Lakehouse. Le projet n'a pas vocation à remplacer immédiatement tous les systèmes existants ; il fournit un socle reproductible et extensible sur lequel des cas d'usage métiers peuvent ensuite être branchés progressivement.
 
-Le scénario de démonstration retenu s'appuie sur des données représentatives, notamment des tables telles que \texttt{clients} ou \texttt{agency\_budget}. Ce choix permet d'illustrer la chaîne complète : ingestion depuis une source PostgreSQL, capture CDC, écriture Bronze, transformations Silver/Gold et exposition SQL.
+Le scénario de démonstration retenu s'appuie sur des données représentatives, notamment des tables clients et des données budgétaires d'agences. Ce choix permet d'illustrer la chaîne complète : ingestion depuis une source PostgreSQL, capture CDC, écriture Bronze, transformations Silver/Gold et exposition SQL.

@@ -3,28 +3,28 @@
 \contentsline {table}{\numberline {1.1}{\ignorespaces Fiche signalétique de SEVENAPP}}{16}{table.1.1}%
 \contentsline {table}{\numberline {1.2}{\ignorespaces Fiche signalétique d'EQDOM}}{19}{table.1.2}%
 \contentsline {table}{\numberline {1.3}{\ignorespaces Répartition des agences EQDOM par ville}}{20}{table.1.3}%
-\contentsline {table}{\numberline {1.4}{\ignorespaces Planification synthétique du projet}}{23}{table.1.4}%
+\contentsline {table}{\numberline {1.4}{\ignorespaces Planification synthétique du projet}}{24}{table.1.4}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {2.1}{\ignorespaces Comparaison synthétique des architectures data}}{24}{table.2.1}%
-\contentsline {table}{\numberline {2.2}{\ignorespaces Operators mobilisés dans le projet}}{25}{table.2.2}%
+\contentsline {table}{\numberline {2.1}{\ignorespaces Comparaison synthétique des architectures data}}{26}{table.2.1}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces Operators mobilisés dans le projet}}{27}{table.2.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{Exigences fonctionnelles principales}}{29}{table.3.1}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Exigences non fonctionnelles}}{30}{table.3.2}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces Acteurs du système}}{30}{table.3.3}%
-\contentsline {table}{\numberline {3.4}{\ignorespaces Critères d'acceptation du scénario de référence}}{31}{table.3.4}%
+\contentsline {table}{\numberline {3.1}{Exigences fonctionnelles principales}}{31}{table.3.1}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Exigences non fonctionnelles}}{32}{table.3.2}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Acteurs du système}}{32}{table.3.3}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Critères d'acceptation du scénario de référence}}{33}{table.3.4}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Namespaces \texttt {platform-*} alignés avec le cahier des charges}}{33}{table.4.1}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Rôle des couches médaillon}}{34}{table.4.2}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Conception de l'observabilité}}{34}{table.4.3}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Namespaces \texttt {platform-*} alignés avec le cahier des charges}}{35}{table.4.1}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Rôle des couches médaillon}}{36}{table.4.2}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Conception de l'observabilité}}{36}{table.4.3}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Stack technologique principale}}{36}{table.5.1}%
-\contentsline {table}{\numberline {5.2}{Matrice d'avancement et livrables par phase}}{37}{table.5.2}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces DAGs Airflow livrés}}{38}{table.5.3}%
-\contentsline {table}{\numberline {5.4}{\ignorespaces Réalisation de l'observabilité}}{39}{table.5.4}%
-\contentsline {table}{\numberline {5.5}{\ignorespaces Exemples de traçabilité exigence $\rightarrow $ artefact}}{40}{table.5.5}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Stack technologique principale}}{38}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{Matrice d'avancement et livrables par phase}}{39}{table.5.2}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces DAGs Airflow livrés}}{40}{table.5.3}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces Réalisation de l'observabilité}}{41}{table.5.4}%
+\contentsline {table}{\numberline {5.5}{\ignorespaces Exemples de traçabilité exigence $\rightarrow $ artefact}}{42}{table.5.5}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Synthèse des ADR}}{44}{table.A.1}%
+\contentsline {table}{\numberline {A.1}{\ignorespaces Synthèse des ADR}}{46}{table.A.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {B.1}{\ignorespaces Jalons opérationnels (\texttt {docs/phases/PHASE\_CHECKPOINTS.md})}}{45}{table.B.1}%
-\contentsline {table}{\numberline {B.2}{\ignorespaces Preuves recommandées pour la démonstration}}{45}{table.B.2}%
+\contentsline {table}{\numberline {B.1}{\ignorespaces Jalons opérationnels (\texttt {docs/phases/PHASE\_CHECKPOINTS.md})}}{47}{table.B.1}%
+\contentsline {table}{\numberline {B.2}{\ignorespaces Preuves recommandées pour la démonstration}}{47}{table.B.2}%

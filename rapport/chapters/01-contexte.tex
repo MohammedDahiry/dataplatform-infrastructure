@@ -73,21 +73,44 @@ La diversité des références clients de SEVENAPP illustre son positionnement t
 
 \begin{figure}[H]
 \centering
-\resizebox{0.95\textwidth}{!}{%
+\definecolor{orgprimary}{RGB}{23,72,86}
+\definecolor{orgsecondary}{RGB}{34,122,118}
+\definecolor{orgaccent}{RGB}{218,96,76}
+\definecolor{orgsoft}{RGB}{247,250,249}
+\definecolor{orgline}{RGB}{35,67,79}
+\resizebox{0.98\textwidth}{!}{%
 \begin{tikzpicture}[
-    box/.style={rectangle, rounded corners=2pt, draw=tocblueblack, fill=lightpanel, align=center, minimum height=0.9cm, text width=3.2cm, font=\small},
-    main/.style={box, fill=white, line width=0.8pt, text width=4.2cm, font=\small\bfseries},
-    arr/.style={-{Latex[length=2mm]}, draw=tocblueblack}
+    orgdark/.style={rectangle, rounded corners=4pt, draw=orgprimary, fill=orgprimary, text=white, align=center, minimum height=0.78cm, text width=4.0cm, inner xsep=5pt, inner ysep=4pt, font=\sffamily\footnotesize\bfseries},
+    orgbox/.style={rectangle, rounded corners=4pt, draw=orgline, fill=orgsoft, text=orgline, align=center, minimum height=0.78cm, text width=3.05cm, inner xsep=5pt, inner ysep=4pt, font=\sffamily\footnotesize},
+    orgaccentbox/.style={rectangle, rounded corners=4pt, draw=orgsecondary, fill=orgsecondary, text=white, align=center, minimum height=0.78cm, text width=4.0cm, inner xsep=5pt, inner ysep=4pt, font=\sffamily\footnotesize\bfseries},
+    orgfocus/.style={orgbox, draw=orgaccent, fill=orgaccent!6, line width=1pt, text width=3.05cm, font=\sffamily\footnotesize\bfseries},
+    link/.style={draw=orgline, line width=0.5pt}
 ]
-\node[main] (dir) {Direction générale};
-\node[box, below left=1.1cm and 2.6cm of dir] (consulting) {Pôle Consulting\\Stratégie et cadrage};
-\node[box, below=1.1cm of dir] (digital) {Pôle Digital\\Applications et produits};
-\node[box, below right=1.1cm and 2.6cm of dir] (data) {Pôle Data \& IA\\Plateformes, BI et IA};
-\node[box, below=1.1cm of digital] (support) {Fonctions support\\RH, administratif, commercial};
-\draw[arr] (dir) -- (consulting);
-\draw[arr] (dir) -- (digital);
-\draw[arr] (dir) -- (data);
-\draw[arr] (dir) -- (support);
+\node[orgdark] (dir) at (0,0) {Direction générale};
+
+\node[orgbox] (consulting) at (-5.4,-1.95) {Pôle Consulting\\Stratégie et cadrage};
+\node[orgdark] (digital) at (0,-1.95) {Pôle Digital\\Applications et produits};
+\node[orgbox] (support) at (5.4,-1.95) {Fonctions support\\RH, administratif, commercial};
+
+\node[orgaccentbox, below=1.15cm of digital] (dataia) {Pôle Data \& IA};
+
+\node[orgbox] (platform) at (-5.1,-5.3) {Plateformes\\data};
+\node[orgbox] (bi) at (-1.7,-5.3) {Business\\Intelligence};
+\node[orgbox] (ai) at (1.7,-5.3) {Intelligence\\artificielle};
+\node[orgfocus] (cloud) at (5.1,-5.3) {Cloud Data\\Platform};
+
+\begin{pgfonlayer}{background}
+\draw[link] (dir.south) -- ++(0,-0.62) -| (consulting.north);
+\draw[link] (dir.south) -- ++(0,-0.62) -| (digital.north);
+\draw[link] (dir.south) -- ++(0,-0.62) -| (support.north);
+\draw[link] (digital.south) -- (dataia.north);
+\draw[link] (dataia.south) -- (0,-4.65);
+\draw[link] (-5.1,-4.65) -- (5.1,-4.65);
+\draw[link] (-5.1,-4.65) -- (platform.north);
+\draw[link] (-1.7,-4.65) -- (bi.north);
+\draw[link] (1.7,-4.65) -- (ai.north);
+\draw[link] (5.1,-4.65) -- (cloud.north);
+\end{pgfonlayer}
 \end{tikzpicture}
 }
 \caption{Organigramme simplifié de SEVENAPP}
@@ -106,9 +129,9 @@ Le secteur du crédit et du financement exige des systèmes d'information fiable
 \section{Cadre du projet}
 %==============================================================================
 
-Le projet consiste à concevoir et déployer une \textbf{Cloud Data Platform} sur AWS EKS. La plateforme doit couvrir le cycle de vie complet des données : ingestion depuis des sources opérationnelles, stockage dans un Lakehouse, transformation en couches analytiques, orchestration des traitements, exposition SQL/BI et supervision.
+Le projet consiste à concevoir et déployer une \textbf{Cloud Data Platform} sur AWS EKS, adaptée aux besoins d'un environnement financier manipulant des données opérationnelles, analytiques et décisionnelles. La plateforme vise à couvrir le cycle de vie complet des données : ingestion depuis les systèmes sources, stockage dans un Lakehouse, transformation en couches analytiques, orchestration des traitements, exposition SQL/BI et supervision.
 
-Le livrable principal est le dépôt \texttt{dataplatform-infrastructure}. Il contient :
+Le cadrage fonctionnel et technique retient une approche progressive : bâtir d'abord un socle cloud sécurisé et reproductible, puis y intégrer les services nécessaires au pipeline data, à la gouvernance, à l'observabilité et à la consommation des données par les équipes BI. Les livrables principaux regroupent ainsi les éléments nécessaires à la mise en place, à l'exploitation et à la démonstration de la plateforme :
 \begin{itemize}
     \item les modules Terraform de la landing zone AWS ;
     \item les manifests Kubernetes et Helm des différentes phases ;
@@ -116,6 +139,97 @@ Le livrable principal est le dépôt \texttt{dataplatform-infrastructure}. Il co
     \item les DAGs Airflow et jobs Spark/dbt ;
     \item la documentation d'exploitation, de traçabilité et de soutenance.
 \end{itemize}
+
+%==============================================================================
+\section{Problématique}
+%==============================================================================
+
+Dans un contexte financier, les données proviennent de systèmes hétérogènes : bases opérationnelles, applications métiers, fichiers bureautiques et flux applicatifs. Cette diversité complique leur centralisation, leur historisation et leur exploitation analytique. Les équipes métier ont besoin de données fiables, sécurisées et disponibles pour le pilotage, tandis que les équipes techniques doivent garantir la traçabilité des traitements, la reproductibilité des déploiements et la supervision de bout en bout.
+
+La problématique du projet peut donc être formulée ainsi :
+
+\begin{quote}
+\itshape
+Comment concevoir une plateforme data cloud, sécurisée, observable et extensible, capable d'ingérer des sources hétérogènes, de structurer les données dans un Lakehouse et de les exposer aux usages BI et analytiques, tout en assurant la traçabilité, la gouvernance et la maîtrise opérationnelle des traitements ?
+\end{quote}
+
+Cette problématique se décline en plusieurs axes complémentaires, représentés dans la figure~\ref{fig:taxonomie-problematique-data}.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\small,
+    root/.style={rectangle, rounded corners=3pt, draw=tocblueblack, line width=0.7pt, fill=white, align=center, minimum width=3.8cm, minimum height=0.9cm, font=\bfseries},
+    cat/.style={rectangle, rounded corners=3pt, line width=0.75pt, align=center, minimum width=2.65cm, minimum height=0.9cm, font=\bfseries},
+    item/.style={rectangle, rounded corners=3pt, line width=0.55pt, align=center, text width=2.45cm, minimum height=0.82cm, font=\scriptsize},
+    link/.style={draw=tocblueblack, line width=0.45pt},
+    bluecat/.style={cat, draw=blue!70!black, fill=blue!7},
+    blueitem/.style={item, draw=blue!60!black, fill=blue!4},
+    greencat/.style={cat, draw=green!55!black, fill=green!8},
+    greenitem/.style={item, draw=green!45!black, fill=green!4},
+    orangecat/.style={cat, draw=orange!80!black, fill=orange!10},
+    orangeitem/.style={item, draw=orange!75!black, fill=orange!5},
+    purplecat/.style={cat, draw=purple!70!black, fill=purple!8},
+    purpleitem/.style={item, draw=purple!60!black, fill=purple!4},
+    redcat/.style={cat, draw=red!70!black, fill=red!7},
+    reditem/.style={item, draw=red!60!black, fill=red!4}
+]
+
+\node[root] (root) at (7.2,0) {Cloud Data Platform\\cible};
+\draw[link] (root.south) -- (7.2,-1.05);
+\draw[link] (0.8,-1.05) -- (13.6,-1.05);
+
+\node[bluecat]   (sources) at (1.2,-1.85) {Sources\\hétérogènes};
+\node[greencat]  (pipeline) at (4.2,-1.85) {Pipeline\\data};
+\node[orangecat] (lakehouse) at (7.2,-1.85) {Lakehouse\\analytique};
+\node[purplecat] (security) at (10.2,-1.85) {Sécurité\\gouvernance};
+\node[redcat]    (obs) at (13.2,-1.85) {Observabilité\\exploitation};
+
+\foreach \x/\n in {1.2/sources,4.2/pipeline,7.2/lakehouse,10.2/security,13.2/obs}{
+    \draw[link] (\x,-1.05) -- (\n.north);
+}
+
+\node[blueitem] (s1) at (1.2,-3.05) {Bases Informix, ONE et CBS};
+\node[blueitem] (s2) at (1.2,-4.08) {Fichiers métiers\\CSV, XLSX, XLS};
+\node[blueitem] (s3) at (1.2,-5.11) {Données clients, contrats et opérations};
+\draw[link] (sources.south) -- (s1.north);
+\draw[link] (s1.south) -- (s2.north);
+\draw[link] (s2.south) -- (s3.north);
+
+\node[greenitem] (p1) at (4.2,-3.05) {Ingestion batch et flux};
+\node[greenitem] (p2) at (4.2,-4.08) {Orchestration Airflow et traitements Spark};
+\node[greenitem] (p3) at (4.2,-5.11) {Contrôle des phases de déploiement};
+\draw[link] (pipeline.south) -- (p1.north);
+\draw[link] (p1.south) -- (p2.north);
+\draw[link] (p2.south) -- (p3.north);
+
+\node[orangeitem] (l1) at (7.2,-3.05) {Stockage objet et formats ouverts};
+\node[orangeitem] (l2) at (7.2,-4.08) {Couches Bronze, Silver et Gold};
+\node[orangeitem] (l3) at (7.2,-5.11) {Modélisation dbt et exposition SQL};
+\draw[link] (lakehouse.south) -- (l1.north);
+\draw[link] (l1.south) -- (l2.north);
+\draw[link] (l2.south) -- (l3.north);
+
+\node[purpleitem] (g1) at (10.2,-3.05) {Chiffrement et gestion des secrets};
+\node[purpleitem] (g2) at (10.2,-4.08) {Hashing des données sensibles};
+\node[purpleitem] (g3) at (10.2,-5.11) {Traçabilité et séparation des accès};
+\draw[link] (security.south) -- (g1.north);
+\draw[link] (g1.south) -- (g2.north);
+\draw[link] (g2.south) -- (g3.north);
+
+\node[reditem] (o1) at (13.2,-3.05) {Monitoring technique};
+\node[reditem] (o2) at (13.2,-4.08) {Centralisation des logs};
+\node[reditem] (o3) at (13.2,-5.11) {Dashboards BI et indicateurs métier};
+\draw[link] (obs.south) -- (o1.north);
+\draw[link] (o1.south) -- (o2.north);
+\draw[link] (o2.south) -- (o3.north);
+
+\end{tikzpicture}
+}
+\caption{Taxonomie de la problématique data du projet}
+\label{fig:taxonomie-problematique-data}
+\end{figure}
 
 %==============================================================================
 \section{Méthodologie de conduite}
@@ -150,6 +264,112 @@ La démarche adoptée suit une approche itérative inspirée de Scrum. Le projet
 \end{tabularx}
 \end{table}
 
+%==============================================================================
+\section{Planification du projet}
+%==============================================================================
+
+\begin{figure}[H]
+\centering
+\definecolor{ganttNavy}{RGB}{18,34,58}
+\definecolor{ganttText}{RGB}{31,47,61}
+\definecolor{ganttMuted}{RGB}{82,102,123}
+\definecolor{ganttSoft}{RGB}{244,247,251}
+\definecolor{ganttBand}{RGB}{249,251,253}
+\definecolor{ganttLine}{RGB}{214,225,236}
+\definecolor{ganttBlue}{RGB}{37,99,235}
+\definecolor{ganttTeal}{RGB}{13,148,136}
+\definecolor{ganttAmber}{RGB}{245,158,11}
+\definecolor{ganttViolet}{RGB}{124,58,237}
+\definecolor{ganttRose}{RGB}{225,75,104}
+\definecolor{ganttCyan}{RGB}{14,165,233}
+\definecolor{ganttSlate}{RGB}{100,116,139}
+\def\ganttBarHeight{0.76cm}
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\sffamily,
+    title/.style={font=\sffamily\Large\bfseries, text=ganttNavy},
+    subtitle/.style={font=\sffamily\footnotesize, text=ganttMuted},
+    month/.style={font=\sffamily\footnotesize\bfseries, text=ganttNavy},
+    sprint/.style={font=\sffamily\scriptsize\bfseries, text=white},
+    tasktitle/.style={anchor=west, align=left, text width=4.9cm, font=\sffamily\footnotesize\bfseries, text=ganttText},
+    tasksub/.style={anchor=west, align=left, text width=4.9cm, font=\sffamily\scriptsize, text=ganttMuted},
+    date/.style={font=\sffamily\scriptsize\bfseries, text=white, align=center},
+    bar/.style={rounded corners=5pt, minimum height=\ganttBarHeight, inner xsep=0.12cm},
+    grid/.style={draw=ganttLine, line width=0.35pt}
+]
+
+\fill[white] (0,-10.25) rectangle (17.15,1.60);
+\node[title, anchor=west] at (0.35,1.20) {Diagramme de Gantt du projet};
+\node[subtitle, anchor=west] at (0.35,0.66) {Planification de la Cloud Data Platform -- mars à juillet 2026};
+
+% En-tête temporel : une colonne par mois.
+\fill[ganttSoft] (6.10,0.32) rectangle (16.70,-0.28);
+\foreach \x/\m in {6.10/Mars 2026,8.20/Avril 2026,10.30/Mai 2026,12.40/Juin 2026,14.50/Juillet 2026} {
+    \node[month] at (\x+1.05,-0.05) {\m};
+}
+\foreach \x in {6.10,8.20,10.30,12.40,14.50,16.70} {
+    \draw[grid] (\x,0.32) -- (\x,-10.00);
+}
+\draw[grid] (6.10,-0.28) -- (16.70,-0.28);
+
+% Bandes de lecture et séparateurs.
+\foreach \yt/\yb in {-0.28/-1.85,-3.25/-4.65,-6.05/-7.45,-8.85/-10.15} {
+    \fill[ganttBand] (0.35,\yt) rectangle (16.70,\yb);
+}
+\foreach \y in {-1.85,-3.25,-4.65,-6.05,-7.45,-8.85,-10.15} {
+    \draw[grid] (0.35,\y) -- (16.70,\y);
+}
+
+% Libellés des phases.
+\node[fill=ganttNavy, rounded corners=2pt, minimum width=0.50cm, minimum height=0.38cm, sprint] at (0.72,-1.20) {S1};
+\node[tasktitle] at (1.12,-0.98) {Cadrage et état de l'art};
+\node[tasksub] at (1.12,-1.42) {Analyse du besoin et périmètre fonctionnel};
+
+\node[fill=ganttNavy, rounded corners=2pt, minimum width=0.50cm, minimum height=0.38cm, sprint] at (0.72,-2.60) {S2};
+\node[tasktitle] at (1.12,-2.38) {Conception de l'architecture};
+\node[tasksub] at (1.12,-2.82) {Architecture cible, choix techniques et sécurité};
+
+\node[fill=ganttNavy, rounded corners=2pt, minimum width=0.50cm, minimum height=0.38cm, sprint] at (0.72,-4.00) {S3};
+\node[tasktitle] at (1.12,-3.78) {Socle cloud AWS/EKS};
+\node[tasksub] at (1.12,-4.22) {Infrastructure Kubernetes, réseau et IAM};
+
+\node[fill=ganttNavy, rounded corners=2pt, minimum width=0.50cm, minimum height=0.38cm, sprint] at (0.72,-5.40) {S4};
+\node[tasktitle] at (1.12,-5.18) {Stockage et ingestion};
+\node[tasksub] at (1.12,-5.69) {MinIO, PostgreSQL, Kafka, NiFi et Debezium};
+
+\node[fill=ganttNavy, rounded corners=2pt, minimum width=0.50cm, minimum height=0.38cm, sprint] at (0.72,-6.80) {S5};
+\node[tasktitle] at (1.12,-6.58) {Compute et Lakehouse};
+\node[tasksub] at (1.12,-7.10) {Spark, Iceberg, dbt et orchestration Airflow};
+
+\node[fill=ganttNavy, rounded corners=2pt, minimum width=0.50cm, minimum height=0.38cm, sprint] at (0.72,-8.20) {S6};
+\node[tasktitle] at (1.12,-7.98) {Serving, sécurité et observabilité};
+\node[tasksub] at (1.12,-8.50) {Dremio, exposition, supervision et logs};
+
+\node[fill=ganttNavy!70, rounded corners=2pt, minimum width=0.50cm, minimum height=0.38cm, sprint] at (0.72,-9.60) {R};
+\node[tasktitle] at (1.12,-9.38) {Tests, démonstration et rédaction};
+\node[tasksub] at (1.12,-9.90) {Validation, soutenance et rapport final};
+
+% Barres Gantt. Chaque boîte indique sa longueur et sa largeur visuelles.
+\node[bar, date, fill=ganttBlue, minimum width=1.90cm] at (6.99,-1.20) {1--23 mars};
+
+\node[bar, date, fill=ganttTeal, minimum width=2.45cm] at (8.46,-2.60) {24 mars--15 avr.};
+
+\node[bar, date, fill=ganttAmber, minimum width=2.42cm] at (10.09,-4.00) {16 avr.--10 mai};
+
+\node[bar, date, fill=ganttViolet, minimum width=2.35cm] at (11.82,-5.40) {11 mai--5 juin};
+
+\node[bar, date, fill=ganttRose, minimum width=1.75cm] at (13.39,-6.80) {6--25 juin};
+
+\node[bar, date, fill=ganttCyan, minimum width=2.38cm] at (14.76,-8.20) {26 juin--15 juil.};
+
+\node[bar, date, fill=ganttSlate, minimum width=3.45cm] at (15.00,-9.60) {20 juin--31 juillet};
+
+\end{tikzpicture}
+}
+\caption{Diagramme de Gantt du projet}
+\label{fig:gantt-projet}
+\end{figure}
+\newpage
 %==============================================================================
 \section{Apports attendus}
 %==============================================================================
