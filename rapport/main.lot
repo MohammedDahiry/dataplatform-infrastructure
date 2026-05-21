@@ -8,23 +8,24 @@
 \contentsline {table}{\numberline {2.1}{\ignorespaces Comparaison synthétique des architectures data}}{27}{table.2.1}%
 \contentsline {table}{\numberline {2.2}{\ignorespaces Operators mobilisés dans le projet}}{29}{table.2.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{Exigences fonctionnelles principales}}{33}{table.3.1}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Exigences non fonctionnelles}}{34}{table.3.2}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces Acteurs du système}}{34}{table.3.3}%
-\contentsline {table}{\numberline {3.4}{\ignorespaces Critères d'acceptation du scénario de référence}}{35}{table.3.4}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Sources de données retenues dans le périmètre}}{34}{table.3.1}%
+\contentsline {table}{\numberline {3.2}{Exigences fonctionnelles principales}}{34}{table.3.2}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Exigences non fonctionnelles}}{35}{table.3.3}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Acteurs du système}}{36}{table.3.4}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces Critères d'acceptation du scénario de référence}}{41}{table.3.5}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Namespaces \texttt {platform-*} alignés avec le cahier des charges}}{37}{table.4.1}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Rôle des couches médaillon}}{38}{table.4.2}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Conception de l'observabilité}}{38}{table.4.3}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Namespaces \texttt {platform-*} alignés avec le cahier des charges}}{44}{table.4.1}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Rôle des couches médaillon}}{45}{table.4.2}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Conception de l'observabilité}}{45}{table.4.3}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Stack technologique principale}}{40}{table.5.1}%
-\contentsline {table}{\numberline {5.2}{Matrice d'avancement et livrables par phase}}{41}{table.5.2}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces DAGs Airflow livrés}}{42}{table.5.3}%
-\contentsline {table}{\numberline {5.4}{\ignorespaces Réalisation de l'observabilité}}{43}{table.5.4}%
-\contentsline {table}{\numberline {5.5}{\ignorespaces Exemples de traçabilité exigence $\rightarrow $ artefact}}{44}{table.5.5}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Stack technologique principale}}{47}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{Matrice d'avancement et livrables par phase}}{48}{table.5.2}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces DAGs Airflow livrés}}{49}{table.5.3}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces Réalisation de l'observabilité}}{50}{table.5.4}%
+\contentsline {table}{\numberline {5.5}{\ignorespaces Exemples de traçabilité exigence $\rightarrow $ artefact}}{51}{table.5.5}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Synthèse des ADR}}{48}{table.A.1}%
+\contentsline {table}{\numberline {A.1}{\ignorespaces Synthèse des ADR}}{55}{table.A.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {B.1}{\ignorespaces Jalons opérationnels (\texttt {docs/phases/PHASE\_CHECKPOINTS.md})}}{49}{table.B.1}%
-\contentsline {table}{\numberline {B.2}{\ignorespaces Preuves recommandées pour la démonstration}}{49}{table.B.2}%
+\contentsline {table}{\numberline {B.1}{\ignorespaces Jalons opérationnels (\texttt {docs/phases/PHASE\_CHECKPOINTS.md})}}{56}{table.B.1}%
+\contentsline {table}{\numberline {B.2}{\ignorespaces Preuves recommandées pour la démonstration}}{56}{table.B.2}%

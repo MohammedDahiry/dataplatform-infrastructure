@@ -30,53 +30,54 @@
 \contentsline {section}{\numberline {2.1}Évolution des plateformes de données}{27}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Architecture Lakehouse et modèle médaillon}{27}{section.2.2}%
 \contentsline {section}{\numberline {2.3}Kubernetes et approche cloud-native}{28}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Pattern Operator}{28}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Ingestion batch et streaming}{29}{section.2.5}%
+\contentsline {section}{\numberline {2.4}Pattern Operator}{29}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Ingestion batch et streaming}{30}{section.2.5}%
 \contentsline {section}{\numberline {2.6}Transformation distribuée et orchestration}{30}{section.2.6}%
-\contentsline {section}{\numberline {2.7}Virtualisation SQL et Business Intelligence}{30}{section.2.7}%
-\contentsline {section}{\numberline {2.8}Infrastructure as Code et CI/CD}{30}{section.2.8}%
-\contentsline {section}{\numberline {2.9}Observabilité}{31}{section.2.9}%
-\contentsline {section}{Conclusion du chapitre 2}{31}{figure.2.10}%
-\contentsline {chapter}{\numberline {3}ANALYSE ET SPÉCIFICATION DES BESOINS}{32}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Problématique}{32}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Objectifs du projet}{32}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Périmètre fonctionnel}{33}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Exigences non fonctionnelles}{34}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Acteurs et responsabilités}{34}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Scénario de référence du pipeline data}{34}{section.3.6}%
-\contentsline {section}{\numberline {3.7}Contraintes de réalisation}{35}{section.3.7}%
-\contentsline {section}{Conclusion du chapitre 3}{35}{section.3.7}%
-\contentsline {chapter}{\numberline {4}CONCEPTION DE LA SOLUTION}{36}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Architecture globale}{36}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Déploiement physique sur AWS EKS}{36}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Landing zone}{36}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Node groups}{37}{subsection.4.2.2}%
-\contentsline {section}{\numberline {4.3}Stratégie des namespaces Kubernetes}{37}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Conception du pipeline médaillon}{37}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Sécurité et gouvernance technique}{38}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Observabilité, logging et dashboarding}{38}{section.4.6}%
-\contentsline {section}{\numberline {4.7}Organisation technique des livrables}{38}{section.4.7}%
-\contentsline {section}{Conclusion du chapitre 4}{39}{lstnumber.4.1.9}%
-\contentsline {chapter}{\numberline {5}RÉALISATION ET MISE EN ŒUVRE}{40}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Stack technologique implémentée}{40}{section.5.1}%
-\contentsline {section}{\numberline {5.2}État d'avancement par phase}{40}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Phase 1 — Landing zone et socle Kubernetes}{41}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Phase 2 — Stockage Lakehouse et métastore}{42}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Phase 3 — Ingestion, Kafka et CDC}{42}{section.5.5}%
-\contentsline {section}{\numberline {5.6}Phase 4 — Spark, dbt et Airflow}{42}{section.5.6}%
-\contentsline {section}{\numberline {5.7}Phase 5 — Serving avec Dremio}{43}{section.5.7}%
-\contentsline {section}{\numberline {5.8}Phase 6 — Exposition sécurisée Cloudflare}{43}{section.5.8}%
-\contentsline {section}{\numberline {5.9}Phase 7 — Monitoring, logging et dashboarding}{43}{section.5.9}%
-\contentsline {section}{\numberline {5.10}Automatisation, CI/CD et cycle de vie}{43}{section.5.10}%
-\contentsline {section}{\numberline {5.11}Traçabilité avec le cahier des charges}{44}{section.5.11}%
-\contentsline {section}{\numberline {5.12}Difficultés rencontrées et mitigations}{44}{section.5.12}%
-\contentsline {section}{\numberline {5.13}Plan de finalisation}{44}{section.5.13}%
-\contentsline {section}{Conclusion du chapitre 5}{45}{Item.20}%
-\contentsline {chapter}{\numberline {6}CONCLUSION ET PERSPECTIVES}{46}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Bilan du projet}{46}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limites}{46}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Perspectives}{46}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Apports personnels}{47}{section.6.4}%
-\contentsline {chapter}{\numberline {A}Architecture Decision Records (synthèse)}{48}{appendix.A}%
-\contentsline {chapter}{\numberline {B}Checklist des phases (soutenance)}{49}{appendix.B}%
-\contentsline {chapter}{Bibliographie}{50}{appendix*.11}%
+\contentsline {section}{\numberline {2.7}Virtualisation SQL et Business Intelligence}{31}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Infrastructure as Code et CI/CD}{31}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Observabilité}{32}{section.2.9}%
+\contentsline {section}{Conclusion du chapitre 2}{32}{figure.2.12}%
+\contentsline {chapter}{\numberline {3}ANALYSE ET SPÉCIFICATION DES BESOINS}{33}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Problématique}{33}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Objectifs du projet}{33}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Périmètre fonctionnel}{34}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Exigences non fonctionnelles}{35}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Acteurs et responsabilités}{36}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Diagrammes de compréhension fonctionnelle et technique}{36}{subsection.3.5.1}%
+\contentsline {section}{\numberline {3.6}Scénario de référence du pipeline data}{41}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Contraintes de réalisation}{41}{section.3.7}%
+\contentsline {section}{Conclusion du chapitre 3}{42}{section.3.7}%
+\contentsline {chapter}{\numberline {4}CONCEPTION DE LA SOLUTION}{43}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Architecture globale}{43}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Déploiement physique sur AWS EKS}{43}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Landing zone}{43}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Node groups}{44}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}Stratégie des namespaces Kubernetes}{44}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Conception du pipeline médaillon}{44}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Sécurité et gouvernance technique}{45}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Observabilité, logging et dashboarding}{45}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Organisation technique des livrables}{45}{section.4.7}%
+\contentsline {section}{Conclusion du chapitre 4}{46}{lstnumber.4.1.9}%
+\contentsline {chapter}{\numberline {5}RÉALISATION ET MISE EN ŒUVRE}{47}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Stack technologique implémentée}{47}{section.5.1}%
+\contentsline {section}{\numberline {5.2}État d'avancement par phase}{47}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Phase 1 — Landing zone et socle Kubernetes}{48}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Phase 2 — Stockage Lakehouse et métastore}{49}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Phase 3 — Ingestion, Kafka et CDC}{49}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Phase 4 — Spark, dbt et Airflow}{49}{section.5.6}%
+\contentsline {section}{\numberline {5.7}Phase 5 — Serving avec Dremio}{50}{section.5.7}%
+\contentsline {section}{\numberline {5.8}Phase 6 — Exposition sécurisée Cloudflare}{50}{section.5.8}%
+\contentsline {section}{\numberline {5.9}Phase 7 — Monitoring, logging et dashboarding}{50}{section.5.9}%
+\contentsline {section}{\numberline {5.10}Automatisation, CI/CD et cycle de vie}{50}{section.5.10}%
+\contentsline {section}{\numberline {5.11}Traçabilité avec le cahier des charges}{51}{section.5.11}%
+\contentsline {section}{\numberline {5.12}Difficultés rencontrées et mitigations}{51}{section.5.12}%
+\contentsline {section}{\numberline {5.13}Plan de finalisation}{51}{section.5.13}%
+\contentsline {section}{Conclusion du chapitre 5}{52}{Item.21}%
+\contentsline {chapter}{\numberline {6}CONCLUSION ET PERSPECTIVES}{53}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Bilan du projet}{53}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limites}{53}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Perspectives}{53}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Apports personnels}{53}{section.6.4}%
+\contentsline {chapter}{\numberline {A}Architecture Decision Records (synthèse)}{55}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Checklist des phases (soutenance)}{56}{appendix.B}%
+\contentsline {chapter}{Bibliographie}{57}{appendix*.11}%

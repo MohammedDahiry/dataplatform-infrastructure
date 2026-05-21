@@ -23,7 +23,7 @@ Ce rapport présente la conception et la mise en place progressive d'une \textbf
 
 La solution proposée repose sur une infrastructure cloud établie autour d'une architecture \textbf{Lakehouse} déployée sur \textbf{AWS EKS}. Cette infrastructure permet d'héberger les services nécessaires à l'ingestion, au stockage, au traitement, à la transformation et à l'exposition des données dans un environnement scalable, sécurisé et exploitable. Elle constitue un socle technique unifié pour remplacer les échanges dispersés par une chaîne de traitement gouvernée, traçable et orientée production.
 
-Les sources de données prises en charge couvrent principalement les bases opérationnelles de l'écosystème métier, notamment la \textbf{base Informix}, la \textbf{base ONE} et la \textbf{base CBS}, ainsi que des fichiers métiers de formats variés tels que \textbf{CSV}, \textbf{XLSX}, \textbf{XLS} et autres fichiers structurés. Ces données sont intégrées à travers le pipeline data défini dans les spécifications fonctionnelles et techniques du projet. Elles transitent progressivement par les différentes zones du \textbf{Data Lake}, selon une logique de structuration et de qualité adaptée aux besoins BI.
+Les sources de données prises en charge couvrent principalement les bases opérationnelles de l'écosystème métier, notamment la \textbf{base Informix CBS}, la \textbf{base ONE} et la \textbf{base SmartStream}, ainsi que des fichiers métiers de formats variés tels que \textbf{CSV}, \textbf{XLSX}, \textbf{XLS} et autres fichiers structurés. Ces données sont intégrées à travers le pipeline data défini dans les spécifications fonctionnelles et techniques du projet. Elles transitent progressivement par les différentes zones du \textbf{Data Lake}, selon une logique de structuration et de qualité adaptée aux besoins BI.
 
 Le pipeline cible permet d'alimenter le Data Lake, de préparer les données pour les \textbf{jobs BI}, puis de les transformer et les modéliser à l'aide de \textbf{dbt} et \textbf{Apache Spark}. Les traitements visent à produire des jeux de données fiables, historisés, documentés et prêts à l'analyse. Une attention particulière est portée à la protection des informations sensibles : les données confidentielles sont hashées à l'aide d'algorithmes avancés afin de préserver leur confidentialité et d'éviter toute exposition non maîtrisée.
 
@@ -32,7 +32,7 @@ Le projet intègre également une dimension d'exploitation indispensable à une 
 \vspace{0.12cm}
 \noindent\colorbox{lightpanel}{%
   \parbox{\dimexpr\linewidth-2\fboxsep\relax}{%
-    \textbf{Mots-clés :} Cloud Data Platform, Lakehouse, Data Lake, AWS EKS, pipeline data, Informix, ONE, CBS, fichiers métiers, BI, dbt, Apache Spark, monitoring, logging, dashboarding, sécurité des données.
+    \textbf{Mots-clés :} Cloud Data Platform, Lakehouse, Data Lake, AWS EKS, pipeline data, Informix CBS, ONE, SmartStream, fichiers métiers, BI, dbt, Apache Spark, monitoring, logging, dashboarding, sécurité des données.
   }%
 }
 \endgroup

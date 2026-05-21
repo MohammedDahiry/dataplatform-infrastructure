@@ -19,7 +19,7 @@ This report presents the design and progressive implementation of a modern \text
 
 The proposed solution is based on an established cloud infrastructure built around a \textbf{Lakehouse} architecture deployed on \textbf{AWS EKS}. This infrastructure hosts the services required for data ingestion, storage, processing, transformation and exposure in a scalable, secure and operationally manageable environment. It provides a unified technical foundation that replaces fragmented data exchanges with a governed, traceable and production-oriented processing chain.
 
-The platform targets several business data sources, mainly operational databases from the enterprise ecosystem, including the \textbf{Informix database}, the \textbf{ONE database} and the \textbf{CBS database}, as well as business files in various formats such as \textbf{CSV}, \textbf{XLSX}, \textbf{XLS} and other structured files. These data sources are integrated through the data pipeline defined in the project's functional and technical specifications. Data progressively flows through the different zones of the \textbf{Data Lake}, following a structured approach aligned with quality, traceability and BI requirements.
+The platform targets several business data sources, mainly operational databases from the enterprise ecosystem, including the \textbf{Informix CBS database}, the \textbf{ONE database} and the \textbf{SmartStream database}, as well as business files in various formats such as \textbf{CSV}, \textbf{XLSX}, \textbf{XLS} and other structured files. These data sources are integrated through the data pipeline defined in the project's functional and technical specifications. Data progressively flows through the different zones of the \textbf{Data Lake}, following a structured approach aligned with quality, traceability and BI requirements.
 
 The target pipeline feeds the Data Lake, prepares data for \textbf{BI jobs}, and enables transformation and modeling using \textbf{dbt} and \textbf{Apache Spark}. The processing layer is designed to produce reliable, historical, documented and analysis-ready datasets. Particular attention is given to the protection of sensitive information: confidential fields are hashed using advanced algorithms to preserve data confidentiality and prevent uncontrolled exposure.
 
@@ -28,7 +28,7 @@ The project also includes essential operational capabilities required for a prof
 \vspace{0.12cm}
 \noindent\colorbox{lightpanel}{%
   \parbox{\dimexpr\linewidth-2\fboxsep\relax}{%
-    \textbf{Keywords:} Cloud Data Platform, Lakehouse, Data Lake, AWS EKS, data pipeline, Informix, ONE, CBS, business files, BI, dbt, Apache Spark, monitoring, logging, dashboarding, data security.
+    \textbf{Keywords:} Cloud Data Platform, Lakehouse, Data Lake, AWS EKS, data pipeline, Informix CBS, ONE, SmartStream, business files, BI, dbt, Apache Spark, monitoring, logging, dashboarding, data security.
   }%
 }
 \endgroup

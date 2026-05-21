@@ -22,7 +22,7 @@ Ce chapitre présente les fondements techniques sur lesquels repose la solution.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.98\textwidth]{images/architecturePFE.png}
+\makebox[\textwidth][c]{\includegraphics[width=1.08\textwidth]{images/architecturePFE.png}}
 \caption{Architecture générale de la plateforme Data Lakehouse sur Kubernetes}
 \label{fig:architecture-pfe-etat-art}
 \end{figure}
@@ -56,18 +56,25 @@ Les architectures \textbf{Lakehouse} répondent à cette tension en combinant la
 \centering
 \caption{Comparaison synthétique des architectures data}
 \label{tab:data-architectures}
-\small
-\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}YYY@{}}
-\toprule
-\textbf{Critère} & \textbf{Data Warehouse} & \textbf{Data Lake} & \textbf{Lakehouse} \\
-\midrule
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{tabularx}{\textwidth}{|p{0.22\textwidth}|Y|Y|Y|}
+\hline
+\rowcolor{tableheader}
+\PFEHeaderCell{Critère} & \PFEHeaderCell{Data Warehouse} & \PFEHeaderCell{Data Lake} & \PFEHeaderCell{Lakehouse} \\
+\hline
 Type de données & Structurées & Brutes, variées & Structurées et semi-structurées \\
+\hline
 Coût de stockage & Élevé & Faible & Faible à modéré \\
+\hline
 Gouvernance & Forte & Variable & Renforcée par catalogue et formats ouverts \\
+\hline
 Évolution de schéma & Contrôlée mais rigide & Souple mais risquée & Souple avec métadonnées transactionnelles \\
+\hline
 Cas d'usage & BI classique & Archivage, exploration & BI, ML, streaming, batch \\
-\bottomrule
+\hline
 \end{tabularx}
+\rowcolors{2}{}{}
 \end{table}
 
 %------------------------------------------------------------------------------
@@ -106,6 +113,15 @@ Dans ce projet, Apache Iceberg fournit la structure transactionnelle du Lakehous
 Kubernetes s'est imposé comme standard d'orchestration des applications conteneurisées. Dans une plateforme data, il permet de déployer de manière homogène des composants hétérogènes : bases de données, brokers Kafka, jobs Spark, orchestrateurs, services SQL et outils d'observabilité. Chaque composant est empaqueté sous forme de conteneur, puis exécuté dans un cluster qui gère le placement, le redémarrage, l'exposition réseau et la montée en charge.
 
 L'intérêt de Kubernetes repose sur quatre axes. La \textbf{portabilité} permet d'adapter la plateforme à AWS, à un autre cloud ou à un environnement on-premise. L'\textbf{isolation} structure les responsabilités grâce aux namespaces, RBAC, quotas et NetworkPolicies. L'\textbf{élasticité} permet de dimensionner les traitements selon la charge. L'\textbf{automatisation} facilite l'exploitation au moyen d'operators et de manifests déclaratifs.
+
+\begin{figure}[H]
+\centering
+\makebox[\textwidth][c]{\includegraphics[width=1.12\textwidth]{images/architecture_infra.png}}
+\caption{Architecture infrastructure de la plateforme Data Lakehouse}
+\label{fig:architecture-infra}
+\end{figure}
+
+La figure~\ref{fig:architecture-infra} détaille la vue infrastructure de la plateforme. Les sources externes et les utilisateurs accèdent à l'environnement au travers d'une couche de sécurité Zero Trust portée par Cloudflare. Le socle cloud AWS regroupe le réseau, le cluster EKS, le stockage persistant, les identités IAM/IRSA, le chiffrement KMS et la gestion des secrets. Les services data sont ensuite déployés dans Kubernetes : ingestion, Kafka, MinIO, Spark, Airflow, dbt, Dremio, Hive Metastore et observabilité. La partie DevOps/DataOps montre que GitHub Actions, Terraform, Ansible et GitOps servent à automatiser le provisionnement, les déploiements et la maintenance. Enfin, la zone EKS met en évidence les namespaces et ressources communes, ce qui illustre la séparation des responsabilités techniques dans le cluster.
 
 \begin{figure}[H]
 \centering
@@ -160,18 +176,25 @@ Cette logique est particulièrement utile pour les composants stateful et comple
 \centering
 \caption{Operators mobilisés dans le projet}
 \label{tab:operators}
-\small
-\begin{tabularx}{\textwidth}{@{}p{0.25\textwidth}Yp{0.23\textwidth}@{}}
-\toprule
-\textbf{Operator} & \textbf{Rôle} & \textbf{Couche} \\
-\midrule
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{tabularx}{\textwidth}{|p{0.25\textwidth}|Y|p{0.23\textwidth}|}
+\hline
+\rowcolor{tableheader}
+\PFEHeaderCell{Operator} & \PFEHeaderCell{Rôle} & \PFEHeaderCell{Couche} \\
+\hline
 CloudNativePG & Déploiement et gestion de clusters PostgreSQL & Source / Metastore \\
+\hline
 MinIO Operator & Gestion d'un tenant de stockage objet compatible S3 & Stockage \\
+\hline
 Strimzi & Déploiement de Kafka, topics et KafkaConnect & Ingestion \\
+\hline
 Spark Operator & Soumission de traitements Spark comme ressources Kubernetes & Calcul \\
+\hline
 Cloudflare Operator & Publication contrôlée des services via tunnels Zero Trust & Sécurité / Exposition \\
-\bottomrule
+\hline
 \end{tabularx}
+\rowcolors{2}{}{}
 \end{table}
 
 %------------------------------------------------------------------------------
@@ -180,14 +203,14 @@ Cloudflare Operator & Publication contrôlée des services via tunnels Zero Trus
 
 Une plateforme de données doit couvrir plusieurs modes d'ingestion. Les fichiers CSV/XLSX sont fréquents dans les processus opérationnels et nécessitent une ingestion batch robuste : contrôle du format, validation, routage et enrichissement. Les bases transactionnelles, quant à elles, doivent pouvoir alimenter la plateforme sans exports complets répétés. La \textbf{Change Data Capture} répond à ce besoin en capturant les insertions, mises à jour et suppressions directement depuis le journal de transaction.
 
-Le couple \textbf{Kafka + Debezium} constitue une solution standard pour ce cas d'usage. Kafka sert de buffer durable et découple la source des consommateurs. Debezium transforme les changements de PostgreSQL, SQL Server ou Informix en événements exploitables. Apache NiFi complète l'ensemble en offrant une interface orientée flux pour les scénarios fichier ou semi-structurés. Les données convergent ensuite vers la couche Bronze, où elles restent rejouables et traçables.
+Le couple \textbf{Kafka + Debezium} constitue une solution standard pour ce cas d'usage. Kafka sert de buffer durable et découple la source des consommateurs. Debezium transforme les changements de PostgreSQL ou Informix en événements exploitables. Apache NiFi complète l'ensemble en offrant une interface orientée flux pour les scénarios fichier ou semi-structurés. Les données convergent ensuite vers la couche Bronze, où elles restent rejouables et traçables.
 
 \begin{figure}[H]
 \centering
 \resizebox{0.96\textwidth}{!}{%
 \begin{tikzpicture}
 \node[etatboxwide] (files) at (0,0.8) {Fichiers\\CSV, XLSX, XLS};
-\node[etatboxwide] (db) at (0,-0.8) {Bases transactionnelles\\PostgreSQL, SQL Server};
+\node[etatboxwide] (db) at (0,-0.8) {Bases transactionnelles\\PostgreSQL, Informix};
 \node[etatblue] (nifi) at (4,0.8) {NiFi\\ingestion batch};
 \node[etatorange] (deb) at (4,-0.8) {Debezium\\CDC};
 \node[etatpurple] (kafka) at (8,0) {Kafka\\buffer durable};
@@ -210,6 +233,15 @@ Le couple \textbf{Kafka + Debezium} constitue une solution standard pour ce cas 
 Apache Spark est retenu pour les traitements distribués, notamment l'écriture de tables Iceberg et la consommation de flux Kafka. Sa capacité à paralléliser les traitements permet d'absorber des volumes importants tout en conservant une logique de transformation programmable en SQL ou PySpark. dbt complète Spark en introduisant une approche déclarative des transformations SQL, avec un modèle de projet versionné, testable et compréhensible par les profils data.
 
 Airflow joue le rôle d'orchestrateur. Il permet de planifier les traitements, de suivre leur exécution et de structurer les dépendances entre ingestion Bronze, transformation Silver et production Gold. Dans la solution, les DAGs Airflow soumettent des ressources SparkApplication, ce qui conserve une séparation claire entre orchestration et calcul : Airflow décide quand exécuter, Spark exécute le traitement, dbt formalise une partie des transformations analytiques.
+
+\begin{figure}[H]
+\centering
+\makebox[\textwidth][c]{\includegraphics[width=1.12\textwidth]{images/pipeline_data.png}}
+\caption{Pipeline data end-to-end de la plateforme}
+\label{fig:pipeline-data}
+\end{figure}
+
+La figure~\ref{fig:pipeline-data} présente le flux fonctionnel de bout en bout. Les sources de données, qu'elles soient relationnelles, fichiers ou API, alimentent d'abord la couche d'ingestion. NiFi couvre les flux batch et fichiers, Debezium capture les changements des bases via CDC, puis Kafka sert de tampon durable et découple les producteurs des consommateurs. Les données arrivent ensuite dans le Lakehouse, où MinIO fournit le stockage objet et Iceberg structure les couches Bronze, Silver et Gold. La transformation s'effectue avec Spark pour les traitements distribués et dbt pour la modélisation SQL, les tests et la documentation. Enfin, Dremio expose les tables au travers d'une couche SQL et Power BI les consomme pour les tableaux de bord. Les outils d'observabilité suivent l'ensemble du parcours afin de surveiller les métriques, les logs, les alertes et la traçabilité.
 
 \begin{figure}[H]
 \centering

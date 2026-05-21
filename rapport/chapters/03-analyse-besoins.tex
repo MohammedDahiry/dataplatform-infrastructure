@@ -7,7 +7,7 @@ Ce chapitre formalise la problématique, les objectifs et les exigences de la Cl
 \section{Problématique}
 %------------------------------------------------------------------------------
 
-Les systèmes d'information financiers produisent des données à forte valeur, mais souvent réparties dans plusieurs environnements : bases OLTP, exports bureautiques, outils de reporting, applications internes et flux opérationnels. Cette dispersion entraîne plusieurs difficultés :
+Les systèmes d'information financiers produisent des données à forte valeur, mais souvent réparties dans plusieurs environnements : bases opérationnelles, exports bureautiques et fichiers métier. Dans le périmètre du projet, les sources à prendre en charge sont clairement identifiées : \textbf{PostgreSQL pour la base ONE}, \textbf{Informix CBS}, \textbf{SmartStream}, ainsi que des \textbf{fichiers métiers CSV, XLS et XLSX}. Cette dispersion entraîne plusieurs difficultés :
 \begin{itemize}
     \item la consolidation des données nécessite des traitements manuels ou semi-automatisés ;
     \item les transformations ne sont pas toujours versionnées, testées ou rejouables ;
@@ -38,31 +38,72 @@ Le projet poursuit quatre objectifs complémentaires :
 \section{Périmètre fonctionnel}
 %------------------------------------------------------------------------------
 
-\begin{longtable}{@{}p{0.12\textwidth}p{0.55\textwidth}p{0.22\textwidth}@{}}
+Le périmètre fonctionnel de la plateforme couvre deux familles de sources. La première correspond aux bases de données opérationnelles, dont les changements doivent pouvoir être capturés ou ingérés sans imposer d'exports manuels répétés. La seconde correspond aux fichiers métiers, souvent utilisés dans les processus de reporting ou de consolidation ponctuelle.
+
+\begin{table}[H]
+\centering
+\caption{Sources de données retenues dans le périmètre}
+\label{tab:sources-donnees}
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{tabularx}{\textwidth}{|p{0.24\textwidth}|p{0.24\textwidth}|Y|}
+\hline
+\rowcolor{tableheader}
+\PFEHeaderCell{Famille} & \PFEHeaderCell{Source} & \PFEHeaderCell{Rôle dans la plateforme} \\
+\hline
+Base opérationnelle & PostgreSQL -- base ONE & Source applicative ingérée vers la couche Bronze, avec possibilité de capture des changements via CDC. \\
+\hline
+Base opérationnelle & Informix -- base Informix CBS & Source applicative à intégrer au Lakehouse pour centraliser les données opérationnelles et analytiques. \\
+\hline
+Base opérationnelle & SmartStream & Source historique ou métier à connecter à la plateforme selon les besoins d'ingestion. \\
+\hline
+Fichiers métiers & CSV, XLS, XLSX & Exports métier ou fichiers de consolidation intégrés en batch vers la couche Bronze. \\
+\hline
+\end{tabularx}
+\rowcolors{2}{}{}
+\end{table}
+
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{longtable}{|p{0.12\textwidth}|p{0.55\textwidth}|p{0.22\textwidth}|}
 \caption{Exigences fonctionnelles principales}
 \label{tab:ef}\\
-\toprule
-\textbf{ID} & \textbf{Exigence} & \textbf{Priorité} \\
-\midrule
+\hline
+\rowcolor{tableheader}
+\PFEHeaderCell{ID} & \PFEHeaderCell{Exigence} & \PFEHeaderCell{Priorité} \\
+\hline
 \endfirsthead
-\toprule
-\textbf{ID} & \textbf{Exigence} & \textbf{Priorité} \\
-\midrule
+\hline
+\rowcolor{tableheader}
+\PFEHeaderCell{ID} & \PFEHeaderCell{Exigence} & \PFEHeaderCell{Priorité} \\
+\hline
 \endhead
 EF-01 & Provisionner une infrastructure AWS comprenant VPC, EKS, IAM, KMS, ECR et backend Terraform distant. & Essentielle \\
+\hline
 EF-02 & Créer les namespaces Kubernetes de la plateforme avec isolation réseau, quotas et stockage chiffré. & Essentielle \\
+\hline
 EF-03 & Déployer une couche de stockage Lakehouse basée sur MinIO, Iceberg et Hive Metastore. & Essentielle \\
-EF-04 & Gérer des bases PostgreSQL via CloudNativePG pour la source de démonstration et le métastore. & Essentielle \\
-EF-05 & Capturer les changements d'une base PostgreSQL par Debezium et publier les événements dans Kafka. & Essentielle \\
-EF-06 & Ingérer des fichiers CSV/XLSX vers la couche Bronze à l'aide de Spark. & Importante \\
+\hline
+EF-04 & Prendre en charge les sources bases de données du périmètre : PostgreSQL pour la base ONE, Informix CBS et SmartStream. & Essentielle \\
+\hline
+EF-05 & Capturer ou ingérer les changements des bases sources, notamment PostgreSQL/ONE via Debezium, et publier les événements dans Kafka lorsque le mode CDC est retenu. & Essentielle \\
+\hline
+EF-06 & Ingérer des fichiers métiers CSV, XLS et XLSX vers la couche Bronze à l'aide de traitements batch. & Importante \\
+\hline
 EF-07 & Transformer les données Bronze en Silver puis Gold avec dbt-spark. & Essentielle \\
+\hline
 EF-08 & Orchestrer les traitements au moyen de DAGs Airflow versionnés. & Essentielle \\
+\hline
 EF-09 & Exposer les tables analytiques via Dremio pour les requêtes SQL et la BI. & Importante \\
+\hline
 EF-10 & Publier les interfaces web par Cloudflare Zero Trust. & Souhaitable \\
+\hline
 EF-11 & Collecter les métriques, logs et dashboards nécessaires à l'exploitation. & Essentielle \\
+\hline
 EF-12 & Préparer une trajectoire GitOps avec ArgoCD. & Optionnelle \\
-\bottomrule
+\hline
 \end{longtable}
+\rowcolors{2}{}{}
 
 %------------------------------------------------------------------------------
 \section{Exigences non fonctionnelles}
@@ -72,20 +113,29 @@ EF-12 & Préparer une trajectoire GitOps avec ArgoCD. & Optionnelle \\
 \centering
 \caption{Exigences non fonctionnelles}
 \label{tab:enf}
-\small
-\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Y@{}}
-\toprule
-\textbf{Axe} & \textbf{Exigence} \\
-\midrule
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{tabularx}{\textwidth}{|p{0.22\textwidth}|Y|}
+\hline
+\rowcolor{tableheader}
+\PFEHeaderCell{Axe} & \PFEHeaderCell{Exigence} \\
+\hline
 Sécurité & Principe du moindre privilège, IRSA, KMS, secrets hors Git, accès EKS restreint, exposition par tunnel sécurisé. \\
+\hline
 Reproductibilité & Infrastructure et composants décrits par code : Terraform, Helm, manifests Kubernetes et scripts Bash. \\
+\hline
 Maintenabilité & Organisation par phases, documentation d'exploitation, séparation entre modules Terraform et manifests applicatifs. \\
+\hline
 Scalabilité & Node groups spécialisés, capacité de montée en charge du compute et architecture extensible à plusieurs sources. \\
+\hline
 Coût & Dimensionnement \texttt{dev}, destruction automatisée, NAT unique en MVP et scaling planifié du node group compute. \\
+\hline
 Observabilité & Supervision des ressources, logs centralisés, dashboards et alertes sur les services critiques. \\
+\hline
 Traçabilité & Correspondance entre cahier des charges, exigences, décisions d'architecture et fichiers du dépôt. \\
-\bottomrule
+\hline
 \end{tabularx}
+\rowcolors{2}{}{}
 \end{table}
 
 %------------------------------------------------------------------------------
@@ -96,18 +146,212 @@ Traçabilité & Correspondance entre cahier des charges, exigences, décisions d
 \centering
 \caption{Acteurs du système}
 \label{tab:acteurs}
-\small
-\begin{tabularx}{\textwidth}{@{}p{0.25\textwidth}Y@{}}
-\toprule
-\textbf{Acteur} & \textbf{Responsabilités} \\
-\midrule
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{tabularx}{\textwidth}{|p{0.25\textwidth}|Y|}
+\hline
+\rowcolor{tableheader}
+\PFEHeaderCell{Acteur} & \PFEHeaderCell{Responsabilités} \\
+\hline
 Data Engineer & Déploiement de la plateforme, ingestion des sources, développement des jobs Spark/dbt, maintenance des DAGs. \\
+\hline
 Analyste BI & Exploration des tables Gold via Dremio et création de tableaux de bord métier. \\
+\hline
 Administrateur Cloud/SRE & Supervision du cluster, gestion des incidents, coûts, accès, logs et métriques. \\
+\hline
 Encadrant technique & Validation de l'architecture, revue des choix, contrôle de l'alignement avec le cahier des charges. \\
-\bottomrule
+\hline
 \end{tabularx}
+\rowcolors{2}{}{}
 \end{table}
+
+\subsection{Diagrammes de compréhension fonctionnelle et technique}
+
+Les diagrammes suivants complètent la lecture des responsabilités en montrant comment les acteurs, les sources et les composants techniques interagissent dans la plateforme. Ils servent de transition entre l'analyse des besoins et le scénario de référence du pipeline data.
+
+\begin{figure}[H]
+\vspace{0.25cm}
+\centering
+\resizebox{0.82\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\sffamily,
+    lane/.style={draw=#1!70, fill=#1!7, rounded corners=7pt, line width=1pt, minimum height=1.45cm, minimum width=4.1cm, align=center, font=\sffamily\small},
+    stage/.style={draw=#1!78, fill=#1!12, rounded corners=6pt, line width=1pt, minimum height=1.25cm, minimum width=4.1cm, align=center, font=\sffamily\small},
+    smallstage/.style={draw=#1!78, fill=#1!12, rounded corners=6pt, line width=0.9pt, minimum height=1.05cm, minimum width=3.4cm, align=center, font=\sffamily\footnotesize},
+    flow/.style={-{Latex[length=3.3mm]}, line width=1pt, draw=tocblueblack!72},
+    softflow/.style={-{Latex[length=2.8mm]}, line width=0.85pt, draw=tocblueblack!48, dashed},
+    rel/.style={font=\sffamily\scriptsize, text=tocblueblack!78, fill=white, inner sep=1.5pt}
+]
+\definecolor{flowblue}{RGB}{42,92,170}
+\definecolor{flowgreen}{RGB}{30,135,95}
+\definecolor{floworange}{RGB}{214,126,24}
+\definecolor{flowpurple}{RGB}{107,72,190}
+\definecolor{flowcyan}{RGB}{23,145,178}
+
+\node[lane=flowblue] (db) {Bases sources\\\textbf{ONE, Informix CBS, SmartStream}};
+\node[lane=floworange, right=1.1cm of db] (files) {Fichiers métiers\\\textbf{CSV, XLS, XLSX}};
+\node[stage=flowcyan, below=1.15cm of db, xshift=2.55cm] (ingest) {Ingestion\\Debezium / connecteurs\\batch fichiers};
+\node[stage=flowpurple, below=1.05cm of ingest] (kafka) {Transport\\Kafka topics\\événements};
+\node[stage=flowgreen, below=1.05cm of kafka] (bronze) {Bronze\\Iceberg\\données brutes};
+\node[stage=flowgreen, below=1.05cm of bronze] (silver) {Silver\\Spark/dbt\\normalisation};
+\node[stage=flowgreen, below=1.05cm of silver] (gold) {Gold\\modèles métier\\agrégats};
+\node[smallstage=flowblue, below=1.05cm of gold] (dremio) {Accès SQL\\Dremio};
+\node[smallstage=floworange, below=0.85cm of dremio] (bi) {Restitution\\Power BI};
+\node[smallstage=flowpurple, right=1.7cm of kafka] (airflow) {Orchestration\\Airflow};
+\node[smallstage=flowcyan, right=1.7cm of silver] (obs) {Observabilité\\Grafana / logs};
+
+\draw[flow] (db.south) |- node[rel, near start, left]{capture CDC / extraction} (ingest.west);
+\draw[flow] (files.south) |- node[rel, near start, right]{chargement batch} (ingest.east);
+\draw[flow] (ingest) -- node[rel, right]{publication messages} (kafka);
+\draw[flow] (kafka) -- node[rel, right]{consommation flux} (bronze);
+\draw[flow] (bronze) -- node[rel, right]{nettoyage} (silver);
+\draw[flow] (silver) -- node[rel, right]{modèles métier} (gold);
+\draw[flow] (gold) -- node[rel, right]{requêtes SQL} (dremio);
+\draw[flow] (dremio) -- node[rel, right]{datasets BI} (bi);
+
+\draw[softflow] (airflow) -- node[rel, above]{déclenche DAG} (ingest);
+\draw[softflow] (airflow) -- node[rel, above]{planifie} (bronze);
+\draw[softflow] (airflow) -- node[rel, above]{orchestre} (silver);
+\draw[softflow] (airflow) |- node[rel, near start, right]{publie} (gold.east);
+\draw[softflow] (ingest.east) -| node[rel, near start, above]{logs ingestion} (obs.north);
+\draw[softflow] (silver) -- node[rel, above]{métriques jobs} (obs);
+\draw[softflow] (gold.east) -| node[rel, near start, below]{qualité / SLA} (obs.south);
+\end{tikzpicture}%
+}%
+\caption{Diagramme de flux de données de la plateforme}
+\label{fig:flux-donnees-besoins}
+\vspace{0.15cm}
+\end{figure}
+
+Ce flux met en évidence deux chemins d'entrée : les bases opérationnelles et les fichiers métiers. Les flèches pleines représentent le chemin principal de la donnée : capture ou extraction, publication dans Kafka, écriture dans Bronze, transformation vers Silver, publication Gold, puis exposition SQL dans Dremio et Power BI. Les flèches en pointillés représentent les relations de pilotage et de supervision : Airflow orchestre les traitements, tandis que Grafana et les logs suivent l'état des jobs, la qualité et les SLA.
+
+\begin{figure}[H]
+\vspace{0.25cm}
+\centering
+\resizebox{0.78\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\sffamily,
+    activity/.style={draw=#1!72, fill=#1!10, rounded corners=7pt, line width=0.95pt, minimum width=4.35cm, minimum height=1.18cm, align=center, font=\sffamily\small},
+    decision/.style={diamond, aspect=2.25, draw=#1!78, fill=#1!10, line width=0.95pt, inner sep=1.5pt, minimum width=3.75cm, align=center, font=\sffamily\small},
+    startstop/.style={draw=tocblueblack!70, fill=tocblueblack!8, rounded corners=14pt, line width=1pt, minimum width=3.45cm, minimum height=0.95cm, align=center, font=\sffamily\small\bfseries},
+    arrow/.style={-{Latex[length=3.2mm]}, draw=tocblueblack!75, line width=0.95pt},
+    note/.style={font=\sffamily\scriptsize, text=tocblueblack!78, fill=white, inner sep=1.3pt}
+]
+\definecolor{actblue}{RGB}{46,95,178}
+\definecolor{actgreen}{RGB}{39,142,105}
+\definecolor{actorange}{RGB}{216,132,31}
+\definecolor{actred}{RGB}{199,67,82}
+\definecolor{actpurple}{RGB}{111,80,190}
+
+\node[startstop] (start) {Déclenchement};
+\node[activity=actblue, below=0.85cm of start] (detect) {Identifier la source\\et le mode d'ingestion};
+\node[decision=actorange, below=0.9cm of detect] (valid) {Source\\valide ?};
+\node[activity=actpurple, below=0.95cm of valid] (load) {Charger ou consommer\\les données};
+\node[activity=actgreen, below=0.85cm of load] (transform) {Transformer\\Bronze vers Silver};
+\node[decision=actorange, below=0.95cm of transform] (quality) {Contrôles\\qualité OK ?};
+\node[activity=actgreen, below=0.95cm of quality] (publish) {Publier les tables\\Gold};
+\node[activity=actblue, below=0.85cm of publish] (serve) {Exposer via Dremio\\et dashboards BI};
+\node[startstop, below=0.85cm of serve] (end) {Suivi continu};
+
+\node[activity=actred, right=1.7cm of valid] (reject) {Journaliser l'erreur\\notifier et corriger};
+
+\draw[arrow] (start) -- node[note, right]{lancement planifié ou manuel} (detect);
+\draw[arrow] (detect) -- node[note, right]{source + mode} (valid);
+\draw[arrow] (valid) -- node[note, right]{oui} (load);
+\draw[arrow] (valid) -- node[note, above]{non} (reject);
+\draw[arrow] (load) -- node[note, right]{lecture flux / fichier} (transform);
+\draw[arrow] (transform) -- node[note, right]{validation qualité} (quality);
+\draw[arrow] (quality) -- node[note, right]{oui : publication} (publish);
+\draw[arrow] (quality.east) -| node[note, near start, below]{non : correction} (reject.south);
+\draw[arrow] (publish) -- node[note, right]{catalogue + accès} (serve);
+\draw[arrow] (serve) -- node[note, right]{métriques, logs, alertes} (end);
+\draw[arrow] (reject.north) |- node[note, near start, above]{reprise après correction} (detect.east);
+\end{tikzpicture}%
+}%
+\caption{Diagramme d'activités du pipeline data}
+\label{fig:activites-pipeline-besoins}
+\vspace{0.15cm}
+\end{figure}
+
+Le diagramme d'activités décrit la logique de traitement attendue. Les relations indiquées sur les flèches précisent le rôle de chaque transition : lancement planifié ou manuel, qualification de la source, lecture du flux ou du fichier, contrôle qualité, publication dans le catalogue et supervision continue. Les retours vers la correction représentent les reprises nécessaires lorsqu'une source ou une transformation n'est pas conforme.
+
+\clearpage
+\begin{figure}[p]
+\centering
+\vspace*{\fill}
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\sffamily,
+    zone/.style={draw=#1!58, fill=#1!5, rounded corners=10pt, line width=1.15pt},
+    comp/.style={draw=#1!78, fill=white, rounded corners=6pt, line width=1pt, minimum width=3.65cm, minimum height=1.16cm, align=center, font=\sffamily\small},
+    cloud/.style={draw=#1!78, fill=#1!10, rounded corners=10pt, line width=1.05pt, minimum width=4.15cm, minimum height=1.25cm, align=center, font=\sffamily\small\bfseries},
+    arrow/.style={-{Latex[length=3.2mm]}, draw=tocblueblack!70, line width=1pt},
+    softarrow/.style={-{Latex[length=3mm]}, draw=tocblueblack!48, line width=0.9pt, dashed},
+    shield/.style={draw=#1!78, fill=#1!10, rounded corners=7pt, line width=1pt, minimum width=4.15cm, minimum height=1.12cm, align=center, font=\sffamily\small},
+    rel/.style={font=\sffamily\tiny, text=tocblueblack!78, fill=white, inner sep=1.5pt}
+]
+\definecolor{cloudblue}{RGB}{38,93,160}
+\definecolor{cloudgreen}{RGB}{42,137,97}
+\definecolor{cloudorange}{RGB}{213,126,23}
+\definecolor{cloudpurple}{RGB}{107,78,180}
+\definecolor{cloudgray}{RGB}{89,105,128}
+
+\node[cloud=cloudorange] (users) at (0,0) {Utilisateurs\\BI / Data};
+\node[shield=cloudpurple] (zt) at (0,-2.25) {Accès sécurisé\\Cloudflare Zero Trust};
+\node[cloud=cloudblue] (aws) at (0,-4.55) {AWS Cloud\\VPC privé};
+
+\node[comp=cloudblue] (iam) at (-5.35,-7.3) {IAM / IRSA\\KMS / Secrets};
+\node[comp=cloudblue] (eks) at (0,-7.3) {Amazon EKS\\cluster Kubernetes};
+\node[comp=cloudblue] (storage) at (5.35,-7.3) {Stockage\\EBS / S3-R2};
+
+\node[comp=cloudgreen] (ingns) at (-6.0,-10.7) {Namespace\\ingestion};
+\node[comp=cloudgreen] (lakens) at (-2.0,-10.7) {Namespace\\lakehouse};
+\node[comp=cloudgreen] (computens) at (2.0,-10.7) {Namespace\\compute};
+\node[comp=cloudgreen] (servens) at (6.0,-10.7) {Namespace\\serving};
+
+\node[comp=cloudpurple] (kafka) at (-6.0,-13.9) {Kafka\\Debezium};
+\node[comp=cloudpurple] (minio) at (-2.0,-13.9) {MinIO\\Iceberg / Hive};
+\node[comp=cloudpurple] (spark) at (2.0,-13.9) {Spark\\Airflow / dbt};
+\node[comp=cloudpurple] (dremio) at (6.0,-13.9) {Dremio\\Power BI};
+
+\node[comp=cloudgray] (devops) at (-3.1,-17.3) {DevOps\\Terraform / GitHub Actions};
+\node[comp=cloudgray] (obs) at (3.1,-17.3) {Observabilité\\Prometheus / Grafana / Logs};
+
+\begin{pgfonlayer}{background}
+    \node[zone=cloudblue, fit=(iam)(eks)(storage), inner sep=0.72cm, label={[font=\sffamily\small\bfseries, text=cloudblue]above left:Socle cloud sécurisé}] {};
+    \node[zone=cloudgreen, fit=(ingns)(lakens)(computens)(servens)(kafka)(minio)(spark)(dremio), inner sep=0.85cm, label={[font=\sffamily\small\bfseries, text=cloudgreen]above left:Services data dans EKS}] {};
+    \node[zone=cloudgray, fit=(devops)(obs), inner sep=0.68cm, label={[font=\sffamily\small\bfseries, text=cloudgray]above left:Exploitation et pilotage}] {};
+\end{pgfonlayer}
+
+\draw[arrow] (users) -- node[rel, right, pos=0.58]{authentification} (zt);
+\draw[arrow] (zt) -- node[rel, right, pos=0.58]{tunnel sécurisé} (aws);
+\draw[arrow] (aws) -- node[rel, right, pos=0.56]{réseau privé} (eks);
+\draw[arrow] (iam) -- node[rel, above, pos=0.45]{identités / secrets} (eks);
+\draw[arrow] (storage) -- node[rel, above, pos=0.55]{volumes / objets} (eks);
+\draw[arrow] (eks) -- node[rel, below, sloped, pos=0.72]{pods} (ingns);
+\draw[arrow] (eks) -- node[rel, below, sloped, pos=0.70]{catalogue} (lakens);
+\draw[arrow] (eks) -- node[rel, below, sloped, pos=0.70]{jobs} (computens);
+\draw[arrow] (eks) -- node[rel, below, sloped, pos=0.72]{services} (servens);
+\draw[arrow] (ingns) -- node[rel, right, pos=0.58]{ingestion} (kafka);
+\draw[arrow] (lakens) -- node[rel, right, pos=0.58]{stockage} (minio);
+\draw[arrow] (computens) -- node[rel, right, pos=0.58]{calcul} (spark);
+\draw[arrow] (servens) -- node[rel, right, pos=0.58]{SQL / BI} (dremio);
+\draw[arrow] (kafka) -- node[rel, above]{événements} (minio);
+\draw[arrow] (minio) -- node[rel, above]{Iceberg} (spark);
+\draw[arrow] (spark) -- node[rel, above]{Gold} (dremio);
+\draw[softarrow] (devops.west) -- ++(-1.0,0) |- node[rel, pos=0.18, left]{provisionne} (eks.west);
+\draw[softarrow] (devops.north) -- node[rel, left, pos=0.55]{Helm} (spark.south);
+\draw[softarrow] (obs.north) -- node[rel, right, pos=0.55]{métriques} (spark.south);
+\draw[softarrow] (obs.east) -- ++(1.0,0) |- node[rel, pos=0.18, right]{logs} (dremio.east);
+\end{tikzpicture}%
+}%
+\caption{Diagramme d'infrastructure cloud cible}
+\label{fig:infra-cloud-besoins}
+\vspace*{\fill}
+\end{figure}
+\clearpage
+
+La vue infrastructure montre la séparation entre le socle cloud, les services data et l'exploitation. Les relations annotées indiquent le sens des dépendances : Cloudflare sécurise l'accès, AWS fournit le réseau privé, IAM/IRSA/KMS portent les identités et secrets, le stockage fournit les volumes et objets, puis EKS déploie les pods dans les namespaces. Les flux data passent de Kafka vers MinIO/Iceberg, puis vers Spark/dbt et Dremio. Les flèches en pointillés décrivent les relations d'exploitation : Terraform et GitHub Actions provisionnent, tandis que Prometheus, Grafana et les logs supervisent les traitements et services.
 
 %------------------------------------------------------------------------------
 \section{Scénario de référence du pipeline data}
@@ -115,9 +359,10 @@ Encadrant technique & Validation de l'architecture, revue des choix, contrôle d
 
 Le scénario de référence sert de fil conducteur au projet. Il illustre le fonctionnement attendu d'un pipeline complet :
 \begin{enumerate}
-    \item une table PostgreSQL source reçoit de nouvelles lignes ou des modifications ;
-    \item Debezium capture ces changements et les publie dans un topic Kafka ;
-    \item un job Spark consomme le flux Kafka et écrit une table Iceberg Bronze ;
+    \item une source du périmètre alimente la plateforme : base PostgreSQL/ONE, Informix CBS, SmartStream ou fichier métier CSV/XLS/XLSX ;
+    \item pour une source base de données, Debezium ou un connecteur adapté capture les changements et les publie dans un topic Kafka lorsque le mode streaming est utilisé ;
+    \item pour une source fichier, un traitement batch valide le format et écrit les données dans la couche Bronze ;
+    \item un job Spark consomme le flux Kafka ou les données batch et écrit une table Iceberg Bronze ;
     \item des modèles dbt transforment la donnée en tables Silver puis Gold ;
     \item Dremio interroge les tables Gold et les rend disponibles pour la BI ;
     \item Prometheus, Grafana, Fluent Bit et OpenObserve permettent de suivre l'exécution.
@@ -127,19 +372,29 @@ Le scénario de référence sert de fil conducteur au projet. Il illustre le fon
 \centering
 \caption{Critères d'acceptation du scénario de référence}
 \label{tab:acceptation}
-\small
-\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Y@{}}
-\toprule
-\textbf{Composant} & \textbf{Critère de validation} \\
-\midrule
-PostgreSQL / Debezium & Une modification source génère un événement CDC dans Kafka. \\
+\PFETableSetup
+\rowcolors{2}{tablealt}{white}
+\begin{tabularx}{\textwidth}{|p{0.22\textwidth}|Y|}
+\hline
+\rowcolor{tableheader}
+\PFEHeaderCell{Composant} & \PFEHeaderCell{Critère de validation} \\
+\hline
+Sources bases / Debezium & Une modification issue de PostgreSQL/ONE, Informix CBS ou SmartStream peut être capturée ou ingérée selon le connecteur retenu. \\
+\hline
+Fichiers métiers & Un fichier CSV, XLS ou XLSX conforme est validé puis chargé vers la couche Bronze. \\
+\hline
 Kafka & Le topic attendu existe et contient les messages produits. \\
+\hline
 Spark / Iceberg & Le job Spark écrit une table Bronze visible dans le catalogue Hive. \\
+\hline
 dbt & Les modèles Silver et Gold s'exécutent sans erreur et produisent des tables requêtables. \\
+\hline
 Dremio & Les tables Gold sont accessibles par requête SQL. \\
+\hline
 Observabilité & Les métriques et logs du pipeline sont consultables dans Grafana et OpenObserve. \\
-\bottomrule
+\hline
 \end{tabularx}
+\rowcolors{2}{}{}
 \end{table}
 
 %------------------------------------------------------------------------------
