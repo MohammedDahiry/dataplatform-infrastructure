@@ -10,6 +10,13 @@ spec:
   instances: 1
   primaryUpdateStrategy: unsupervised
   imageName: ghcr.io/cloudnative-pg/postgresql:16
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
   postgresql:
     parameters:
       max_connections: "200"

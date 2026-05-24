@@ -19,51 +19,335 @@
 
 \refsection{0}
   \datalist[entry]{none/global//global/global}
-    \entry{pfe-spec}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=b9315b57466d3da9c1516f2650d21c84}{%
-           family={Dahiry},
-           familyi={D\bibinitperiod},
-           given={Mohammed},
-           giveni={M\bibinitperiod}}}%
+    \entry{aws-eks}{online}{}
+      \list{organization}{1}{%
+        {Amazon Web Services}%
       }
-      \strng{namehash}{b9315b57466d3da9c1516f2650d21c84}
-      \strng{fullhash}{b9315b57466d3da9c1516f2650d21c84}
-      \strng{bibnamehash}{b9315b57466d3da9c1516f2650d21c84}
-      \strng{authorbibnamehash}{b9315b57466d3da9c1516f2650d21c84}
-      \strng{authornamehash}{b9315b57466d3da9c1516f2650d21c84}
-      \strng{authorfullhash}{b9315b57466d3da9c1516f2650d21c84}
-      \field{extraname}{1}
       \field{sortinit}{1}
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{Specifications\_Doc\_for\_PFE.pdf}
-      \field{title}{Cloud Data Platform Architecture -- End-of-Studies Project Statement of Work}
-      \field{year}{2026}
+      \field{title}{Amazon Elastic Kubernetes Service Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://docs.aws.amazon.com/eks/
+      \endverb
+      \verb{url}
+      \verb https://docs.aws.amazon.com/eks/
+      \endverb
     \endentry
-    \entry{pfe-guide}{misc}{}
-      \name{author}{1}{}{%
-        {{hash=b9315b57466d3da9c1516f2650d21c84}{%
-           family={Dahiry},
-           familyi={D\bibinitperiod},
-           given={Mohammed},
-           giveni={M\bibinitperiod}}}%
+    \entry{kubernetes}{online}{}
+      \list{organization}{1}{%
+        {Cloud Native Computing Foundation}%
       }
-      \strng{namehash}{b9315b57466d3da9c1516f2650d21c84}
-      \strng{fullhash}{b9315b57466d3da9c1516f2650d21c84}
-      \strng{bibnamehash}{b9315b57466d3da9c1516f2650d21c84}
-      \strng{authorbibnamehash}{b9315b57466d3da9c1516f2650d21c84}
-      \strng{authornamehash}{b9315b57466d3da9c1516f2650d21c84}
-      \strng{authorfullhash}{b9315b57466d3da9c1516f2650d21c84}
-      \field{extraname}{2}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{title}{Kubernetes Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://kubernetes.io/docs/
+      \endverb
+      \verb{url}
+      \verb https://kubernetes.io/docs/
+      \endverb
+    \endentry
+    \entry{minio}{online}{}
+      \list{organization}{1}{%
+        {MinIO}%
+      }
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labeltitlesource}{title}
+      \field{title}{MinIO Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://min.io/docs/minio/kubernetes/upstream/
+      \endverb
+      \verb{url}
+      \verb https://min.io/docs/minio/kubernetes/upstream/
+      \endverb
+    \endentry
+    \entry{apache-iceberg}{online}{}
+      \list{organization}{1}{%
+        {Apache Software Foundation}%
+      }
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labeltitlesource}{title}
+      \field{title}{Apache Iceberg Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://iceberg.apache.org/docs/latest/
+      \endverb
+      \verb{url}
+      \verb https://iceberg.apache.org/docs/latest/
+      \endverb
+    \endentry
+    \entry{sevenapp}{online}{}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labeltitlesource}{title}
+      \field{title}{SEVEN -- Votre Digital \& Data Business Partner}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://seven-app.org/
+      \endverb
+      \verb{url}
+      \verb https://seven-app.org/
+      \endverb
+    \endentry
+    \entry{eqdom}{online}{}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labeltitlesource}{title}
+      \field{title}{EQDOM -- Crédit rapide en ligne et financement}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://www.eqdom.ma/
+      \endverb
+      \verb{url}
+      \verb https://www.eqdom.ma/
+      \endverb
+    \endentry
+    \entry{terraform}{online}{}
+      \list{organization}{1}{%
+        {HashiCorp}%
+      }
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labeltitlesource}{title}
+      \field{title}{Terraform Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://developer.hashicorp.com/terraform/docs
+      \endverb
+      \verb{url}
+      \verb https://developer.hashicorp.com/terraform/docs
+      \endverb
+    \endentry
+    \entry{apache-spark}{online}{}
+      \list{organization}{1}{%
+        {Apache Software Foundation}%
+      }
       \field{sortinit}{1}
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{note}{cloud-data-platform-guide.pdf}
-      \field{title}{Cloud Data Platform -- Guide complet Phase 1}
-      \field{year}{2026}
+      \field{title}{Apache Spark Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://spark.apache.org/docs/latest/
+      \endverb
+      \verb{url}
+      \verb https://spark.apache.org/docs/latest/
+      \endverb
+    \endentry
+    \entry{apache-airflow}{online}{}
+      \list{organization}{1}{%
+        {Apache Software Foundation}%
+      }
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labeltitlesource}{title}
+      \field{title}{Apache Airflow Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://airflow.apache.org/docs/
+      \endverb
+      \verb{url}
+      \verb https://airflow.apache.org/docs/
+      \endverb
+    \endentry
+    \entry{dbt}{online}{}
+      \list{organization}{1}{%
+        {dbt Labs}%
+      }
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labeltitlesource}{title}
+      \field{title}{dbt Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://docs.getdbt.com/
+      \endverb
+      \verb{url}
+      \verb https://docs.getdbt.com/
+      \endverb
+    \endentry
+    \entry{dremio}{online}{}
+      \list{organization}{1}{%
+        {Dremio}%
+      }
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labeltitlesource}{title}
+      \field{title}{Dremio Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://docs.dremio.com/
+      \endverb
+      \verb{url}
+      \verb https://docs.dremio.com/
+      \endverb
+    \endentry
+    \entry{strimzi}{online}{}
+      \list{organization}{1}{%
+        {Strimzi}%
+      }
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labeltitlesource}{title}
+      \field{title}{Strimzi Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://strimzi.io/docs/
+      \endverb
+      \verb{url}
+      \verb https://strimzi.io/docs/
+      \endverb
+    \endentry
+    \entry{debezium}{online}{}
+      \list{organization}{1}{%
+        {Debezium}%
+      }
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labeltitlesource}{title}
+      \field{title}{Debezium Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://debezium.io/documentation/
+      \endverb
+      \verb{url}
+      \verb https://debezium.io/documentation/
+      \endverb
+    \endentry
+    \entry{cloudflare}{online}{}
+      \list{organization}{1}{%
+        {Cloudflare}%
+      }
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labeltitlesource}{title}
+      \field{title}{Cloudflare Zero Trust Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://developers.cloudflare.com/cloudflare-one/
+      \endverb
+      \verb{url}
+      \verb https://developers.cloudflare.com/cloudflare-one/
+      \endverb
+    \endentry
+    \entry{prometheus}{online}{}
+      \list{organization}{1}{%
+        {Prometheus}%
+      }
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{title}{Prometheus Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://prometheus.io/docs/
+      \endverb
+      \verb{url}
+      \verb https://prometheus.io/docs/
+      \endverb
+    \endentry
+    \entry{grafana}{online}{}
+      \list{organization}{1}{%
+        {Grafana Labs}%
+      }
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{title}{Grafana Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://grafana.com/docs/grafana/latest/
+      \endverb
+      \verb{url}
+      \verb https://grafana.com/docs/grafana/latest/
+      \endverb
+    \endentry
+    \entry{openobserve}{online}{}
+      \list{organization}{1}{%
+        {OpenObserve}%
+      }
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{title}{OpenObserve Documentation}
+      \field{urlday}{24}
+      \field{urlmonth}{5}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://openobserve.ai/docs/
+      \endverb
+      \verb{url}
+      \verb https://openobserve.ai/docs/
+      \endverb
     \endentry
   \enddatalist
 \endrefsection

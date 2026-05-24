@@ -30,9 +30,8 @@ WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "${WORK_DIR}"' EXIT
 
 cp "${DAGS_DIR}"/*.py "${WORK_DIR}/"
-mkdir -p "${WORK_DIR}/spark"
 if compgen -G "${RENDERED_DIR}/*.yaml" > /dev/null; then
-  cp "${RENDERED_DIR}"/*.yaml "${WORK_DIR}/spark/"
+  cp "${RENDERED_DIR}"/*.yaml "${WORK_DIR}/"
 fi
 
 echo "Generating ConfigMap ${NAMESPACE}/${CONFIGMAP} from $(ls "${WORK_DIR}" | wc -l) DAG files + spark templates..."
@@ -42,7 +41,6 @@ kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply
 kubectl create configmap "${CONFIGMAP}" \
   --namespace "${NAMESPACE}" \
   --from-file="${WORK_DIR}" \
-  --from-file="spark/=${WORK_DIR}/spark" \
   --dry-run=client -o yaml \
   | kubectl apply -f -
 

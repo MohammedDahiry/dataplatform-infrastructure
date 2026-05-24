@@ -7,27 +7,16 @@ Ce chapitre présente l'architecture cible de la Cloud Data Platform. La concept
 \section{Architecture globale}
 %------------------------------------------------------------------------------
 
-La plateforme comporte sept couches logiques~\cite{pfe-spec,pfe-guide} : sources, ingestion, stockage, calcul, virtualisation, présentation et observabilité. Elle est hébergée sur \textbf{AWS EKS} en environnement \texttt{dev}, avec un design compatible avec une évolution multi-cloud ou on-premise grâce à Kubernetes, MinIO et Iceberg.
+La plateforme comporte sept couches logiques : sources, ingestion, stockage, calcul, virtualisation, présentation et observabilité. Elle est hébergée sur \textbf{AWS EKS}~\cite{aws-eks} en environnement \texttt{dev}, avec un design compatible avec une évolution multi-cloud ou on-premise grâce à Kubernetes~\cite{kubernetes}, MinIO~\cite{minio} et Iceberg~\cite{apache-iceberg}.
 
 \begin{figure}[H]
 \centering
-\fbox{\parbox{0.92\textwidth}{\centering\vspace{0.5cm}
-\begin{tabular}{c}
-\textbf{Sources} : PostgreSQL, fichiers CSV/XLSX, systèmes métier \\
-$\Downarrow$ \\
-\textbf{Ingestion} : NiFi, Kafka, Debezium, Spark file ingestion \\
-$\Downarrow$ \\
-\textbf{Lakehouse} : MinIO + Apache Iceberg + Hive Metastore \\
-$\Downarrow$ \\
-\textbf{Compute} : Spark Operator + dbt-spark + Airflow \\
-$\Downarrow$ \\
-\textbf{Serving} : Dremio SQL, Power BI / dashboards analytiques \\
-\end{tabular}\\[0.4cm]
-\textbf{Transverse} : Terraform, KMS, IRSA, NetworkPolicies, Prometheus, Grafana, Fluent Bit, OpenObserve
-\vspace{0.5cm}}}
+\maybeimage[width=0.95\textwidth,height=0.72\textheight,keepaspectratio]{images/screenshots_pipeline/architecture_globale.png}
 \caption{Architecture logique en couches de la Cloud Data Platform}
 \label{fig:arch-globale}
 \end{figure}
+
+Les captures détaillées d'exécution sont présentées dans le chapitre de réalisation. Dans ce chapitre, seules les illustrations qui aident à comprendre les choix d'architecture sont conservées.
 
 %------------------------------------------------------------------------------
 \section{Déploiement physique sur AWS EKS}
@@ -36,6 +25,15 @@ $\Downarrow$ \\
 \subsection{Landing zone}
 
 La landing zone est composée d'un VPC multi-AZ, de sous-réseaux privés et publics, d'un NAT Gateway unique en environnement \texttt{dev}, de clés KMS dédiées et d'un cluster EKS managé. Les modules Terraform \texttt{vpc}, \texttt{kms}, \texttt{iam}, \texttt{eks}, \texttt{ecr} et \texttt{lambda-scaling} isolent les responsabilités et permettent une évolution contrôlée.
+
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Vue AWS du VPC dédié à la plateforme}{images/screenshots_infra/aws_vpc_overview.png}
+\PFEScreenshotItem{Organisation des sous-réseaux et des tables de routage}{images/screenshots_infra/aws_subnets_routes.png}
+\PFEScreenshotItem{Vue générale du cluster EKS \texttt{dataplatform-dev}}{images/screenshots_infra/aws_eks_cluster_overview.png}
+\caption{Socle cible AWS/EKS retenu pour la conception}
+\label{fig:conception-socle-aws-eks}
+\end{figure}
 
 \subsection{Node groups}
 
@@ -46,6 +44,37 @@ Deux groupes de nœuds séparent les contraintes stateful et compute :
 \end{itemize}
 
 Cette séparation rend possible le \textbf{scale-to-zero} du compute sans arrêter les services de stockage, ce qui répond à la contrainte d'optimisation des coûts.
+
+%------------------------------------------------------------------------------
+\section{Stratégie des environnements DEV, UAT et PROD}
+%------------------------------------------------------------------------------
+
+La plateforme est conçue selon une progression d'environnements qui sépare les usages de développement, de validation métier et d'exploitation. Cette séparation évite de mélanger les expérimentations techniques avec les données et services destinés aux utilisateurs finaux.
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=0.96\textwidth,height=0.58\textheight,keepaspectratio]{images/screenshots_pipeline/environments.png}
+\caption{Organisation cible des environnements DEV, UAT et PROD}
+\label{fig:environments-dev-uat-prod}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Rôle des environnements de la plateforme}
+\label{tab:environnements}
+\small
+\begin{tabular}{@{}p{0.16\textwidth}p{0.68\textwidth}@{}}
+\toprule
+\textbf{Environnement} & \textbf{Rôle dans la conception} \\
+\midrule
+\textbf{DEV} & Environnement de construction et d'expérimentation. Il sert à développer les modules Terraform, les manifests Kubernetes, les DAGs Airflow, les jobs Spark et les modèles dbt avec des ressources réduites et des données de test. \\
+\textbf{UAT} & Environnement de recette. Il reproduit la chaîne fonctionnelle de bout en bout pour valider les flux, les tables Silver/Gold, les contrôles de qualité, les accès aux interfaces et les scénarios de démonstration avant promotion. \\
+\textbf{PROD} & Environnement d'exploitation. Il applique des paramètres plus stricts : haute disponibilité, quotas adaptés, sauvegardes, supervision renforcée, secrets réels, contrôle d'accès plus fin et procédures de changement maîtrisées. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Dans cette logique, un changement est d'abord testé en \textbf{DEV}, stabilisé en \textbf{UAT}, puis promu vers \textbf{PROD}. Les mêmes principes d'infrastructure as code, de namespaces, de secrets et de CI/CD sont conservés entre les environnements, mais les tailles de ressources, les règles d'accès et les paramètres de résilience évoluent selon le niveau de criticité.
 
 %------------------------------------------------------------------------------
 \section{Stratégie des namespaces Kubernetes}
@@ -83,17 +112,14 @@ Le pipeline est conçu autour d'un flux principal PostgreSQL $\rightarrow$ Kafka
 
 \begin{figure}[H]
 \centering
-\fbox{\parbox{0.9\textwidth}{\centering\vspace{0.5cm}
-\begin{tabular}{ccccc}
-\textbf{PostgreSQL} & $\xrightarrow{\text{Debezium}}$ & \textbf{Kafka CDC} & $\xrightarrow{\text{Spark}}$ & \textbf{Bronze Iceberg} \\
- & & & & $\Downarrow$ dbt \\
-\textbf{Fichiers} & $\xrightarrow{\text{Spark batch}}$ & \textbf{Bronze fichiers} & $\xrightarrow{\text{dbt}}$ & \textbf{Silver / Gold} \\
-\end{tabular}\\[0.4cm]
-\textbf{Dremio} interroge les tables via Hive Metastore ; \textbf{Power BI} consomme la couche Gold.
-\vspace{0.5cm}}}
+\makebox[\textwidth][c]{%
+  \maybeimage[width=1.08\textwidth,height=0.55\textheight,keepaspectratio]{images/pipeline_data.png}%
+}
 \caption{Flux de données médaillon cible}
 \label{fig:flux-medallion}
 \end{figure}
+
+\clearpage
 
 \begin{table}[H]
 \centering
@@ -111,6 +137,10 @@ Gold & Agrégats orientés analyse, indicateurs stabilisés et tables consommabl
 \end{tabular}
 \end{table}
 
+La couche d'ingestion conserve deux modes complémentaires. NiFi permet de représenter les flux semi-structurés et les scénarios d'intégration métier, tandis qu'Airflow pilote les traitements batch et dbt. Les captures concrètes de ces interfaces sont placées dans le chapitre de réalisation, car elles servent de preuve d'implémentation.
+
+Le stockage objet est organisé par zones Bronze, Silver et Gold. Cette organisation rend visible la progression des données depuis leur état brut jusqu'aux tables analytiques.
+
 %------------------------------------------------------------------------------
 \section{Sécurité et gouvernance technique}
 %------------------------------------------------------------------------------
@@ -121,8 +151,9 @@ La sécurité est intégrée dès la conception :
     \item \textbf{chiffrement} : clés KMS distinctes pour EBS, secrets et logs ;
     \item \textbf{réseau} : API EKS privée par défaut, NetworkPolicies et exposition UI via Cloudflare Tunnel ;
     \item \textbf{secrets} : templates versionnés, valeurs réelles générées localement et exclues de Git ;
-    \item \textbf{traçabilité} : ADR et matrice \texttt{SPEC\_ALIGNMENT.md}.
 \end{itemize}
+
+Les captures AWS et Cloudflare correspondantes sont déplacées dans la partie réalisation afin de montrer l'application concrète de ces principes.
 
 %------------------------------------------------------------------------------
 \section{Observabilité, logging et dashboarding}
@@ -162,6 +193,8 @@ plateforme-data/
   docs/specs/, docs/phases/, docs/02-architecture-decision-records.md
   rapport/
 \end{lstlisting}
+
+Les captures des dossiers, registres, buckets, UIs et validations terminal sont volontairement regroupées dans le chapitre suivant, car elles décrivent la mise en œuvre réelle.
 
 \section*{Conclusion du chapitre}
 \addcontentsline{toc}{section}{Conclusion du chapitre 4}

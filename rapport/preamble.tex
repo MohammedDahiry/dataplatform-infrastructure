@@ -25,6 +25,13 @@
     \fbox{\parbox[c][2.2cm][c]{0.85\linewidth}{\centering\footnotesize Image manquante\\ \texttt{#2}}}%
   }%
 }
+\newcommand{\PFEScreenshotItem}[2]{%
+  \begin{minipage}{\textwidth}
+  \centering
+  \maybeimage[width=0.95\linewidth,height=0.22\textheight,keepaspectratio]{#2}\\[-0.1em]
+  {\footnotesize #1}
+  \end{minipage}\vspace{0.75em}
+}
 \usepackage{float}
 \usepackage{placeins}
 \usepackage{booktabs}

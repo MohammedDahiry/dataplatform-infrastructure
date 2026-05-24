@@ -23,9 +23,9 @@ Stockage & MinIO Operator, MinIO Tenant, Apache Iceberg, Hive Metastore \\
 Ingestion & Strimzi Kafka, KafkaConnect, Debezium, NiFi, Spark file ingestion \\
 Calcul & Spark 3.5, Iceberg runtime, dbt-spark, Spark Operator \\
 Orchestration & Airflow KubernetesExecutor, DAGs versionnés \\
-Serving & Dremio Nautilus, source Hive, intégration Power BI prévue \\
+Serving & Dremio Nautilus, source Hive, exposition SQL/BI via la couche Gold \\
 Sécurité & cert-manager, KMS, IRSA, Cloudflare Tunnel, secrets templates \\
-Observabilité & kube-prometheus-stack, Grafana, Fluent Bit, OpenObserve, ServiceMonitors \\
+Observabilité & kube-prometheus-stack, Grafana, Fluent Bit, OpenObserve, ServiceMonitors, dashboards à finaliser \\
 Cycle de vie & scripts \texttt{fasttrack}, \texttt{teardown}, phases de bootstrap, ArgoCD optionnel \\
 \bottomrule
 \end{tabular}
@@ -50,16 +50,16 @@ Cycle de vie & scripts \texttt{fasttrack}, \texttt{teardown}, phases de bootstra
 2 & Stockage et métastore & cert-manager, MinIO, CNPG \texttt{pg-source}/\texttt{pg-hms}, Hive Metastore, secrets exemples. & Implémenté \\
 3 & Ingestion CDC & Strimzi, Kafka dev/prod, topics, KafkaConnect Debezium, NiFi. & Implémenté \\
 4 & Compute et orchestration & Docker Spark Iceberg, SparkApplications, Airflow, DAGs, dbt models. & Implémenté \\
-5 & Serving SQL/BI & Dremio Helm values, source Hive JSON, documentation Power BI. & Artefacts prêts \\
-6 & Exposition sécurisée & Cloudflare Operator, ClusterTunnel, TunnelBindings Airflow/Dremio/Grafana/NiFi. & Artefacts prêts \\
-7 & Observabilité & kube-prometheus-stack, OpenObserve, Fluent Bit, ServiceMonitors. & Implémenté \\
+5 & Serving SQL/BI & Dremio Helm values, source Hive JSON, documentation Power BI. & Implémenté  \\
+6 & Exposition sécurisée & Cloudflare Operator, ClusterTunnel, TunnelBindings Airflow/Dremio/Grafana/NiFi. & Implémenté  \\
+7 & Observabilité & kube-prometheus-stack, OpenObserve, Fluent Bit, ServiceMonitors, bases Grafana. & À finaliser \\
 8 & CI/CD & GitHub Actions Terraform plan/apply, OIDC AWS, backend R2. & Implémenté \\
-9 & Optimisation coûts & Module Lambda scaling \texttt{compute-ng}, EventBridge cron. & Optionnel \\
-10 & GitOps & ArgoCD values, AppProject, Applications exemples. & Préparé \\
+9 & Optimisation coûts & Module Lambda scaling \texttt{compute-ng}, EventBridge cron. & Implémenté \\
+10 & GitOps & ArgoCD values, AppProject, Applications exemples. & À finaliser \\
 \bottomrule
 \end{longtable}
 
-\textbf{Lecture du statut :} \emph{Implémenté} signifie que le code, les manifests et les scripts sont présents dans le dépôt. \emph{Artefacts prêts} signifie que les fichiers nécessaires existent, mais que l'exécution finale dépend de paramètres externes comme les secrets Cloudflare, le domaine ou les ressources cloud. \emph{Préparé} signifie que la structure est disponible et peut être adaptée à un processus d'industrialisation.
+\textbf{Lecture du statut :} \emph{Implémenté} signifie que le code, les manifests, les scripts et les preuves associées sont présents dans le dépôt. \emph{À finaliser} désigne uniquement les éléments volontairement laissés en perspective : l'import et la personnalisation des dashboards, le durcissement du monitoring/logging et l'activation GitOps complète.
 
 %------------------------------------------------------------------------------
 \section{Phase 1 — Landing zone et socle Kubernetes}
@@ -76,6 +76,33 @@ scripts/bootstrap-cluster.sh
 
 Le script \texttt{bootstrap-cluster.sh} applique ensuite les ressources Kubernetes transverses : namespaces, StorageClass \texttt{gp3} chiffrée, quotas et politiques réseau.
 
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Terminal WSL de validation des namespaces et composants}{images/screenshots_infra/Capture d'écran 2026-05-22 211318.png}
+\PFEScreenshotItem{Terminal WSL de validation des pods et services}{images/screenshots_infra/Capture d'écran 2026-05-22 211650.png}
+\PFEScreenshotItem{Terminal WSL de validation finale de l'environnement}{images/screenshots_infra/Capture d'écran 2026-05-22 211753.png}
+\caption{Validations terminal WSL du socle déployé}
+\label{fig:realisation-wsl-validations}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Vue générale du cluster EKS}{images/screenshots_infra/Capture d'écran 2026-05-22 213317.png}
+\PFEScreenshotItem{Workloads Kubernetes sur EKS}{images/screenshots_infra/Capture d'écran 2026-05-22 213402.png}
+\PFEScreenshotItem{Node group compute EKS}{images/screenshots_infra/Capture d'écran 2026-05-22 213701.png}
+\caption{Cluster EKS, workloads et capacité compute après déploiement}
+\label{fig:realisation-eks-compute}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Volumes persistants EKS}{images/screenshots_infra/Capture d'écran 2026-05-22 213840.png}
+\PFEScreenshotItem{Security group du cluster EKS}{images/screenshots_infra/Capture d'écran 2026-05-22 213930.png}
+\PFEScreenshotItem{Vue du VPC AWS}{images/screenshots_infra/Capture d'écran 2026-05-22 214135.png}
+\caption{Stockage persistant, sécurité réseau et VPC AWS réalisés}
+\label{fig:realisation-network-storage}
+\end{figure}
+
 %------------------------------------------------------------------------------
 \section{Phase 2 — Stockage Lakehouse et métastore}
 %------------------------------------------------------------------------------
@@ -90,6 +117,22 @@ La phase 2 installe les composants persistants nécessaires au Lakehouse. Le scr
 \end{enumerate}
 
 Cette phase matérialise le socle Bronze/Silver/Gold : les données peuvent être déposées dans des buckets ou chemins dédiés, puis référencées sous forme de tables Iceberg.
+
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Navigateur d'objets MinIO pour le Lakehouse}{images/screenshots_pipeline/MinIO_object_browser.png}
+\PFEScreenshotItem{Bucket Bronze dans MinIO}{images/screenshots_pipeline/bucket_bronze.png}
+\PFEScreenshotItem{Bucket Silver dans MinIO}{images/screenshots_pipeline/bucket_silver.png}
+\caption{Stockage objet MinIO et premières zones Lakehouse}
+\label{fig:realisation-minio-bronze-silver}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Bucket Gold dans MinIO}{images/screenshots_pipeline/bucket_gold.png}
+\caption{Zone Gold matérialisée dans MinIO}
+\label{fig:realisation-minio-gold}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \section{Phase 3 — Ingestion, Kafka et CDC}
@@ -106,6 +149,15 @@ PostgreSQL pg-source
 \end{lstlisting}
 
 Le dépôt propose une variante \texttt{dev} légère de Kafka et une variante \texttt{prod} plus proche d'une haute disponibilité. Ce choix permet une soutenance réaliste tout en conservant une trajectoire d'industrialisation.
+
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Flux NiFi Informix EQDOM}{images/screenshots_pipeline/NiFi_informix_eqdom.png}
+\PFEScreenshotItem{Flux NiFi des bases de données}{images/screenshots_pipeline/NiFi_dbs.png}
+\PFEScreenshotItem{Flux NiFi d'ingestion SMS reprise}{images/screenshots_pipeline/sms_reprise_nigestion.png}
+\caption{Flux NiFi réalisés pour l'ingestion des sources métier}
+\label{fig:realisation-nifi-flux}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \section{Phase 4 — Spark, dbt et Airflow}
@@ -131,6 +183,40 @@ La phase 4 implémente la partie centrale du pipeline data. L'image Spark Iceber
 
 Les modèles dbt disponibles démontrent la transformation d'une table budgétaire d'agence vers un staging Silver puis un agrégat Gold mensuel. Cette structure reste extensible à d'autres domaines métier.
 
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Interface Airflow pour le suivi des DAGs}{images/screenshots_pipeline/airflow_UI.png}
+\PFEScreenshotItem{Graphe Airflow du pipeline médaillon}{images/screenshots_pipeline/medaillon_pipeline_graph.png}
+\PFEScreenshotItem{DAG dbt Silver dans Airflow}{images/screenshots_pipeline/DAG_dbt_silver.png}
+\caption{Orchestration Airflow du pipeline médaillon}
+\label{fig:realisation-airflow-medallion}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{DAG dbt Gold dans Airflow}{images/screenshots_pipeline/DAG_dbt_gold.png}
+\PFEScreenshotItem{Graphe Airflow d'ingestion mensuelle}{images/screenshots_pipeline/ingestion_mensuelles_graph.png}
+\PFEScreenshotItem{Interface Spark Master pour le suivi des traitements}{images/screenshots_pipeline/spark_master_UI.png}
+\caption{Traitements dbt, ingestion mensuelle et suivi Spark}
+\label{fig:realisation-airflow-spark}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Table Bronze client}{images/screenshots_pipeline/table_bronze_inf_client.png}
+\PFEScreenshotItem{Table Silver information client}{images/screenshots_pipeline/table_silver_info_client.png}
+\PFEScreenshotItem{Table Gold scoring 360}{images/screenshots_pipeline/table_gold_scoring360.png}
+\caption{Résultats de transformation Bronze, Silver et Gold}
+\label{fig:realisation-tables-medallion}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Vue des indicateurs contrats 360}{images/screenshots_pipeline/KPIs_Vue_contrats360.png}
+\caption{Indicateurs métier produits à partir de la couche Gold}
+\label{fig:realisation-kpis-contrats360}
+\end{figure}
+
 %------------------------------------------------------------------------------
 \section{Phase 5 — Serving avec Dremio}
 %------------------------------------------------------------------------------
@@ -152,11 +238,19 @@ La phase 6 prépare l'accès sécurisé aux interfaces web : Airflow, Dremio, Gr
 
 Cette approche évite d'exposer directement des LoadBalancers publics et s'aligne avec une logique Zero Trust : authentification, politiques d'accès et publication DNS contrôlée.
 
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Connecteur Cloudflare Tunnel}{images/screenshots_infra/Capture d'écran 2026-05-22 214950.png}
+\PFEScreenshotItem{Politique de pare-feu Cloudflare}{images/screenshots_infra/Capture d'écran 2026-05-22 215038.png}
+\caption{Exposition sécurisée réalisée avec Cloudflare}
+\label{fig:realisation-cloudflare}
+\end{figure}
+
 %------------------------------------------------------------------------------
 \section{Phase 7 — Monitoring, logging et dashboarding}
 %------------------------------------------------------------------------------
 
-La phase 7 est essentielle pour un projet data professionnel. Elle couvre les trois besoins suivants :
+La phase 7 prépare l'observabilité de la plateforme. Le socle technique est présent dans le dépôt, mais la finalisation des dashboards, des alertes et des vues de logs reste la principale amélioration à mener après la réalisation du pipeline.
 
 \begin{table}[H]
 \centering
@@ -165,17 +259,17 @@ La phase 7 est essentielle pour un projet data professionnel. Elle couvre les tr
 \small
 \begin{tabular}{@{}p{0.22\textwidth}p{0.64\textwidth}@{}}
 \toprule
-\textbf{Besoin} & \textbf{Réalisation prévue dans le dépôt} \\
+\textbf{Besoin} & \textbf{État de réalisation} \\
 \midrule
-Monitoring & \texttt{kube-prometheus-stack}, Prometheus, Grafana, métriques Kubernetes et ServiceMonitors. \\
-Logging & Fluent Bit collecte les logs des pods et les pousse vers OpenObserve. \\
-Dashboarding technique & Grafana pour ressources cluster, santé des opérateurs, Spark, Kafka, CNPG, MinIO et Airflow. \\
-Dashboarding métier & Power BI ou Dremio pour les agrégats Gold ; Grafana possible pour des KPIs opérationnels. \\
+Monitoring & Socle \texttt{kube-prometheus-stack}, Prometheus, Grafana et ServiceMonitors présent ; alertes et tableaux de bord à finaliser. \\
+Logging & Chaîne Fluent Bit vers OpenObserve structurée ; vues de logs et règles d'exploitation à compléter. \\
+Dashboarding technique & Bases Grafana disponibles pour Kubernetes et les opérateurs ; dashboards finaux à importer ou personnaliser. \\
+Dashboarding métier & Tables Gold et exposition BI disponibles ; participation à la mise en œuvre de dashboards métier autour d'une vision 360 des clients EQDOM et du canal digital EQDOM, c'est-à-dire les clients provenant des parcours digitaux plutôt que des agences. \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Les ServiceMonitors présents ciblent notamment Spark Operator, CloudNativePG, MinIO Tenant et Strimzi. Les dashboards finaux sont à importer ou personnaliser après déploiement complet, mais l'infrastructure de collecte est déjà structurée.
+Les ServiceMonitors présents ciblent notamment Spark Operator, CloudNativePG, MinIO Tenant et Strimzi. Cette partie constitue donc le principal reliquat technique du projet avec GitOps : la collecte est structurée, mais la couche d'exploitation visuelle et les alertes restent à finaliser.
 
 %------------------------------------------------------------------------------
 \section{Automatisation, CI/CD et cycle de vie}
@@ -192,59 +286,41 @@ Le dépôt fournit plusieurs scripts pour réduire la charge opérationnelle :
 
 GitHub Actions prend en charge le \texttt{terraform plan/apply} avec OIDC, ce qui évite de stocker des clés AWS longues durées dans GitHub.
 
-%------------------------------------------------------------------------------
-\section{Traçabilité avec le cahier des charges}
-%------------------------------------------------------------------------------
+La partie GitOps est conservée comme perspective d'industrialisation. Les bases ArgoCD existent, mais l'activation complète du modèle GitOps et la gouvernance des promotions DEV/UAT/PROD restent à finaliser.
 
-La traçabilité est formalisée dans \texttt{docs/specs/SPEC\_ALIGNMENT.md}. Ce fichier relie les exigences des documents PDF aux artefacts concrets du dépôt. Il sert de support de soutenance pour montrer que chaque décision est reliée à une phase, un module, un manifest ou un script.
-
-\begin{table}[H]
+\begin{figure}[H]
 \centering
-\caption{Exemples de traçabilité exigence $\rightarrow$ artefact}
-\label{tab:traceabilite}
-\small
-\begin{tabular}{@{}p{0.32\textwidth}p{0.5\textwidth}@{}}
-\toprule
-\textbf{Exigence} & \textbf{Artefact} \\
-\midrule
-État Terraform sur R2 & \texttt{terraform/bootstrap}, \texttt{backend.tf}, \texttt{tf-init-local.sh} \\
-Namespaces du SoW & \texttt{bootstrap/namespaces/namespaces.yaml} \\
-Kafka / CDC & \texttt{bootstrap/phase-3/manifests/kafka/} \\
-Pipeline Spark/dbt/Airflow & \texttt{docker/spark-iceberg/}, \texttt{bootstrap/phase-4/}, \texttt{dags/} \\
-Observabilité & \texttt{bootstrap/phase-7/helm/}, \texttt{ServiceMonitor} manifests \\
-\bottomrule
-\end{tabular}
-\end{table}
+\PFEScreenshotItem{Organisation des dossiers d'automatisation}{images/screenshots_pipeline/dossier_ansible.png}
+\PFEScreenshotItem{Organisation du projet dbt}{images/screenshots_pipeline/dossier_dbt.png}
+\PFEScreenshotItem{Registre ECR de l'image Spark Iceberg}{images/screenshots_infra/Capture d'écran 2026-05-22 214511.png}
+\caption{Artefacts d'automatisation, projet dbt et image Spark}
+\label{fig:realisation-artefacts-ecr}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\PFEScreenshotItem{Rôles IAM AWS}{images/screenshots_infra/Capture d'écran 2026-05-22 214655.png}
+\PFEScreenshotItem{Stockage objet Cloudflare R2}{images/screenshots_infra/Capture d'écran 2026-05-22 214827.png}
+\caption{Identités AWS et backend R2 utilisés par l'automatisation}
+\label{fig:realisation-iam-r2}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \section{Difficultés rencontrées et mitigations}
 %------------------------------------------------------------------------------
 
 \begin{itemize}
-    \item \textbf{Complexité EKS} : l'ordre de déploiement a été matérialisé dans des scripts par phase et dans \texttt{PHASE\_CHECKPOINTS.md}.
+    \item \textbf{Complexité EKS} : l'ordre de déploiement a été matérialisé dans des scripts par phase.
     \item \textbf{Coûts AWS} : le projet introduit un teardown complet, un NAT unique en dev et un compute node group scalable à zéro.
     \item \textbf{Secrets} : les secrets réels ne sont pas versionnés ; seuls des exemples et scripts de génération sont fournis.
     \item \textbf{État Terraform} : R2 impose une gestion prudente du verrouillage ; le backend utilise \texttt{use\_lockfile} et la CI limite la concurrence.
-    \item \textbf{Validation E2E} : le code est prêt, mais la démonstration complète dépend d'un compte AWS/Cloudflare configuré et de ressources suffisantes.
 \end{itemize}
 
-%------------------------------------------------------------------------------
-\section{Plan de finalisation}
-%------------------------------------------------------------------------------
-
-Pour transformer l'implémentation en démonstration complète sur un compte cloud, les étapes restantes sont :
-\begin{enumerate}
-    \item appliquer Terraform sur l'environnement \texttt{dev} et exécuter \texttt{fasttrack-infra.sh --with-all} ;
-    \item construire et pousser l'image Spark Iceberg dans ECR ;
-    \item configurer Cloudflare Tunnel et les hostnames des UIs ;
-    \item lancer le smoke test PostgreSQL $\rightarrow$ Kafka $\rightarrow$ Iceberg $\rightarrow$ dbt $\rightarrow$ Dremio ;
-    \item importer ou créer les dashboards Grafana prioritaires ;
-    \item capturer les preuves de soutenance : pods, DAGs, topics, tables Iceberg, requêtes Dremio, logs OpenObserve et dashboards.
-\end{enumerate}
+\FloatBarrier
 
 \section*{Conclusion du chapitre}
 \addcontentsline{toc}{section}{Conclusion du chapitre 5}
 
-La réalisation couvre le socle infrastructure, la majorité des composants data et l'observabilité attendue par le cahier des charges. Les phases encore dépendantes de secrets et d'un déploiement cloud réel sont documentées comme trajectoire de finalisation, ce qui permet de présenter un projet cohérent, traçable et techniquement défendable.
+La réalisation couvre le socle infrastructure, le Lakehouse, l'ingestion, l'orchestration, les traitements Spark/dbt, le serving SQL/BI, l'exposition sécurisée et l'automatisation CI/CD. Le projet peut donc être présenté comme réalisé dans son périmètre principal. Les seuls chantiers restant à finaliser concernent la partie dashboarding, monitoring et logging, ainsi que l'activation complète de GitOps pour industrialiser les promotions entre environnements.
 
 \clearpage

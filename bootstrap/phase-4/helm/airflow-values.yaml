@@ -49,15 +49,27 @@ webserver:
     lastName: admin
     password: admin
 
+apiServer:
+  waitForMigrations:
+    enabled: false
+
+scheduler:
+  waitForMigrations:
+    enabled: false
+
 triggerer:
+  waitForMigrations:
+    enabled: false
   persistence:
+    enabled: false
+
+dagProcessor:
+  waitForMigrations:
     enabled: false
 
 logs:
   persistence:
-    enabled: true
-    storageClassName: gp3
-    size: 10Gi
+    enabled: false
 
 workers:
   persistence:
