@@ -4,6 +4,7 @@
 \begin{document}
 
 % --- Pages liminaires ---
+\pagenumbering{gobble}
 \input{front/title}
 \input{front/dedicace}
 \input{front/remerciements}
@@ -16,6 +17,9 @@
 \input{front/acronymes}
 
 % --- Corps ---
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
 \input{chapters/00-introduction}
 \input{chapters/01-contexte}
 \input{chapters/02-etat-art}

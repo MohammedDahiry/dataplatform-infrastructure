@@ -53,7 +53,8 @@ Les activités de l'organisme d'accueil peuvent être regroupées autour de troi
 
 \begin{figure}[H]
 \centering
-\maybeimage[width=0.82\textwidth]{images/sect_act_seven.png}
+{\setlength{\fboxsep}{3pt}\setlength{\fboxrule}{0.5pt}%
+\fbox{\maybeimage[width=0.82\textwidth]{images/sect_act_seven.png}}}
 \caption{Domaines d'intervention de SEVENAPP}
 \label{fig:secteurs-activite-seven}
 \end{figure}
@@ -64,7 +65,8 @@ La diversité des références clients de SEVENAPP illustre son positionnement t
 
 \begin{figure}[H]
 \centering
-\maybeimage[height=0.72\textheight,keepaspectratio]{images/Clients.png}
+{\setlength{\fboxsep}{3pt}\setlength{\fboxrule}{0.5pt}%
+\fbox{\maybeimage[height=0.72\textheight,keepaspectratio]{images/Clients.png}}}
 \caption{Exemples de références clients de SEVENAPP}
 \label{fig:clients-sevenapp}
 \end{figure}
@@ -130,6 +132,16 @@ Le secteur du crédit et du financement exige des systèmes d'information fiable
 %==============================================================================
 
 Le projet consiste à concevoir et déployer une \textbf{Cloud Data Platform} sur AWS EKS, adaptée aux besoins d'un environnement financier manipulant des données opérationnelles, analytiques et décisionnelles. La plateforme vise à couvrir le cycle de vie complet des données : ingestion depuis les systèmes sources, stockage dans un Lakehouse, transformation en couches analytiques, orchestration des traitements, exposition SQL/BI et supervision.
+
+L'organisation métier du projet met en relation les besoins fonctionnels, les équipes utilisatrices et les briques techniques chargées de produire des données fiables. Elle sert de point d'appui pour comprendre comment la plateforme transforme des sources opérationnelles en indicateurs exploitables par les métiers.
+
+\begin{figure}[H]
+\centering
+{\setlength{\fboxsep}{3pt}\setlength{\fboxrule}{0.5pt}%
+\fbox{\maybeimage[width=0.9\textwidth]{images/organisation_métier.png}}}
+\caption{Organisation métier autour de la plateforme data}
+\label{fig:organisation-metier}
+\end{figure}
 
 Le cadrage fonctionnel et technique retient une approche progressive : bâtir d'abord un socle cloud sécurisé et reproductible, puis y intégrer les services nécessaires au pipeline data, à la gouvernance, à l'observabilité et à la consommation des données par les équipes BI. Les livrables principaux regroupent ainsi les éléments nécessaires à la mise en place, à l'exploitation et à la démonstration de la plateforme :
 \begin{itemize}

@@ -31,6 +31,8 @@ The script:
 3. Installs `OpenObserve` into `platform-logging`.
 4. Installs `Fluent Bit` into `platform-logging` (DaemonSet).
 5. Applies `ServiceMonitor` CRDs for Spark Operator, MinIO, CNPG, Strimzi.
+6. Applies the Grafana dashboard `Dataplatform - Cluster State`.
+7. Applies OpenObserve Kubernetes log-query snippets as a ConfigMap.
 
 ## After deploy
 
@@ -40,4 +42,24 @@ kubectl -n platform-monitoring port-forward svc/monitoring-grafana 3000:80
 
 kubectl -n platform-logging port-forward svc/openobserve 5080:5080
 # Open http://localhost:5080  (admin / Complexpass#123 default — change!)
+```
+
+## Cluster state dashboard
+
+Grafana imports `Dataplatform - Cluster State` automatically through the
+kube-prometheus-stack dashboard sidecar. It covers:
+
+- node readiness and not-ready nodes;
+- running, pending, failed and unknown pods;
+- per-node CPU and memory usage;
+- pod phase distribution;
+- unhealthy pods by namespace;
+- container restart details.
+
+OpenObserve receives Kubernetes container logs through Fluent Bit. Query
+snippets for pod errors, noisy pods, node log activity and crash-loop signals are
+stored in:
+
+```bash
+kubectl -n platform-logging get configmap openobserve-k8s-cluster-log-queries -o jsonpath='{.data.README\.md}'
 ```

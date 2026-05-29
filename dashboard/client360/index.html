@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EQDOM - Client 360</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --eqdom-red: #e30613;
+      --eqdom-red-dark: #b8050f;
+      --eqdom-red-soft: #fdecee;
+      --teal: #1b8a8f;
+      --teal-soft: #d6ecec;
+      --ink: #1a1a1f;
+      --ink-soft: #4a4a55;
+      --muted: #8c8c95;
+      --line: #e8e8ec;
+      --bg: #f4f4f6;
+      --card: #ffffff;
+      --gold: #c99a3b;
+      --green: #2e8b57;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      padding: 28px;
+      background:
+        linear-gradient(135deg, rgba(227, 6, 19, 0.03), transparent 40%),
+        repeating-linear-gradient(45deg, transparent 0 24px, rgba(0, 0, 0, 0.012) 24px 25px),
+        var(--bg);
+      color: var(--ink);
+      font-family: "Inter Tight", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .frame {
+      position: relative;
+      max-width: 1480px;
+      min-height: 920px;
+      margin: 0 auto;
+      overflow: hidden;
+      background: linear-gradient(180deg, #fafafc 0%, #f4f4f6 100%);
+      border: 1px solid rgba(20, 20, 30, 0.06);
+      border-radius: 22px;
+      box-shadow: 0 30px 60px -20px rgba(20, 20, 30, 0.18), 0 8px 20px -10px rgba(0, 0, 0, 0.08);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 18px 28px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: 8px;
+    }
+
+    .brand-logo {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 6px 16px -4px rgba(227, 6, 19, 0.4);
+      display: block;
+    }
+
+    .brand-name {
+      color: var(--ink);
+      font-family: "Fraunces", serif;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .brand-tag {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .tabs {
+      display: flex;
+      flex: 1;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      margin-left: 28px;
+    }
+
+    .tab {
+      padding: 9px 18px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .tab:hover { background: rgba(0, 0, 0, 0.04); }
+
+    .tab.active {
+      background: var(--ink);
+      color: #fff;
+      box-shadow: 0 6px 14px -4px rgba(0, 0, 0, 0.25);
+    }
+
+    .top-actions { display: flex; gap: 10px; }
+
+    .icon-btn {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      background: #f4f4f6;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: var(--eqdom-red-soft);
+      border-color: var(--eqdom-red);
+    }
+
+    .icon-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke: var(--ink-soft);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 78px 1fr;
+      min-height: 900px;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 0;
+      background: #fff;
+      border-right: 1px solid var(--line);
+    }
+
+    .side-icon {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      background: #f4f4f6;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .side-icon:hover { background: var(--eqdom-red-soft); color: var(--eqdom-red); }
+
+    .side-icon.active {
+      background: var(--eqdom-red);
+      color: #fff;
+      box-shadow: 0 8px 18px -6px rgba(227, 6, 19, 0.5);
+    }
+
+    .side-icon svg { width: 19px; height: 19px; }
+
+    .side-divider {
+      width: 30px;
+      height: 1px;
+      margin: 6px 0;
+      background: var(--line);
+    }
+
+    .content { padding: 28px 32px 36px; }
+
+    .page-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .page-title {
+      color: var(--ink);
+      font-family: "Fraunces", serif;
+      font-size: 38px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1;
+    }
+
+    .page-title em {
+      color: var(--eqdom-red);
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .page-sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12.5px;
+      letter-spacing: 0.02em;
+    }
+
+    .period-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .period-pill .dot {
+      width: 7px;
+      height: 7px;
+      background: var(--eqdom-red);
+      border-radius: 50%;
+    }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .card,
+    .segments-card,
+    .client-card,
+    .strip-card,
+    .fiche-toolbar {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .segments-card { padding: 20px 22px; }
+
+    .seg-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .seg-title {
+      color: var(--ink-soft);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .seg-legend {
+      display: flex;
+      gap: 14px;
+      color: var(--ink-soft);
+      font-size: 11.5px;
+    }
+
+    .seg-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .seg-legend span::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .lg-prem::before { background: var(--eqdom-red); }
+    .lg-stand::before { background: var(--teal); }
+    .lg-new::before { background: #f1a33c; }
+
+    .seg-bar {
+      display: flex;
+      height: 38px;
+      overflow: hidden;
+      background: #f4f4f6;
+      border-radius: 10px;
+    }
+
+    .seg-bar > div {
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .seg-prem { background: linear-gradient(135deg, #e30613 0%, #b8050f 100%); }
+    .seg-stand { background: linear-gradient(135deg, #1b8a8f 0%, #146d71 100%); }
+    .seg-new { background: linear-gradient(135deg, #f1a33c 0%, #d88521 100%); }
+
+    .seg-counts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .seg-count {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .seg-count b {
+      display: block;
+      margin-top: 2px;
+      color: var(--ink);
+      font-family: "Fraunces", serif;
+      font-size: 19px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .kpi {
+      position: relative;
+      overflow: hidden;
+      padding: 16px 16px 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .kpi::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--eqdom-red);
+    }
+
+    .kpi-icon {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 8px;
+      place-items: center;
+      background: var(--eqdom-red-soft);
+      border-radius: 8px;
+      color: var(--eqdom-red);
+    }
+
+    .kpi-icon svg { width: 15px; height: 15px; }
+
+    .kpi-value {
+      color: var(--ink);
+      font-family: "Fraunces", serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .kpi-value .unit {
+      margin-left: 2px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .kpi-label {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .kpi-trend {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+
+    .kpi-trend.up { background: rgba(46, 139, 87, 0.1); color: var(--green); }
+    .kpi-trend.down { background: var(--eqdom-red-soft); color: var(--eqdom-red); }
+
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .card { padding: 18px 20px; }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      color: var(--ink);
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    .card-tools {
+      display: flex;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 10.5px;
+    }
+
+    .pill {
+      padding: 3px 8px;
+      background: #f4f4f6;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+
+    svg.chart {
+      display: block;
+      width: 100%;
+      height: 200px;
+    }
+
+    .donut-wrap { position: relative; }
+
+    .donut-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      text-align: center;
+      transform: translate(-50%, -50%);
+    }
+
+    .donut-center .big {
+      color: var(--ink);
+      font-family: "Fraunces", serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .donut-center .small {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 16px;
+    }
+
+    .hbar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      margin-top: 10px;
+    }
+
+    .hbar-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 48px;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+    }
+
+    .hbar-row .label {
+      overflow: hidden;
+      color: var(--ink-soft);
+      font-weight: 500;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .hbar-track {
+      height: 11px;
+      overflow: hidden;
+      background: #f4f4f6;
+      border-radius: 6px;
+    }
+
+    .hbar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #e30613 0%, #ff5562 100%);
+      border-radius: 6px;
+    }
+
+    .hbar-fill.t { background: linear-gradient(90deg, #1b8a8f 0%, #4fb8bc 100%); }
+
+    .hbar-row .val {
+      color: var(--ink);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11.5px;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .summary-card { padding: 18px 22px; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0 28px;
+      margin-top: 10px;
+    }
+
+    .summary-col h4 {
+      padding-bottom: 8px;
+      margin-bottom: 6px;
+      border-bottom: 1.5px solid var(--ink);
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+    }
+
+    .summary-row:last-child { border-bottom: 0; }
+    .summary-row .k { color: var(--ink-soft); }
+
+    .summary-row .v {
+      color: var(--ink);
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 500;
+    }
+
+    .summary-row .v.warn { color: var(--eqdom-red); }
+    .summary-row .v.good { color: var(--green); }
+
+    .view {
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .view.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fiche-toolbar {
+      display: grid;
+      grid-template-columns: 1.4fr auto auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      background: #f4f4f6;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+
+    .search-box:focus-within {
+      background: #fff;
+      border-color: var(--eqdom-red);
+      box-shadow: 0 0 0 3px var(--eqdom-red-soft);
+    }
+
+    .search-box svg {
+      flex-shrink: 0;
+      width: 15px;
+      height: 15px;
+      stroke: var(--muted);
+    }
+
+    .search-box input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font-family: "Inter Tight", sans-serif;
+      font-size: 13px;
+    }
+
+    .filter-select {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      background: #f4f4f6;
+      border-radius: 10px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .filter-select b { color: var(--ink); }
+    .filter-select svg { width: 12px; height: 12px; }
+
+    .client-card {
+      position: relative;
+      overflow: hidden;
+      padding: 22px 24px;
+      margin-bottom: 18px;
+    }
+
+    .client-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #e30613 0%, #f1a33c 50%, #1b8a8f 100%);
+    }
+
+    .client-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .client-head-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .avatar {
+      position: relative;
+      display: grid;
+      flex-shrink: 0;
+      width: 56px;
+      height: 56px;
+      place-items: center;
+      background: linear-gradient(135deg, #e30613 0%, #b8050f 100%);
+      border-radius: 14px;
+      color: #fff;
+      box-shadow: 0 8px 18px -6px rgba(227, 6, 19, 0.45);
+      font-family: "Fraunces", serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .avatar::after {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+    }
+
+    .client-name-wrap .label {
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .client-name {
+      color: var(--ink);
+      font-family: "Fraunces", serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      line-height: 1.1;
+    }
+
+    .client-name .num { color: var(--eqdom-red); }
+
+    .client-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .badge {
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+
+    .badge-prem { background: var(--eqdom-red-soft); border: 1px solid rgba(227, 6, 19, 0.2); color: var(--eqdom-red); }
+    .badge-score { background: rgba(46, 139, 87, 0.1); border: 1px solid rgba(46, 139, 87, 0.2); color: var(--green); }
+    .badge-active { background: var(--teal-soft); border: 1px solid rgba(27, 138, 143, 0.2); color: var(--teal); }
+
+    .client-head-right {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-family: "Inter Tight", sans-serif;
+      font-size: 11.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: var(--eqdom-red-soft);
+      border-color: var(--eqdom-red);
+      color: var(--eqdom-red);
+    }
+
+    .action-btn.primary {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff;
+    }
+
+    .action-btn.primary:hover {
+      background: var(--eqdom-red);
+      border-color: var(--eqdom-red);
+    }
+
+    .action-btn svg { width: 13px; height: 13px; }
+
+    .client-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px 28px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      gap: 4px;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .field-label svg {
+      width: 11px;
+      height: 11px;
+      stroke: var(--muted);
+    }
+
+    .field-value {
+      color: var(--ink);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .field-value.highlight {
+      color: var(--eqdom-red);
+      font-weight: 600;
+    }
+
+    .mask {
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .num-keep {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .client-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 14px;
+      margin-top: 18px;
+      border-top: 1px dashed var(--line);
+      color: var(--muted);
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .privacy {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .privacy svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--green);
+    }
+
+    .fiche-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .strip-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+
+    .strip-icon {
+      display: grid;
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border-radius: 10px;
+    }
+
+    .strip-icon svg { width: 17px; height: 17px; }
+    .strip-icon.red { background: var(--eqdom-red-soft); color: var(--eqdom-red); }
+    .strip-icon.teal { background: var(--teal-soft); color: var(--teal); }
+    .strip-icon.green { background: rgba(46, 139, 87, 0.12); color: var(--green); }
+    .strip-icon.gold { background: rgba(201, 154, 59, 0.15); color: var(--gold); }
+
+    .strip-label {
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .strip-value {
+      margin-top: 2px;
+      color: var(--ink);
+      font-family: "Fraunces", serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .placeholder {
+      padding: 60px 30px;
+      background: #fff;
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .placeholder h3 {
+      margin-bottom: 8px;
+      color: var(--ink-soft);
+      font-family: "Fraunces", serif;
+      font-size: 22px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .footer-note b { color: var(--ink-soft); }
+
+    @media (max-width: 1180px) {
+      body { padding: 14px; }
+      .topbar { align-items: flex-start; flex-wrap: wrap; }
+      .tabs { order: 3; flex-basis: 100%; margin-left: 0; justify-content: flex-start; }
+      .top-row, .charts-row, .bottom-row { grid-template-columns: 1fr; }
+      .kpi-grid, .summary-grid, .fiche-strip { grid-template-columns: repeat(2, 1fr); }
+      .client-grid { grid-template-columns: repeat(2, 1fr); }
+      .fiche-toolbar { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 0; }
+      .frame { border-radius: 0; }
+      .main-layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .content { padding: 22px 16px 28px; }
+      .page-head, .client-head, .client-meta { align-items: flex-start; flex-direction: column; }
+      .page-title { font-size: 32px; }
+      .kpi-grid, .seg-counts, .summary-grid, .fiche-strip, .client-grid, .fiche-toolbar { grid-template-columns: 1fr; }
+      .field[style] { grid-column: auto !important; }
+      .hbar-row { grid-template-columns: 120px 1fr 48px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-logo" src="eqdom-logo.png" alt="EQDOM" />
+        <div>
+          <div class="brand-name">EQDOM</div>
+          <div class="brand-tag">Crédit à la consommation</div>
+        </div>
+      </div>
+
+      <nav class="tabs" id="tabs" aria-label="Navigation du dashboard">
+        <div class="tab active" data-tab="client360">Client 360</div>
+        <div class="tab" data-tab="fiche">Fiche Client</div>
+        <div class="tab" data-tab="other">Production</div>
+        <div class="tab" data-tab="other">Encours</div>
+        <div class="tab" data-tab="other">Recouvrement</div>
+      </nav>
+
+      <div class="top-actions">
+        <div class="icon-btn" title="Filtres">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/></svg>
+        </div>
+        <div class="icon-btn" title="Accueil">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-5h-2v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </div>
+        <div class="icon-btn" title="Langue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <aside class="sidebar" aria-label="Navigation secondaire">
+        <div class="side-icon active" title="Vue 360">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4.5 3.5-8 8-8s8 3.5 8 8"/></svg>
+        </div>
+        <div class="side-icon" title="Portefeuille">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M16 10h4M2 10h20"/></svg>
+        </div>
+        <div class="side-icon" title="Sécurité">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6z"/></svg>
+        </div>
+        <div class="side-icon" title="Scoring">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l4-4 4 4 4-7 6 11"/></svg>
+        </div>
+        <div class="side-icon" title="Cible">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+        </div>
+        <div class="side-divider"></div>
+        <div class="side-icon" title="Dossiers">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </div>
+        <div class="side-icon" title="Favoris">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9"/></svg>
+        </div>
+        <div class="side-icon" title="Alertes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L1 21h22L12 2z"/><path d="M12 9v5M12 17h.01"/></svg>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section class="view active" data-view="client360">
+          <div class="page-head">
+            <div>
+              <div class="page-title">Client <em>360</em></div>
+              <div class="page-sub">Vision unifiée du portefeuille clients · données anonymisées</div>
+            </div>
+            <div class="period-pill"><span class="dot"></span>Période : Jan 2022 - Mai 2026</div>
+          </div>
+
+          <div class="top-row">
+            <div class="segments-card">
+              <div class="seg-head">
+                <div class="seg-title">Répartition du portefeuille par segment</div>
+                <div class="seg-legend">
+                  <span class="lg-prem">Premium</span>
+                  <span class="lg-stand">Standard</span>
+                  <span class="lg-new">Nouveaux</span>
+                </div>
+              </div>
+              <div class="seg-bar">
+                <div class="seg-prem" style="flex: 38">38%</div>
+                <div class="seg-stand" style="flex: 47">47%</div>
+                <div class="seg-new" style="flex: 15">15%</div>
+              </div>
+              <div class="seg-counts">
+                <div class="seg-count">Clients Premium<b>47 320</b></div>
+                <div class="seg-count">Clients Standard<b>58 540</b></div>
+                <div class="seg-count">Nouveaux entrants<b>18 670</b></div>
+              </div>
+            </div>
+
+            <div class="kpi-grid">
+              <div class="kpi">
+                <span class="kpi-trend up">+4.2%</span>
+                <div class="kpi-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7M16 11a3 3 0 1 0 0-6M22 21c0-3-2-5.5-5-6.5"/></svg>
+                </div>
+                <div class="kpi-value">124<span class="unit">K</span></div>
+                <div class="kpi-label">Clients actifs</div>
+              </div>
+              <div class="kpi">
+                <span class="kpi-trend up">+7.8%</span>
+                <div class="kpi-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div class="kpi-value">2.84<span class="unit">Mrd MAD</span></div>
+                <div class="kpi-label">Encours total</div>
+              </div>
+              <div class="kpi">
+                <span class="kpi-trend down">-1.3%</span>
+                <div class="kpi-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v6M12 22v-6M2 12h6M22 12h-6"/><circle cx="12" cy="12" r="4"/></svg>
+                </div>
+                <div class="kpi-value">3.42<span class="unit">%</span></div>
+                <div class="kpi-label">Taux d'attrition</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="charts-row">
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Évolution de la production nette (M MAD)</div>
+                <div class="card-tools"><span class="pill">5 ans</span><span class="pill">Mensuel</span></div>
+              </div>
+              <svg class="chart" viewBox="0 0 600 220" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="lineGrad" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#E30613" stop-opacity="0.28"/>
+                    <stop offset="100%" stop-color="#E30613" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <g stroke="#eee" stroke-width="1">
+                  <line x1="40" y1="30" x2="590" y2="30"/>
+                  <line x1="40" y1="75" x2="590" y2="75"/>
+                  <line x1="40" y1="120" x2="590" y2="120"/>
+                  <line x1="40" y1="165" x2="590" y2="165"/>
+                  <line x1="40" y1="200" x2="590" y2="200"/>
+                </g>
+                <g font-family="JetBrains Mono" font-size="9" fill="#8c8c95">
+                  <text x="32" y="33" text-anchor="end">900K</text>
+                  <text x="32" y="78" text-anchor="end">700K</text>
+                  <text x="32" y="123" text-anchor="end">500K</text>
+                  <text x="32" y="168" text-anchor="end">300K</text>
+                  <text x="32" y="203" text-anchor="end">100K</text>
+                </g>
+                <g font-family="Inter Tight" font-size="10" fill="#8c8c95">
+                  <text x="60" y="215">2022</text>
+                  <text x="170" y="215">2023</text>
+                  <text x="280" y="215">2024</text>
+                  <text x="390" y="215">2025</text>
+                  <text x="510" y="215">2026</text>
+                </g>
+                <path d="M50,150 C90,130 110,160 140,140 C170,125 200,90 230,100 C260,110 290,80 320,70 C360,60 390,95 430,80 C470,68 510,55 560,40 L560,200 L50,200 Z" fill="url(#lineGrad)"/>
+                <path d="M50,150 C90,130 110,160 140,140 C170,125 200,90 230,100 C260,110 290,80 320,70 C360,60 390,95 430,80 C470,68 510,55 560,40" fill="none" stroke="#E30613" stroke-width="2.5" stroke-linecap="round"/>
+                <g fill="#fff" stroke="#E30613" stroke-width="2">
+                  <circle cx="50" cy="150" r="3.5"/>
+                  <circle cx="140" cy="140" r="3.5"/>
+                  <circle cx="230" cy="100" r="3.5"/>
+                  <circle cx="320" cy="70" r="3.5"/>
+                  <circle cx="430" cy="80" r="3.5"/>
+                  <circle cx="560" cy="40" r="3.5"/>
+                </g>
+              </svg>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Nouveaux clients par année</div>
+                <div class="card-tools"><span class="pill">Annuel</span></div>
+              </div>
+              <svg class="chart" viewBox="0 0 360 220" preserveAspectRatio="none">
+                <g stroke="#eee" stroke-width="1">
+                  <line x1="30" y1="40" x2="350" y2="40"/>
+                  <line x1="30" y1="90" x2="350" y2="90"/>
+                  <line x1="30" y1="140" x2="350" y2="140"/>
+                  <line x1="30" y1="190" x2="350" y2="190"/>
+                </g>
+                <rect x="55" y="125" width="36" height="65" rx="4" fill="#fca8ae"/>
+                <rect x="110" y="105" width="36" height="85" rx="4" fill="#f58792"/>
+                <rect x="165" y="78" width="36" height="112" rx="4" fill="#ef5765"/>
+                <rect x="220" y="55" width="36" height="135" rx="4" fill="#e92b3d"/>
+                <rect x="275" y="35" width="36" height="155" rx="4" fill="#e30613"/>
+                <g font-family="Inter Tight" font-size="10" fill="#8c8c95" text-anchor="middle">
+                  <text x="73" y="208">2022</text>
+                  <text x="128" y="208">2023</text>
+                  <text x="183" y="208">2024</text>
+                  <text x="238" y="208">2025</text>
+                  <text x="293" y="208">2026</text>
+                </g>
+                <g font-family="JetBrains Mono" font-size="9" fill="#1a1a1f" text-anchor="middle" font-weight="600">
+                  <text x="73" y="120">8.4K</text>
+                  <text x="128" y="100">12.1K</text>
+                  <text x="183" y="73">15.6K</text>
+                  <text x="238" y="50">19.2K</text>
+                  <text x="293" y="30">22.4K</text>
+                </g>
+              </svg>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Mix produits</div>
+                <div class="card-tools"><span class="pill">Q2 2026</span></div>
+              </div>
+              <div class="donut-wrap">
+                <svg class="chart" viewBox="0 0 220 220">
+                  <g transform="translate(110,110) rotate(-90)">
+                    <circle r="70" fill="none" stroke="#f4f4f6" stroke-width="28"/>
+                    <circle r="70" fill="none" stroke="#e30613" stroke-width="28" stroke-dasharray="184.7 439.8" stroke-dashoffset="0"/>
+                    <circle r="70" fill="none" stroke="#1b8a8f" stroke-width="28" stroke-dasharray="136.4 439.8" stroke-dashoffset="-184.7"/>
+                    <circle r="70" fill="none" stroke="#f1a33c" stroke-width="28" stroke-dasharray="79.2 439.8" stroke-dashoffset="-321.1"/>
+                    <circle r="70" fill="none" stroke="#c99a3b" stroke-width="28" stroke-dasharray="39.5 439.8" stroke-dashoffset="-400.3"/>
+                  </g>
+                </svg>
+                <div class="donut-center">
+                  <div class="big">124K</div>
+                  <div class="small">Clients</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom-row">
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Top régions par nombre de clients</div>
+                <div class="card-tools"><span class="pill">Régions</span></div>
+              </div>
+              <div class="hbar-list">
+                <div class="hbar-row"><div class="label">Casablanca-Settat</div><div class="hbar-track"><div class="hbar-fill" style="width:92%"></div></div><div class="val">38 420</div></div>
+                <div class="hbar-row"><div class="label">Rabat-Salé-Kénitra</div><div class="hbar-track"><div class="hbar-fill" style="width:78%"></div></div><div class="val">32 580</div></div>
+                <div class="hbar-row"><div class="label">Marrakech-Safi</div><div class="hbar-track"><div class="hbar-fill" style="width:54%"></div></div><div class="val">22 510</div></div>
+                <div class="hbar-row"><div class="label">Fès-Meknès</div><div class="hbar-track"><div class="hbar-fill" style="width:42%"></div></div><div class="val">17 480</div></div>
+                <div class="hbar-row"><div class="label">Tanger-Tétouan</div><div class="hbar-track"><div class="hbar-fill t" style="width:36%"></div></div><div class="val">15 020</div></div>
+                <div class="hbar-row"><div class="label">Oriental</div><div class="hbar-track"><div class="hbar-fill t" style="width:24%"></div></div><div class="val">9 870</div></div>
+              </div>
+            </div>
+
+            <div class="card summary-card">
+              <div class="card-head">
+                <div class="card-title">Synthèse - Indicateurs Client 360</div>
+                <div class="card-tools"><span class="pill">Live</span></div>
+              </div>
+              <div class="summary-grid">
+                <div class="summary-col">
+                  <h4>Engagement</h4>
+                  <div class="summary-row"><span class="k">Ancienneté moyenne</span><span class="v">5,8 ans</span></div>
+                  <div class="summary-row"><span class="k">Dossiers / client</span><span class="v">1,42</span></div>
+                  <div class="summary-row"><span class="k">Multi-équipement</span><span class="v good">38,2%</span></div>
+                  <div class="summary-row"><span class="k">NPS estimé</span><span class="v good">+47</span></div>
+                </div>
+                <div class="summary-col">
+                  <h4>Risque</h4>
+                  <div class="summary-row"><span class="k">Score moyen</span><span class="v">684</span></div>
+                  <div class="summary-row"><span class="k">Clients sains</span><span class="v good">91,4%</span></div>
+                  <div class="summary-row"><span class="k">Sous surveillance</span><span class="v">5,9%</span></div>
+                  <div class="summary-row"><span class="k">En défaut</span><span class="v warn">2,7%</span></div>
+                </div>
+                <div class="summary-col">
+                  <h4>Valeur</h4>
+                  <div class="summary-row"><span class="k">Encours moyen</span><span class="v">22 900 MAD</span></div>
+                  <div class="summary-row"><span class="k">LTV moyenne</span><span class="v">31 240 MAD</span></div>
+                  <div class="summary-row"><span class="k">Taux d'équipement</span><span class="v good">1,42</span></div>
+                  <div class="summary-row"><span class="k">Croissance YoY</span><span class="v good">+7,8%</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-note"><b>EQDOM · Client 360</b> · Données fictives anonymisées · Rendu : 28 mai 2026</div>
+        </section>
+
+        <section class="view" data-view="fiche">
+          <div class="page-head">
+            <div>
+              <div class="page-title">Fiche <em>Client</em></div>
+              <div class="page-sub">Détail individuel - données personnelles masquées (RGPD / Loi 09-08)</div>
+            </div>
+            <div class="period-pill"><span class="dot"></span>Vue détaillée · Lecture seule</div>
+          </div>
+
+          <div class="fiche-toolbar">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="text" placeholder="Rechercher par CIN, ID dossier, téléphone..." />
+            </div>
+            <div class="filter-select">Segment <b>Premium</b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+            <div class="filter-select">Produit <b>Crédit auto</b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+            <div class="filter-select">Région <b>Casa-Settat</b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+          </div>
+
+          <div class="client-card">
+            <div class="client-head">
+              <div class="client-head-left">
+                <div class="avatar">**</div>
+                <div class="client-name-wrap">
+                  <div class="label">Fiche client sélectionné</div>
+                  <div class="client-name"><span class="mask">**********</span> <span class="mask">*******</span> · ID <span class="num">CL-082417</span></div>
+                  <div class="client-badges">
+                    <span class="badge badge-prem">Premium</span>
+                    <span class="badge badge-score">Score 742</span>
+                    <span class="badge badge-active">Actif depuis 7 ans</span>
+                  </div>
+                </div>
+              </div>
+              <div class="client-head-right">
+                <button class="action-btn">Démasquer</button>
+                <button class="action-btn">Exporter</button>
+                <button class="action-btn primary">Ouvrir dossier</button>
+              </div>
+            </div>
+
+            <div class="client-grid">
+              <div class="field"><div class="field-label">Nom complet</div><div class="field-value"><span class="mask">**********</span> <span class="mask">*******</span></div></div>
+              <div class="field"><div class="field-label">CIN</div><div class="field-value highlight"><span class="mask">**</span><span class="num-keep">748293</span></div></div>
+              <div class="field"><div class="field-label">ID dossier</div><div class="field-value highlight"><span class="mask">***</span>-<span class="num-keep">2026</span>-<span class="num-keep">00417</span></div></div>
+              <div class="field"><div class="field-label">Date de naissance</div><div class="field-value"><span class="num-keep">**</span>/<span class="num-keep">**</span>/<span class="num-keep">1984</span></div></div>
+              <div class="field"><div class="field-label">Email</div><div class="field-value"><span class="mask">**********</span>@<span class="mask">*****</span>.<span class="mask">**</span></div></div>
+              <div class="field"><div class="field-label">Téléphone principal</div><div class="field-value highlight">+<span class="num-keep">212</span> <span class="num-keep">6</span> <span class="mask">**</span> <span class="num-keep">38</span> <span class="num-keep">71</span> <span class="num-keep">52</span></div></div>
+              <div class="field"><div class="field-label">Téléphone domicile</div><div class="field-value">+<span class="num-keep">212</span> <span class="num-keep">5</span> <span class="mask">**</span> <span class="num-keep">24</span> <span class="num-keep">09</span> <span class="num-keep">18</span></div></div>
+              <div class="field"><div class="field-label">Téléphone professionnel</div><div class="field-value">+<span class="num-keep">212</span> <span class="num-keep">5</span> <span class="mask">**</span> <span class="num-keep">63</span> <span class="num-keep">82</span> <span class="num-keep">40</span></div></div>
+              <div class="field" style="grid-column: span 2;"><div class="field-label">Adresse</div><div class="field-value"><span class="num-keep">142</span>, <span class="mask">****</span> <span class="mask">**********</span>, <span class="num-keep">20250</span> <span class="mask">**********</span></div></div>
+              <div class="field"><div class="field-label">Ville / Région</div><div class="field-value"><span class="mask">**********</span> · <span class="mask">**********</span></div></div>
+              <div class="field"><div class="field-label">Profession</div><div class="field-value"><span class="mask">*********</span> <span class="mask">*****</span></div></div>
+              <div class="field"><div class="field-label">Employeur</div><div class="field-value"><span class="mask">**********</span> <span class="mask">*****</span></div></div>
+              <div class="field"><div class="field-label">Revenu mensuel</div><div class="field-value highlight"><span class="num-keep">18 500</span> MAD</div></div>
+              <div class="field"><div class="field-label">Encours actuel</div><div class="field-value highlight"><span class="num-keep">142 800</span> MAD</div></div>
+              <div class="field"><div class="field-label">Nb. dossiers</div><div class="field-value"><span class="num-keep">3</span> actifs · <span class="num-keep">2</span> clôturés</div></div>
+              <div class="field"><div class="field-label">IBAN</div><div class="field-value"><span class="mask">**</span><span class="num-keep">64</span> <span class="mask">****</span> <span class="num-keep">0192</span> <span class="num-keep">8847</span></div></div>
+            </div>
+
+            <div class="client-meta">
+              <span>Dernière mise à jour : <b style="color:var(--ink-soft)">28/05/2026 · 14:22</b></span>
+              <span class="privacy">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Données personnelles masquées · Conforme RGPD / Loi 09-08
+              </span>
+            </div>
+          </div>
+
+          <div class="fiche-strip">
+            <div class="strip-card"><div class="strip-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="strip-label">Encours total</div><div class="strip-value">142 800 MAD</div></div></div>
+            <div class="strip-card"><div class="strip-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l4-4 4 4 4-7 6 11"/></svg></div><div><div class="strip-label">Score risque</div><div class="strip-value">742 / 1000</div></div></div>
+            <div class="strip-card"><div class="strip-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="strip-label">Paiements à jour</div><div class="strip-value">28 / 28</div></div></div>
+            <div class="strip-card"><div class="strip-icon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15 9 22 10 17 15 18 22 12 18 6 22 7 15 2 10 9 9"/></svg></div><div><div class="strip-label">Ancienneté</div><div class="strip-value">7 ans · 3 mois</div></div></div>
+          </div>
+
+          <div class="footer-note"><b>EQDOM · Fiche Client</b> · Données fictives anonymisées · Rendu : 28 mai 2026</div>
+        </section>
+
+        <section class="view" data-view="other">
+          <div class="page-head">
+            <div>
+              <div class="page-title">Module <em>en construction</em></div>
+              <div class="page-sub">Cet onglet n'est pas inclus dans la démo Client 360</div>
+            </div>
+            <div class="period-pill"><span class="dot"></span>À venir</div>
+          </div>
+          <div class="placeholder">
+            <h3>Onglet réservé</h3>
+            <p>Ce module fait partie du dashboard EQDOM complet : Production, Encours et Recouvrement.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll("#tabs .tab");
+    const views = document.querySelectorAll(".view");
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const target = tab.dataset.tab;
+        tabs.forEach((item) => item.classList.remove("active"));
+        tab.classList.add("active");
+        views.forEach((view) => {
+          view.classList.toggle("active", view.dataset.view === target);
+        });
+        document.querySelector(".content").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  </script>
+</body>
+</html>

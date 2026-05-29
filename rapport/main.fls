@@ -420,9 +420,11 @@ INPUT ./images/logo-ensas.png
 INPUT ./images/logo-ensas.png
 INPUT ./images/logo-ensas.png
 INPUT ./images/logo-ensas.png
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1095.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmr10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmr8.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmr6.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmmi8.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmmi6.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm
@@ -444,6 +446,21 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm0800.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmex10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1728.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/eccc1728.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1440.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/eccc1440.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1440.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1728.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecti1095.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm2488.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx2488.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecti1728.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/eccc0800.tfm
 INPUT ./images/seven-logo.jpg
 INPUT ./images/seven-logo.jpg
@@ -455,17 +472,6 @@ INPUT ./images/eqdom-logo.png
 INPUT ./images/eqdom-logo.png
 INPUT ./images/eqdom-logo.png
 INPUT ./images/eqdom-logo.png
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1728.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/eccc1728.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1440.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/eccc1440.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1440.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1728.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1095.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecti1095.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm2488.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx2488.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecti1728.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1200.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbi1200.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1095.tfm
@@ -489,12 +495,6 @@ INPUT ./front/resume.tex
 INPUT ./front/resume.tex
 INPUT ./front/resume.tex
 INPUT front/resume.tex
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmr10.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmex10.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT ./front/abstract.tex
 INPUT ./front/abstract.tex
 INPUT ./front/abstract.tex
@@ -575,6 +575,10 @@ INPUT ./images/eqdom-logo.png
 INPUT ./images/eqdom-logo.png
 INPUT ./images/eqdom-logo.png
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx0800.tfm
+INPUT ./images/organisation_métier.png
+INPUT ./images/organisation_métier.png
+INPUT ./images/organisation_métier.png
+INPUT ./images/organisation_métier.png
 INPUT ./images/agile.png
 INPUT ./images/agile.png
 INPUT ./images/agile.png
@@ -652,6 +656,10 @@ INPUT ./chapters/05-realisation.tex
 INPUT ./chapters/05-realisation.tex
 INPUT ./chapters/05-realisation.tex
 INPUT chapters/05-realisation.tex
+INPUT ./images/screenshots_infra/clés_gérées_par_clients.png
+INPUT ./images/screenshots_infra/clés_gérées_par_clients.png
+INPUT ./images/screenshots_infra/clés_gérées_par_clients.png
+INPUT ./images/screenshots_infra/clés_gérées_par_clients.png
 INPUT ./images/screenshots_infra/Capture d'écran 2026-05-22 211318.png
 INPUT ./images/screenshots_infra/Capture d'écran 2026-05-22 211318.png
 INPUT ./images/screenshots_infra/Capture d'écran 2026-05-22 211318.png
@@ -688,6 +696,30 @@ INPUT ./images/screenshots_infra/Capture d'écran 2026-05-22 214135.png
 INPUT ./images/screenshots_infra/Capture d'écran 2026-05-22 214135.png
 INPUT ./images/screenshots_infra/Capture d'écran 2026-05-22 214135.png
 INPUT ./images/screenshots_infra/Capture d'écran 2026-05-22 214135.png
+INPUT ./images/screenshots_infra/links_vpc_route_table1.png
+INPUT ./images/screenshots_infra/links_vpc_route_table1.png
+INPUT ./images/screenshots_infra/links_vpc_route_table1.png
+INPUT ./images/screenshots_infra/links_vpc_route_table1.png
+INPUT ./images/screenshots_infra/links_vpc_route_table2.png
+INPUT ./images/screenshots_infra/links_vpc_route_table2.png
+INPUT ./images/screenshots_infra/links_vpc_route_table2.png
+INPUT ./images/screenshots_infra/links_vpc_route_table2.png
+INPUT ./images/screenshots_infra/links_vpc_route_table3.png
+INPUT ./images/screenshots_infra/links_vpc_route_table3.png
+INPUT ./images/screenshots_infra/links_vpc_route_table3.png
+INPUT ./images/screenshots_infra/links_vpc_route_table3.png
+INPUT ./images/screenshots_infra/NAT_Gateway.png
+INPUT ./images/screenshots_infra/NAT_Gateway.png
+INPUT ./images/screenshots_infra/NAT_Gateway.png
+INPUT ./images/screenshots_infra/NAT_Gateway.png
+INPUT ./images/screenshots_infra/IP_elastic.png
+INPUT ./images/screenshots_infra/IP_elastic.png
+INPUT ./images/screenshots_infra/IP_elastic.png
+INPUT ./images/screenshots_infra/IP_elastic.png
+INPUT ./images/screenshots_infra/postgres_hive_metastore.png
+INPUT ./images/screenshots_infra/postgres_hive_metastore.png
+INPUT ./images/screenshots_infra/postgres_hive_metastore.png
+INPUT ./images/screenshots_infra/postgres_hive_metastore.png
 INPUT ./images/screenshots_pipeline/MinIO_object_browser.png
 INPUT ./images/screenshots_pipeline/MinIO_object_browser.png
 INPUT ./images/screenshots_pipeline/MinIO_object_browser.png
@@ -704,6 +736,10 @@ INPUT ./images/screenshots_pipeline/bucket_gold.png
 INPUT ./images/screenshots_pipeline/bucket_gold.png
 INPUT ./images/screenshots_pipeline/bucket_gold.png
 INPUT ./images/screenshots_pipeline/bucket_gold.png
+INPUT ./images/screenshots_infra/kafka_running.png
+INPUT ./images/screenshots_infra/kafka_running.png
+INPUT ./images/screenshots_infra/kafka_running.png
+INPUT ./images/screenshots_infra/kafka_running.png
 INPUT ./images/screenshots_pipeline/NiFi_informix_eqdom.png
 INPUT ./images/screenshots_pipeline/NiFi_informix_eqdom.png
 INPUT ./images/screenshots_pipeline/NiFi_informix_eqdom.png
@@ -716,6 +752,10 @@ INPUT ./images/screenshots_pipeline/sms_reprise_nigestion.png
 INPUT ./images/screenshots_pipeline/sms_reprise_nigestion.png
 INPUT ./images/screenshots_pipeline/sms_reprise_nigestion.png
 INPUT ./images/screenshots_pipeline/sms_reprise_nigestion.png
+INPUT ./images/screenshots_infra/Spark_running.png
+INPUT ./images/screenshots_infra/Spark_running.png
+INPUT ./images/screenshots_infra/Spark_running.png
+INPUT ./images/screenshots_infra/Spark_running.png
 INPUT ./images/screenshots_pipeline/airflow_UI.png
 INPUT ./images/screenshots_pipeline/airflow_UI.png
 INPUT ./images/screenshots_pipeline/airflow_UI.png
@@ -756,6 +796,18 @@ INPUT ./images/screenshots_pipeline/KPIs_Vue_contrats360.png
 INPUT ./images/screenshots_pipeline/KPIs_Vue_contrats360.png
 INPUT ./images/screenshots_pipeline/KPIs_Vue_contrats360.png
 INPUT ./images/screenshots_pipeline/KPIs_Vue_contrats360.png
+INPUT ./images/contenu_objectif_enjeux_BI.png
+INPUT ./images/contenu_objectif_enjeux_BI.png
+INPUT ./images/contenu_objectif_enjeux_BI.png
+INPUT ./images/contenu_objectif_enjeux_BI.png
+INPUT ./images/dashboard1.png
+INPUT ./images/dashboard1.png
+INPUT ./images/dashboard1.png
+INPUT ./images/dashboard1.png
+INPUT ./images/dashboard2.png
+INPUT ./images/dashboard2.png
+INPUT ./images/dashboard2.png
+INPUT ./images/dashboard2.png
 INPUT ./images/screenshots_infra/Capture d'écran 2026-05-22 214950.png
 INPUT ./images/screenshots_infra/Capture d'écran 2026-05-22 214950.png
 INPUT ./images/screenshots_infra/Capture d'écran 2026-05-22 214950.png

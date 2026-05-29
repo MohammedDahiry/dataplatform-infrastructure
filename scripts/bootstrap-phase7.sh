@@ -80,6 +80,12 @@ helm upgrade --install fluent-bit fluent/fluent-bit \
 echo "Applying ServiceMonitor / PodMonitor CRDs..."
 kubectl apply -f "${PHASE7_DIR}/manifests/servicemonitors/" || true
 
+echo "Applying Grafana dashboards..."
+kubectl apply -f "${PHASE7_DIR}/manifests/grafana-dashboards/" || true
+
+echo "Applying OpenObserve query assets..."
+kubectl apply -f "${PHASE7_DIR}/manifests/openobserve/" || true
+
 echo "Phase 7 bootstrap complete."
 cat <<EOF
 
@@ -91,4 +97,10 @@ OpenObserve: user admin@dataplatform.local  /  ${OPENOBSERVE_ADMIN_PASSWORD}
 Next:
   kubectl -n platform-monitoring port-forward svc/monitoring-grafana 3000:80
   kubectl -n platform-logging port-forward svc/openobserve 5080:5080
+
+Grafana dashboard:
+  Dashboards -> Dataplatform - Cluster State
+
+OpenObserve queries:
+  kubectl -n platform-logging get configmap openobserve-k8s-cluster-log-queries -o jsonpath='{.data.README\.md}'
 EOF

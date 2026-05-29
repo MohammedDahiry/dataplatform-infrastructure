@@ -74,6 +74,15 @@ bootstrap/{namespaces,storage-classes,resource-quotas,network-policies}
 scripts/bootstrap-cluster.sh
 \end{lstlisting}
 
+Les clés KMS créées pour la plateforme matérialisent la séparation des usages de chiffrement. Elles couvrent notamment les volumes persistants, les secrets et les journaux techniques, avec une gestion côté client afin de conserver la maîtrise des clés.
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth,height=0.58\textheight,keepaspectratio]{images/screenshots_infra/clés_gérées_par_clients.png}
+\caption{Clés KMS gérées par le client pour le chiffrement de la plateforme}
+\label{fig:realisation-kms-customer-managed-keys}
+\end{figure}
+
 Le script \texttt{bootstrap-cluster.sh} applique ensuite les ressources Kubernetes transverses : namespaces, StorageClass \texttt{gp3} chiffrée, quotas et politiques réseau.
 
 \begin{figure}[H]
@@ -103,6 +112,45 @@ Le script \texttt{bootstrap-cluster.sh} applique ensuite les ressources Kubernet
 \label{fig:realisation-network-storage}
 \end{figure}
 
+Les associations entre sous-réseaux et tables de routage valident la séparation réseau du socle AWS. Les sous-réseaux publics sont reliés à la table de routage exposée via l'Internet Gateway, tandis que les sous-réseaux privés utilisent les routes sortantes contrôlées par le NAT Gateway.
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth]{images/screenshots_infra/links_vpc_route_table1.png}
+\caption{Associations de la première table de routage du VPC}
+\label{fig:realisation-vpc-route-table-1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth]{images/screenshots_infra/links_vpc_route_table2.png}
+\caption{Associations de la deuxième table de routage du VPC}
+\label{fig:realisation-vpc-route-table-2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth]{images/screenshots_infra/links_vpc_route_table3.png}
+\caption{Associations de la troisième table de routage du VPC}
+\label{fig:realisation-vpc-route-table-3}
+\end{figure}
+
+La connectivité sortante des sous-réseaux privés repose sur un NAT Gateway unique en environnement \texttt{dev}. L'adresse IP élastique associée stabilise le point de sortie réseau, ce qui facilite les règles de filtrage et les diagnostics.
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth,height=0.58\textheight,keepaspectratio]{images/screenshots_infra/NAT_Gateway.png}
+\caption{NAT Gateway utilisé pour la sortie contrôlée des sous-réseaux privés}
+\label{fig:realisation-nat-gateway}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth,height=0.58\textheight,keepaspectratio]{images/screenshots_infra/IP_elastic.png}
+\caption{Adresse IP élastique associée au NAT Gateway}
+\label{fig:realisation-elastic-ip-nat}
+\end{figure}
+
 %------------------------------------------------------------------------------
 \section{Phase 2 — Stockage Lakehouse et métastore}
 %------------------------------------------------------------------------------
@@ -117,6 +165,13 @@ La phase 2 installe les composants persistants nécessaires au Lakehouse. Le scr
 \end{enumerate}
 
 Cette phase matérialise le socle Bronze/Silver/Gold : les données peuvent être déposées dans des buckets ou chemins dédiés, puis référencées sous forme de tables Iceberg.
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth]{images/screenshots_infra/postgres_hive_metastore.png}
+\caption{Bases PostgreSQL utilisées par la source de démonstration et le Hive Metastore}
+\label{fig:realisation-postgres-hive-metastore}
+\end{figure}
 
 \begin{figure}[H]
 \centering
@@ -152,6 +207,13 @@ Le dépôt propose une variante \texttt{dev} légère de Kafka et une variante \
 
 \begin{figure}[H]
 \centering
+\maybeimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{images/screenshots_infra/kafka_running.png}
+\caption{Composants Kafka déployés et en fonctionnement dans Kubernetes}
+\label{fig:realisation-kafka-running}
+\end{figure}
+
+\begin{figure}[H]
+\centering
 \PFEScreenshotItem{Flux NiFi Informix EQDOM}{images/screenshots_pipeline/NiFi_informix_eqdom.png}
 \PFEScreenshotItem{Flux NiFi des bases de données}{images/screenshots_pipeline/NiFi_dbs.png}
 \PFEScreenshotItem{Flux NiFi d'ingestion SMS reprise}{images/screenshots_pipeline/sms_reprise_nigestion.png}
@@ -182,6 +244,13 @@ La phase 4 implémente la partie centrale du pipeline data. L'image Spark Iceber
 \end{table}
 
 Les modèles dbt disponibles démontrent la transformation d'une table budgétaire d'agence vers un staging Silver puis un agrégat Gold mensuel. Cette structure reste extensible à d'autres domaines métier.
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{images/screenshots_infra/Spark_running.png}
+\caption{Composants Spark déployés et en fonctionnement dans Kubernetes}
+\label{fig:realisation-spark-running}
+\end{figure}
 
 \begin{figure}[H]
 \centering
@@ -229,6 +298,31 @@ Dans le scénario cible, Dremio permet :
     \item d'exposer une interface SQL aux analystes ;
     \item de connecter Power BI à la couche Gold via ODBC ou Arrow Flight.
 \end{itemize}
+
+La partie BI matérialise la finalité métier de la plateforme : transformer les tables Gold en indicateurs lisibles pour le pilotage. Le cadrage distingue le contenu attendu, les objectifs de restitution et les enjeux de gouvernance afin que les tableaux de bord restent alignés avec les besoins des utilisateurs.
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth]{images/contenu_objectif_enjeux_BI.png}
+\caption{Contenu, objectifs et enjeux de la couche BI}
+\label{fig:realisation-bi-objectifs-enjeux}
+\end{figure}
+
+Les maquettes de dashboards illustrent ensuite la consommation des données exposées : la première vue synthétise les indicateurs de suivi et la seconde détaille les analyses métier nécessaires à l'exploration du portefeuille.
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{images/dashboard1.png}
+\caption{Dashboard BI de synthèse alimenté par la couche Gold}
+\label{fig:realisation-dashboard-bi-1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\maybeimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{images/dashboard2.png}
+\caption{Dashboard BI d'analyse métier du portefeuille}
+\label{fig:realisation-dashboard-bi-2}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \section{Phase 6 — Exposition sécurisée Cloudflare}

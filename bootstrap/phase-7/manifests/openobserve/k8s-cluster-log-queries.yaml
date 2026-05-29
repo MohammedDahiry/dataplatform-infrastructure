@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openobserve-k8s-cluster-log-queries
+  namespace: platform-logging
+  labels:
+    app.kubernetes.io/name: openobserve-k8s-queries
+    app.kubernetes.io/part-of: dataplatform-observability
+data:
+  README.md: |-
+    # OpenObserve Kubernetes Cluster Views
+
+    Fluent Bit sends container logs to the OpenObserve stream `default/k8s`.
+    Use these SQL snippets in OpenObserve to inspect cluster, node and pod state
+    from logs. They complement the Grafana dashboard backed by Prometheus
+    metrics.
+
+    ## Recent pod errors
+
+    ```sql
+    SELECT
+      _timestamp,
+      kubernetes.namespace_name AS namespace,
+      kubernetes.pod_name AS pod,
+      kubernetes.container_name AS container,
+      log
+    FROM "k8s"
+    WHERE
+      lower(log) LIKE '%error%'
+      OR lower(log) LIKE '%exception%'
+      OR lower(log) LIKE '%failed%'
+    ORDER BY _timestamp DESC
+    LIMIT 200;
+    ```
+
+    ## Pods producing the most logs
+
+    ```sql
+    SELECT
+      kubernetes.namespace_name AS namespace,
+      kubernetes.pod_name AS pod,
+      kubernetes.container_name AS container,
+      count(*) AS log_events
+    FROM "k8s"
+    GROUP BY namespace, pod, container
+    ORDER BY log_events DESC
+    LIMIT 50;
+    ```
+
+    ## Node-level log activity
+
+    ```sql
+    SELECT
+      kubernetes.host AS node,
+      count(*) AS log_events
+    FROM "k8s"
+    GROUP BY node
+    ORDER BY log_events DESC;
+    ```
+
+    ## Namespace-level log activity
+
+    ```sql
+    SELECT
+      kubernetes.namespace_name AS namespace,
+      count(*) AS log_events
+    FROM "k8s"
+    GROUP BY namespace
+    ORDER BY log_events DESC;
+    ```
+
+    ## CrashLoopBackOff / OOMKilled signals in logs
+
+    ```sql
+    SELECT
+      _timestamp,
+      kubernetes.namespace_name AS namespace,
+      kubernetes.pod_name AS pod,
+      kubernetes.container_name AS container,
+      log
+    FROM "k8s"
+    WHERE
+      log LIKE '%CrashLoopBackOff%'
+      OR log LIKE '%OOMKilled%'
+      OR log LIKE '%Back-off restarting failed container%'
+    ORDER BY _timestamp DESC
+    LIMIT 200;
+    ```
