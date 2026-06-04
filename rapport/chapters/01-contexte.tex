@@ -9,6 +9,8 @@ Ce chapitre présente le cadre professionnel du Projet de Fin d'Études, l'organ
 
 \textbf{SEVENAPP}, opérant sous la marque \textbf{Seven}, est une entreprise de services numériques spécialisée dans l'accompagnement des organisations autour de la transformation digitale, de la data et de l'intelligence artificielle. Son positionnement consiste à intervenir comme partenaire technologique auprès d'acteurs publics et privés, en mettant à disposition des consultants capables de concevoir, industrialiser et documenter des solutions numériques.
 
+La figure~\ref{fig:seven-logo} présente l'identité visuelle de l'organisme d'accueil.
+
 \begin{figure}[H]
 \centering
 \maybeimage[height=2cm]{images/seven-logo.jpg}
@@ -19,6 +21,8 @@ Ce chapitre présente le cadre professionnel du Projet de Fin d'Études, l'organ
 Dans le cadre de ce stage, le rôle occupé est celui de \textbf{consultant Data}. La mission s'inscrit dans une logique d'ingénierie : comprendre un besoin de plateforme, proposer une architecture, produire une implémentation reproductible, documenter les choix et préparer une démonstration technique.
 
 \subsection{Fiche signalétique}
+
+Le tableau~\ref{tab:fiche-sevenapp} synthétise les informations principales de SEVENAPP et précise son rôle dans le projet.
 
 \begin{table}[H]
 \centering
@@ -42,6 +46,8 @@ Dans le cadre de ce stage, le rôle occupé est celui de \textbf{consultant Data
 \end{tabularx}
 \end{table}
 
+Cette fiche met en évidence un positionnement orienté Digital, Data et Intelligence Artificielle, cohérent avec la mission de conception d'une Cloud Data Platform.
+
 \subsection{Domaines d'intervention}
 
 Les activités de l'organisme d'accueil peuvent être regroupées autour de trois axes :
@@ -50,6 +56,8 @@ Les activités de l'organisme d'accueil peuvent être regroupées autour de troi
     \item \textbf{data engineering} : pipelines, plateformes, gouvernance, ingestion, transformation et exposition des données ;
     \item \textbf{intelligence artificielle} : exploitation avancée des données, automatisation et cas d'usage analytiques.
 \end{itemize}
+
+La figure~\ref{fig:secteurs-activite-seven} illustre ces domaines d'intervention et leur complémentarité.
 
 \begin{figure}[H]
 \centering
@@ -63,6 +71,8 @@ Les activités de l'organisme d'accueil peuvent être regroupées autour de troi
 
 La diversité des références clients de SEVENAPP illustre son positionnement transversal auprès d'acteurs financiers, d'organismes publics et d'entreprises issues de secteurs variés. Ces missions couvrent notamment la refonte de parcours digitaux, la mise en place de solutions CRM, la structuration de dispositifs data, l'automatisation de processus et l'accompagnement à la gouvernance des données.
 
+La figure~\ref{fig:clients-sevenapp} présente quelques références représentatives de cette diversité sectorielle.
+
 \begin{figure}[H]
 \centering
 {\setlength{\fboxsep}{3pt}\setlength{\fboxrule}{0.5pt}%
@@ -72,6 +82,8 @@ La diversité des références clients de SEVENAPP illustre son positionnement t
 \end{figure}
 
 \subsection{Organigramme simplifié}
+
+La figure~\ref{fig:organigramme-sevenapp} situe la mission Cloud Data Platform dans une organisation simplifiée : elle relève du pôle Data \& IA, lui-même rattaché aux activités digitales de SEVENAPP.
 
 \begin{figure}[H]
 \centering
@@ -133,7 +145,7 @@ Le secteur du crédit et du financement exige des systèmes d'information fiable
 
 Le projet consiste à concevoir et déployer une \textbf{Cloud Data Platform} sur AWS EKS, adaptée aux besoins d'un environnement financier manipulant des données opérationnelles, analytiques et décisionnelles. La plateforme vise à couvrir le cycle de vie complet des données : ingestion depuis les systèmes sources, stockage dans un Lakehouse, transformation en couches analytiques, orchestration des traitements, exposition SQL/BI et supervision.
 
-L'organisation métier du projet met en relation les besoins fonctionnels, les équipes utilisatrices et les briques techniques chargées de produire des données fiables. Elle sert de point d'appui pour comprendre comment la plateforme transforme des sources opérationnelles en indicateurs exploitables par les métiers.
+L'organisation métier du projet, illustrée dans la figure~\ref{fig:organisation-metier}, met en relation les besoins fonctionnels, les équipes utilisatrices et les briques techniques chargées de produire des données fiables. Elle sert de point d'appui pour comprendre comment la plateforme transforme des sources opérationnelles en indicateurs exploitables par les métiers.
 
 \begin{figure}[H]
 \centering
@@ -146,7 +158,7 @@ L'organisation métier du projet met en relation les besoins fonctionnels, les �
 Le cadrage fonctionnel et technique retient une approche progressive : bâtir d'abord un socle cloud sécurisé et reproductible, puis y intégrer les services nécessaires au pipeline data, à la gouvernance, à l'observabilité et à la consommation des données par les équipes BI. Les livrables principaux regroupent ainsi les éléments nécessaires à la mise en place, à l'exploitation et à la démonstration de la plateforme :
 \begin{itemize}
     \item les modules Terraform de la landing zone AWS ;
-    \item les manifests Kubernetes et Helm des différentes phases ;
+    \item les manifests Kubernetes et Helm~\cite{helm} des différentes phases ;
     \item les scripts de déploiement, destruction, préparation des secrets et construction d'image ;
     \item les DAGs Airflow et jobs Spark/dbt ;
     \item la documentation d'exploitation, de traçabilité et de soutenance.
@@ -249,6 +261,8 @@ Cette problématique se décline en plusieurs axes complémentaires, représent�
 
 La démarche adoptée suit une approche itérative inspirée de Scrum. Le projet a été découpé en phases techniques cohérentes, chacune produisant un incrément exploitable : socle cloud, stockage, ingestion, compute, serving, exposition, observabilité et automatisation.
 
+La figure~\ref{fig:agile} rappelle le cycle itératif retenu, tandis que le tableau~\ref{tab:sprints} associe chaque sprint à ses livrables principaux.
+
 \begin{figure}[H]
 \centering
 \maybeimage[height=5.2cm]{images/agile.png}
@@ -267,10 +281,10 @@ La démarche adoptée suit une approche itérative inspirée de Scrum. Le projet
 \PFEHeaderCell{Sprint} & \PFEHeaderCell{Phase} & \PFEHeaderCell{Livrables principaux} \\
 \midrule
 \PFEKeyCell{Sprint 1} & Socle cloud & VPC, EKS, KMS, IAM, backend R2, CI Terraform, namespaces Kubernetes. \\
-\PFEKeyCell{Sprint 2} & Stockage & MinIO, CloudNativePG, Hive Metastore, secrets, stockage \texttt{gp3}. \\
+\PFEKeyCell{Sprint 2} & Stockage & MinIO, CloudNativePG~\cite{cloudnative-pg}, Hive Metastore, secrets, stockage \texttt{gp3}. \\
 \PFEKeyCell{Sprint 3} & Ingestion & Kafka Strimzi, topics, KafkaConnect, Debezium, NiFi. \\
 \PFEKeyCell{Sprint 4} & Compute & Image Spark Iceberg, SparkApplication, dbt, Airflow et DAGs. \\
-\PFEKeyCell{Sprint 5} & Serving / sécurité & Dremio, source Hive, Cloudflare Tunnel et exposition des interfaces. \\
+\PFEKeyCell{Sprint 5} & Serving / sécurité & Dremio, source Hive, Cloudflare Tunnel~\cite{cloudflare} et exposition des interfaces. \\
 \PFEKeyCell{Sprint 6} & Observabilité & Prometheus, Grafana, Fluent Bit, OpenObserve, ServiceMonitors et documentation finale. \\
 \bottomrule
 \end{tabularx}
@@ -279,6 +293,8 @@ La démarche adoptée suit une approche itérative inspirée de Scrum. Le projet
 %==============================================================================
 \section{Planification du projet}
 %==============================================================================
+
+La figure~\ref{fig:gantt-projet} détaille la planification temporelle du projet. Elle montre l'enchaînement des travaux de cadrage, de conception, d'implémentation et de validation jusqu'à la soutenance du 26 juin 2026.
 
 \begin{figure}[H]
 \centering
@@ -312,21 +328,21 @@ La démarche adoptée suit une approche itérative inspirée de Scrum. Le projet
 
 \fill[white] (0,-10.25) rectangle (17.15,1.60);
 \node[title, anchor=west] at (0.35,1.20) {Diagramme de Gantt du projet};
-\node[subtitle, anchor=west] at (0.35,0.66) {Planification de la Cloud Data Platform -- mars à juillet 2026};
+\node[subtitle, anchor=west] at (0.35,0.66) {Planification de la Cloud Data Platform -- mars à juin 2026};
 
 % En-tête temporel : une colonne par mois.
 \fill[ganttSoft] (6.10,0.32) rectangle (16.70,-0.28);
-\foreach \x/\m in {6.10/Mars 2026,8.20/Avril 2026,10.30/Mai 2026,12.40/Juin 2026,14.50/Juillet 2026} {
-    \node[month] at (\x+1.05,-0.05) {\m};
-}
-\foreach \x in {6.10,8.20,10.30,12.40,14.50,16.70} {
-    \draw[grid] (\x,0.32) -- (\x,-10.00);
+\foreach \x/\m in {6.10/Mars 2026,8.75/Avril 2026,11.40/Mai 2026,14.05/Juin 2026} {
+    \node[month] at (\x+1.325,-0.05) {\m};
 }
 \draw[grid] (6.10,-0.28) -- (16.70,-0.28);
 
 % Bandes de lecture et séparateurs.
 \foreach \yt/\yb in {-0.28/-1.85,-3.25/-4.65,-6.05/-7.45,-8.85/-10.15} {
     \fill[ganttBand] (0.35,\yt) rectangle (16.70,\yb);
+}
+\foreach \x in {6.10,8.75,11.40,14.05,16.70} {
+    \draw[grid] (\x,0.32) -- (\x,-10.00);
 }
 \foreach \y in {-1.85,-3.25,-4.65,-6.05,-7.45,-8.85,-10.15} {
     \draw[grid] (0.35,\y) -- (16.70,\y);
@@ -362,19 +378,19 @@ La démarche adoptée suit une approche itérative inspirée de Scrum. Le projet
 \node[tasksub] at (1.12,-9.90) {Validation, soutenance et rapport final};
 
 % Barres Gantt. Chaque boîte indique sa longueur et sa largeur visuelles.
-\node[bar, date, fill=ganttBlue, minimum width=1.90cm] at (6.99,-1.20) {1--23 mars};
+\node[bar, date, fill=ganttBlue, minimum width=1.90cm] at (7.05,-1.20) {1--23 mars};
 
-\node[bar, date, fill=ganttTeal, minimum width=2.45cm] at (8.46,-2.60) {24 mars--15 avr.};
+\node[bar, date, fill=ganttTeal, minimum width=2.45cm] at (8.82,-2.60) {24 mars--15 avr.};
 
-\node[bar, date, fill=ganttAmber, minimum width=2.42cm] at (10.09,-4.00) {16 avr.--10 mai};
+\node[bar, date, fill=ganttAmber, minimum width=2.42cm] at (10.72,-4.00) {16 avr.--10 mai};
 
-\node[bar, date, fill=ganttViolet, minimum width=2.35cm] at (11.82,-5.40) {11 mai--5 juin};
+\node[bar, date, fill=ganttViolet, minimum width=2.35cm] at (13.28,-5.40) {11 mai--5 juin};
 
-\node[bar, date, fill=ganttRose, minimum width=1.75cm] at (13.39,-6.80) {6--25 juin};
+\node[bar, date, fill=ganttRose, minimum width=1.55cm] at (14.58,-6.80) {6--14 juin};
 
-\node[bar, date, fill=ganttCyan, minimum width=2.38cm] at (14.76,-8.20) {26 juin--15 juil.};
+\node[bar, date, fill=ganttCyan, minimum width=1.70cm] at (15.38,-8.20) {15--21 juin};
 
-\node[bar, date, fill=ganttSlate, minimum width=3.45cm] at (15.00,-9.60) {20 juin--31 juillet};
+\node[bar, date, fill=ganttSlate, minimum width=1.50cm] at (15.92,-9.60) {20--26 juin};
 
 \end{tikzpicture}
 }
@@ -398,6 +414,12 @@ Le projet apporte une base technique réutilisable pour construire une plateform
 \section*{Conclusion du chapitre}
 \addcontentsline{toc}{section}{Conclusion du chapitre 1}
 
-Ce chapitre a situé le projet dans son contexte professionnel et méthodologique. Le chapitre suivant présente les concepts techniques et l'état de l'art nécessaires à la compréhension de l'architecture retenue.
+Ce chapitre a permis de situer le projet dans son environnement professionnel. SEVENAPP intervient comme organisme d'accueil et comme cadre d'accompagnement technique, tandis qu'EQDOM constitue le contexte métier de la mission. La présentation du client a mis en évidence les contraintes propres au secteur financier : fiabilité des traitements, sécurité des accès, traçabilité des données et disponibilité d'indicateurs exploitables pour le pilotage.
+
+Le cadrage a également précisé la problématique centrale du projet : construire une plateforme capable de centraliser des sources hétérogènes, de structurer les données selon une logique Lakehouse et de les exposer progressivement aux usages analytiques. La taxonomie proposée montre que cette problématique ne se limite pas au stockage. Elle englobe l'ingestion, la transformation, la gouvernance, l'observabilité et l'exploitation opérationnelle.
+
+Enfin, l'organisation itérative et le diagramme de Gantt ont permis de relier les objectifs aux différentes étapes de réalisation, depuis le cadrage jusqu'à la validation finale prévue pour la soutenance du 26 juin 2026. Le projet dispose ainsi d'un périmètre cohérent, d'une démarche de conduite explicite et d'une trajectoire d'industrialisation identifiable.
+
+Le chapitre suivant présente les concepts techniques nécessaires pour comprendre les choix retenus : architecture Lakehouse, modèle médaillon, Kubernetes, operators, ingestion batch et streaming, transformation distribuée, Infrastructure as Code et observabilité.
 
 \clearpage

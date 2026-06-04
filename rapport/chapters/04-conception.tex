@@ -9,6 +9,8 @@ Ce chapitre présente l'architecture cible de la Cloud Data Platform. La concept
 
 La plateforme comporte sept couches logiques : sources, ingestion, stockage, calcul, virtualisation, présentation et observabilité. Elle est hébergée sur \textbf{AWS EKS}~\cite{aws-eks} en environnement \texttt{dev}, avec un design compatible avec une évolution multi-cloud ou on-premise grâce à Kubernetes~\cite{kubernetes}, MinIO~\cite{minio} et Iceberg~\cite{apache-iceberg}.
 
+La figure~\ref{fig:arch-globale} représente ces couches et met en évidence le chemin suivi par les données jusqu'aux usages analytiques.
+
 \begin{figure}[H]
 \centering
 \maybeimage[width=0.95\textwidth,height=0.72\textheight,keepaspectratio]{images/screenshots_pipeline/architecture_globale.png}
@@ -25,6 +27,8 @@ Les captures détaillées d'exécution sont présentées dans le chapitre de ré
 \subsection{Landing zone}
 
 La landing zone est composée d'un VPC multi-AZ, de sous-réseaux privés et publics, d'un NAT Gateway unique en environnement \texttt{dev}, de clés KMS dédiées et d'un cluster EKS managé. Les modules Terraform \texttt{vpc}, \texttt{kms}, \texttt{iam}, \texttt{eks}, \texttt{ecr} et \texttt{lambda-scaling} isolent les responsabilités et permettent une évolution contrôlée.
+
+La figure~\ref{fig:conception-socle-aws-eks} illustre les principales briques AWS de cette landing zone : réseau, routage et cluster EKS.
 
 \begin{figure}[H]
 \centering
@@ -50,6 +54,8 @@ Cette séparation rend possible le \textbf{scale-to-zero} du compute sans arrêt
 %------------------------------------------------------------------------------
 
 La plateforme est conçue selon une progression d'environnements qui sépare les usages de développement, de validation métier et d'exploitation. Cette séparation évite de mélanger les expérimentations techniques avec les données et services destinés aux utilisateurs finaux.
+
+La figure~\ref{fig:environments-dev-uat-prod} présente cette progression. Le tableau~\ref{tab:environnements} précise le rôle et le niveau d'exigence associé à chaque environnement.
 
 \begin{figure}[H]
 \centering
@@ -80,6 +86,8 @@ Dans cette logique, un changement est d'abord testé en \textbf{DEV}, stabilisé
 \section{Stratégie des namespaces Kubernetes}
 %------------------------------------------------------------------------------
 
+Le tableau~\ref{tab:namespaces} décrit la segmentation Kubernetes retenue. Chaque namespace regroupe des workloads ayant une responsabilité technique homogène.
+
 \begin{table}[H]
 \centering
 \caption{Namespaces \texttt{platform-*} alignés avec le cahier des charges}
@@ -97,7 +105,7 @@ Dans cette logique, un changement est d'abord testé en \textbf{DEV}, stabilisé
 \texttt{platform-serving} & Dremio, services SQL/BI \\
 \texttt{platform-monitoring} & Prometheus, Alertmanager, Grafana \\
 \texttt{platform-logging} & Fluent Bit, OpenObserve \\
-\texttt{platform-security} & cert-manager, Cloudflare Operator, secrets d'exposition \\
+\texttt{platform-security} & cert-manager~\cite{cert-manager}, Cloudflare Operator, secrets d'exposition \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -109,6 +117,8 @@ Chaque namespace reçoit une \texttt{ResourceQuota}, une \texttt{NetworkPolicy} 
 %------------------------------------------------------------------------------
 
 Le pipeline est conçu autour d'un flux principal PostgreSQL $\rightarrow$ Kafka $\rightarrow$ Iceberg, complété par une ingestion fichiers. La séparation Bronze/Silver/Gold permet d'organiser la qualité et la finalité des données.
+
+La figure~\ref{fig:flux-medallion} illustre le flux cible, tandis que le tableau~\ref{tab:medallion} explicite le rôle de chaque couche de données.
 
 \begin{figure}[H]
 \centering
@@ -161,6 +171,8 @@ Les captures AWS et Cloudflare correspondantes sont déplacées dans la partie r
 
 L'observabilité est conçue comme une couche transversale, et non comme un ajout final. Les métriques Kubernetes et applicatives sont collectées par Prometheus ; Grafana fournit les dashboards techniques ; Fluent Bit route les logs vers OpenObserve ; les ServiceMonitors ciblent les composants critiques.
 
+Le tableau~\ref{tab:observabilite-conception} synthétise cette conception en distinguant métriques, logs, dashboards et alertes.
+
 \begin{table}[H]
 \centering
 \caption{Conception de l'observabilité}
@@ -199,6 +211,16 @@ Les captures des dossiers, registres, buckets, UIs et validations terminal sont 
 \section*{Conclusion du chapitre}
 \addcontentsline{toc}{section}{Conclusion du chapitre 4}
 
-La conception articule une architecture Lakehouse, un socle EKS sécurisé, un pipeline médaillon et une observabilité transverse. Le chapitre suivant détaille l'état d'implémentation réel et les phases prévues pour finaliser la démonstration.
+Ce chapitre a traduit les exigences en une architecture cible structurée. La solution repose sur sept couches logiques : sources, ingestion, stockage, calcul, virtualisation, présentation et observabilité. Cette décomposition permet d'isoler les responsabilités, de faire évoluer les composants indépendamment et de conserver une lecture claire du parcours de la donnée.
+
+Le socle physique retenu s'appuie sur AWS EKS et sur une landing zone décrite par Terraform. Le VPC multi-AZ, les sous-réseaux privés et publics, le NAT Gateway, les clés KMS et les rôles IAM fournissent les fondations réseau et sécurité. La séparation entre node groups stateful et compute répond à un double objectif : préserver la disponibilité des services persistants et permettre une réduction des coûts lorsque les traitements élastiques ne sont pas utilisés.
+
+La conception prend également en compte le cycle de vie de la plateforme. Les environnements DEV, UAT et PROD distinguent construction, recette et exploitation. Les namespaces Kubernetes regroupent les workloads par fonction : ingestion, stockage, métastore, calcul, orchestration, serving, monitoring, logging et sécurité. Cette organisation facilite l'application de quotas, de politiques réseau et de règles d'accès adaptées à chaque périmètre.
+
+Le pipeline médaillon formalise ensuite le chemin des données. PostgreSQL, Kafka et les flux fichiers alimentent Bronze ; Spark et dbt assurent les transformations Silver et Gold ; Dremio expose les tables analytiques à la BI. En parallèle, Prometheus, Grafana, Fluent Bit et OpenObserve constituent la couche transverse d'observabilité. La sécurité est intégrée dès la conception au travers d'OIDC, IRSA, KMS, secrets hors Git et exposition contrôlée par Cloudflare Tunnel.
+
+Enfin, l'organisation technique des livrables montre que cette conception est directement exploitable : modules Terraform, manifests Kubernetes, scripts de bootstrap, image Spark, DAGs et documentation sont structurés pour accompagner le déploiement par phases.
+
+Le chapitre suivant confronte cette architecture à sa mise en œuvre réelle. Il présente les composants déployés, les preuves d'exécution, les validations réalisées et les éléments restant à finaliser pour renforcer l'industrialisation.
 
 \clearpage

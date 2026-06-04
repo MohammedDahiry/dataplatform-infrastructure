@@ -40,6 +40,8 @@ Le projet poursuit quatre objectifs complémentaires :
 
 Le périmètre fonctionnel de la plateforme couvre deux familles de sources. La première correspond aux bases de données opérationnelles, dont les changements doivent pouvoir être capturés ou ingérés sans imposer d'exports manuels répétés. La seconde correspond aux fichiers métiers, souvent utilisés dans les processus de reporting ou de consolidation ponctuelle.
 
+Le tableau~\ref{tab:sources-donnees} recense les sources retenues et précise leur rôle. Le tableau~\ref{tab:ef} traduit ensuite ce périmètre en exigences fonctionnelles vérifiables.
+
 \begin{table}[H]
 \centering
 \caption{Sources de données retenues dans le périmètre}
@@ -100,7 +102,7 @@ EF-10 & Publier les interfaces web par Cloudflare Zero Trust. & Souhaitable \\
 \hline
 EF-11 & Collecter les métriques, logs et dashboards nécessaires à l'exploitation. & Essentielle \\
 \hline
-EF-12 & Préparer une trajectoire GitOps avec ArgoCD. & Optionnelle \\
+EF-12 & Préparer une trajectoire GitOps avec ArgoCD~\cite{argocd}. & Optionnelle \\
 \hline
 \end{longtable}
 \rowcolors{2}{}{}
@@ -108,6 +110,8 @@ EF-12 & Préparer une trajectoire GitOps avec ArgoCD. & Optionnelle \\
 %------------------------------------------------------------------------------
 \section{Exigences non fonctionnelles}
 %------------------------------------------------------------------------------
+
+Le tableau~\ref{tab:enf} complète les fonctionnalités attendues par les contraintes de qualité qui guident la conception : sécurité, reproductibilité, maintenabilité, scalabilité, coût, observabilité et traçabilité.
 
 \begin{table}[H]
 \centering
@@ -142,6 +146,8 @@ Traçabilité & Correspondance entre cahier des charges, exigences, décisions d
 \section{Acteurs et responsabilités}
 %------------------------------------------------------------------------------
 
+Le tableau~\ref{tab:acteurs} identifie les principaux acteurs du système et clarifie la répartition des responsabilités entre construction, exploitation, validation et consommation des données.
+
 \begin{table}[H]
 \centering
 \caption{Acteurs du système}
@@ -167,7 +173,7 @@ Encadrant technique & Validation de l'architecture, revue des choix, contrôle d
 
 \subsection{Diagrammes de compréhension fonctionnelle et technique}
 
-Les diagrammes suivants complètent la lecture des responsabilités en montrant comment les acteurs, les sources et les composants techniques interagissent dans la plateforme. Ils servent de transition entre l'analyse des besoins et le scénario de référence du pipeline data.
+Les figures~\ref{fig:flux-donnees-besoins} et \ref{fig:activites-pipeline-besoins} complètent la lecture des responsabilités en montrant comment les acteurs, les sources et les composants techniques interagissent dans la plateforme. Elles servent de transition entre l'analyse des besoins et le scénario de référence du pipeline data.
 
 \begin{figure}[H]
 \vspace{0.25cm}
@@ -274,8 +280,9 @@ Ce flux met en évidence deux chemins d'entrée : les bases opérationnelles et 
 \end{figure}
 
 Le diagramme d'activités décrit la logique de traitement attendue. Les relations indiquées sur les flèches précisent le rôle de chaque transition : lancement planifié ou manuel, qualification de la source, lecture du flux ou du fichier, contrôle qualité, publication dans le catalogue et supervision continue. Les retours vers la correction représentent les reprises nécessaires lorsqu'une source ou une transformation n'est pas conforme.
+\vspace{1.05cm} \\
+La figure~\ref{fig:infra-cloud-besoins} complète les deux diagrammes précédents par une vue technique de l'infrastructure cible et de ses dépendances.
 
-\clearpage
 \begin{figure}[p]
 \centering
 \vspace*{\fill}
@@ -368,6 +375,8 @@ Le scénario de référence sert de fil conducteur au projet. Il illustre le fon
     \item Prometheus, Grafana, Fluent Bit et OpenObserve permettent de suivre l'exécution.
 \end{enumerate}
 
+Le tableau~\ref{tab:acceptation} associe à chaque composant un critère observable afin de vérifier que le scénario de référence est effectivement couvert.
+
 \begin{table}[H]
 \centering
 \caption{Critères d'acceptation du scénario de référence}
@@ -412,6 +421,14 @@ Le projet est soumis à plusieurs contraintes :
 \section*{Conclusion du chapitre}
 \addcontentsline{toc}{section}{Conclusion du chapitre 3}
 
-L'analyse des besoins met en évidence un périmètre clair : construire une plateforme de données cloud-native complète dans sa conception, automatisée dans son déploiement et extensible vers un contexte de production. Le chapitre suivant décrit l'architecture retenue pour répondre à ces exigences.
+Ce chapitre a transformé la problématique générale en exigences concrètes. Le périmètre fonctionnel couvre plusieurs familles de sources : bases opérationnelles PostgreSQL, Informix CBS et SmartStream, ainsi que fichiers métiers CSV, XLS et XLSX. Cette diversité justifie la coexistence de mécanismes d'ingestion batch et streaming, avec une zone Bronze destinée à conserver les données ingérées de manière traçable et rejouable.
+
+Les exigences fonctionnelles décrivent ensuite la chaîne attendue de bout en bout : provisionnement du socle AWS, déploiement des namespaces Kubernetes, stockage Lakehouse, capture CDC, ingestion de fichiers, transformations Bronze--Silver--Gold, orchestration Airflow, exposition SQL avec Dremio et collecte des métriques et logs. Les exigences non fonctionnelles complètent ce périmètre en imposant des objectifs de sécurité, de maintenabilité, de reproductibilité, de scalabilité et de maîtrise des coûts.
+
+L'identification des acteurs clarifie la gouvernance du système. Le Data Engineer construit et maintient les pipelines, l'analyste BI exploite les données Gold, l'administrateur Cloud/SRE supervise les ressources et l'encadrant technique contrôle l'alignement avec le cahier des charges. Les diagrammes de flux, d'activités et d'infrastructure relient ces responsabilités aux composants techniques et montrent comment une donnée transite depuis sa source jusqu'aux usages analytiques.
+
+Enfin, le scénario de référence et ses critères d'acceptation fournissent une base de validation mesurable. Une source doit pouvoir être ingérée, les événements doivent être visibles dans Kafka, les traitements Spark et dbt doivent produire les tables attendues, Dremio doit rendre les données Gold requêtables et les outils d'observabilité doivent permettre le diagnostic des traitements.
+
+L'analyse aboutit ainsi à un périmètre réaliste pour un environnement de démonstration, tout en conservant une trajectoire vers la production. Le chapitre suivant décrit l'architecture retenue pour répondre à ces exigences et organiser les composants de manière cohérente.
 
 \clearpage

@@ -7,6 +7,8 @@ Ce chapitre présente la réalisation technique du projet. Il décrit les artefa
 \section{Stack technologique implémentée}
 %------------------------------------------------------------------------------
 
+Le tableau~\ref{tab:stack} présente la stack effectivement mobilisée et relie chaque domaine technique aux outils ou artefacts correspondants.
+
 \begin{table}[H]
 \centering
 \caption{Stack technologique principale}
@@ -31,9 +33,78 @@ Cycle de vie & scripts \texttt{fasttrack}, \texttt{teardown}, phases de bootstra
 \end{tabular}
 \end{table}
 
+Le tableau~\ref{tab:stack} ne doit pas être lu comme une simple liste d'outils. La plateforme repose sur trois ensembles complémentaires. Le premier correspond au \textbf{socle cloud et Kubernetes} : AWS fournit le réseau, le calcul managé et les services de sécurité, tandis que Terraform décrit les ressources de manière reproductible. Kubernetes apporte ensuite un cadre commun de déploiement, d'isolation et de montée en charge pour les composants data.
+
+Le deuxième ensemble constitue le \textbf{chemin de la donnée}. NiFi et Kafka prennent en charge les flux entrants ; MinIO, Apache Iceberg et Hive Metastore structurent le stockage Lakehouse ; Spark et dbt transforment les données ; Airflow orchestre les dépendances ; Dremio et Power BI exposent enfin les résultats aux usages analytiques. Ce découpage évite de concentrer toutes les responsabilités dans un seul moteur et facilite l'évolution progressive de chaque couche.
+
+Le troisième ensemble regroupe les fonctions \textbf{transverses d'exploitation} : chiffrement KMS, identités IRSA, exposition Cloudflare, métriques Prometheus, dashboards Grafana et centralisation des logs. Le choix technique consiste donc à privilégier une architecture modulaire, décrite par code et exploitable par phases, plutôt qu'un assemblage monolithique difficile à maintenir.
+
+La figure~\ref{fig:technologies-principales} présente les logos des principales technologies retenues, regroupées selon leur rôle dans l'architecture.
+
+\begin{figure}[H]
+\centering
+\newcommand{\TechLogo}[2]{%
+  \begin{minipage}[c]{0.18\textwidth}
+  \centering
+  \includegraphics[height=0.95cm,width=1.45cm,keepaspectratio]{#1}\\[-0.05cm]
+  {\scriptsize\bfseries #2}
+  \end{minipage}%
+}
+{\small\bfseries Technologies Data}\\[0.18cm]
+\TechLogo{images/technologies/apachenifi.png}{NiFi}\hfill
+\TechLogo{images/technologies/apachekafka.png}{Kafka}\hfill
+\TechLogo{images/technologies/minio.png}{MinIO}\hfill
+\TechLogo{images/technologies/apachehive.png}{Hive Metastore}\hfill
+\TechLogo{images/technologies/dbt.png}{dbt}\\[0.30cm]
+\TechLogo{images/technologies/apachespark.png}{Spark}\hfill
+\TechLogo{images/technologies/dremio.png}{Dremio}\hfill
+\TechLogo{images/technologies/apacheairflow.png}{Airflow}\hfill
+\TechLogo{images/technologies/powerbi.png}{Power BI}\hfill
+\TechLogo{images/technologies/apacheiceberg.png}{Apache Iceberg}\\[0.45cm]
+{\small\bfseries Technologies Cloud et DevOps}\\[0.18cm]
+\TechLogo{images/technologies/amazonwebservices.png}{AWS}\hfill
+\TechLogo{images/technologies/cloudflare.png}{Cloudflare}\hfill
+\TechLogo{images/technologies/kubernetes.png}{Kubernetes}\hfill
+\TechLogo{images/technologies/terraform.png}{Terraform}\\[0.30cm]
+\TechLogo{images/technologies/ansible.png}{Ansible}\hfill
+\TechLogo{images/technologies/docker.png}{Docker}\hfill
+\TechLogo{images/technologies/github.png}{GitHub}\hfill
+\TechLogo{images/technologies/githubactions.png}{GitHub Actions}
+\caption{Principales technologies utilisées dans la Cloud Data Platform}
+\label{fig:technologies-principales}
+\end{figure}
+
+\textbf{Rôle synthétique des principales technologies Data :}
+\begin{itemize}
+    \item \textbf{NiFi} représente les flux d'ingestion visuels et les intégrations de sources métier semi-structurées.
+    \item \textbf{Kafka} fournit un transport événementiel durable et découple les producteurs des traitements consommateurs.
+    \item \textbf{MinIO} apporte un stockage objet compatible S3 pour les zones Bronze, Silver et Gold.
+    \item \textbf{Hive Metastore} centralise le catalogue partagé par les moteurs qui manipulent les tables analytiques.
+    \item \textbf{Apache Iceberg} structure les tables Lakehouse avec des métadonnées, des snapshots et une évolution de schéma contrôlée.
+    \item \textbf{Spark} exécute les traitements distribués et les écritures vers les tables Iceberg.
+    \item \textbf{dbt} organise les transformations SQL, les modèles Silver/Gold et les contrôles associés.
+    \item \textbf{Airflow} planifie les DAGs et orchestre les dépendances entre ingestion, transformation et publication.
+    \item \textbf{Dremio} fournit la couche de virtualisation SQL sans imposer une duplication des données Gold.
+    \item \textbf{Power BI} matérialise la restitution métier au travers de tableaux de bord et d'indicateurs.
+\end{itemize}
+
+\textbf{Rôle synthétique des principales technologies Cloud et DevOps :}
+\begin{itemize}
+    \item \textbf{AWS} héberge le VPC, le cluster EKS, les volumes EBS, le registre ECR et les services de sécurité.
+    \item \textbf{Cloudflare} sécurise l'exposition des interfaces et héberge le backend R2 utilisé pour l'état Terraform.
+    \item \textbf{Kubernetes} fournit l'orchestration des conteneurs, l'isolation par namespaces et la gestion déclarative des workloads.
+    \item \textbf{Terraform} décrit le socle AWS sous forme de modules versionnés et reproductibles.
+    \item \textbf{Ansible} complète l'automatisation lorsque des séquences de configuration ou d'exploitation doivent être exécutées.
+    \item \textbf{Docker} empaquette les dépendances nécessaires aux traitements, notamment l'image Spark Iceberg.
+    \item \textbf{GitHub} centralise le code source, les manifests et l'historique des changements.
+    \item \textbf{GitHub Actions} automatise les contrôles et les opérations Terraform au moyen d'une authentification OIDC.
+\end{itemize}
+
 %------------------------------------------------------------------------------
 \section{État d'avancement par phase}
 %------------------------------------------------------------------------------
+
+Le tableau~\ref{tab:avancement} offre une lecture synthétique de l'avancement. Il distingue les composants déjà implémentés des compléments d'industrialisation restant à finaliser.
 
 \begin{longtable}{@{}p{0.08\textwidth}p{0.22\textwidth}p{0.4\textwidth}p{0.16\textwidth}@{}}
 \caption{Matrice d'avancement et livrables par phase}
@@ -61,6 +132,10 @@ Cycle de vie & scripts \texttt{fasttrack}, \texttt{teardown}, phases de bootstra
 
 \textbf{Lecture du statut :} \emph{Implémenté} signifie que le code, les manifests, les scripts et les preuves associées sont présents dans le dépôt. \emph{À finaliser} désigne uniquement les éléments volontairement laissés en perspective : l'import et la personnalisation des dashboards, le durcissement du monitoring/logging et l'activation GitOps complète.
 
+Le tableau~\ref{tab:avancement} met en évidence une progression volontairement séquencée. Les phases 1 et 2 construisent les fondations : réseau, cluster Kubernetes, sécurité, stockage objet et métastore. Les phases 3 à 5 implémentent ensuite le parcours principal de la donnée, depuis l'ingestion CDC jusqu'à l'exposition SQL/BI. Cette dépendance explique l'ordre des scripts de bootstrap : un traitement Spark ne peut pas publier de tables Iceberg tant que le stockage et le catalogue ne sont pas disponibles.
+
+Les phases 6 à 10 concernent davantage l'exploitation et l'industrialisation. Cloudflare contrôle l'accès aux interfaces ; la couche d'observabilité prépare la surveillance des services ; GitHub Actions fiabilise les déploiements ; Lambda et EventBridge contribuent à la maîtrise des coûts ; ArgoCD prépare une évolution vers GitOps. Les statuts \emph{À finaliser} ne remettent donc pas en cause le pipeline principal : ils identifient les compléments nécessaires pour passer d'un socle de démonstration à une exploitation durable en production.
+
 %------------------------------------------------------------------------------
 \section{Phase 1 — Landing zone et socle Kubernetes}
 %------------------------------------------------------------------------------
@@ -76,6 +151,8 @@ scripts/bootstrap-cluster.sh
 
 Les clés KMS créées pour la plateforme matérialisent la séparation des usages de chiffrement. Elles couvrent notamment les volumes persistants, les secrets et les journaux techniques, avec une gestion côté client afin de conserver la maîtrise des clés.
 
+La figure~\ref{fig:realisation-kms-customer-managed-keys} montre les clés gérées côté client qui concrétisent ce choix de sécurité.
+
 \begin{figure}[H]
 \centering
 \maybeimage[width=\textwidth,height=0.58\textheight,keepaspectratio]{images/screenshots_infra/clés_gérées_par_clients.png}
@@ -84,6 +161,8 @@ Les clés KMS créées pour la plateforme matérialisent la séparation des usag
 \end{figure}
 
 Le script \texttt{bootstrap-cluster.sh} applique ensuite les ressources Kubernetes transverses : namespaces, StorageClass \texttt{gp3} chiffrée, quotas et politiques réseau.
+
+Les figures~\ref{fig:realisation-wsl-validations}, \ref{fig:realisation-eks-compute} et \ref{fig:realisation-network-storage} regroupent les validations du socle : contrôles terminal, workloads EKS, capacité compute, volumes persistants et configuration réseau.
 
 \begin{figure}[H]
 \centering
@@ -112,7 +191,7 @@ Le script \texttt{bootstrap-cluster.sh} applique ensuite les ressources Kubernet
 \label{fig:realisation-network-storage}
 \end{figure}
 
-Les associations entre sous-réseaux et tables de routage valident la séparation réseau du socle AWS. Les sous-réseaux publics sont reliés à la table de routage exposée via l'Internet Gateway, tandis que les sous-réseaux privés utilisent les routes sortantes contrôlées par le NAT Gateway.
+Les associations entre sous-réseaux et tables de routage valident la séparation réseau du socle AWS. Les figures~\ref{fig:realisation-vpc-route-table-1}, \ref{fig:realisation-vpc-route-table-2} et \ref{fig:realisation-vpc-route-table-3} montrent les trois tables concernées. Les sous-réseaux publics sont reliés à la table de routage exposée via l'Internet Gateway, tandis que les sous-réseaux privés utilisent les routes sortantes contrôlées par le NAT Gateway.
 
 \begin{figure}[H]
 \centering
@@ -135,7 +214,7 @@ Les associations entre sous-réseaux et tables de routage valident la séparatio
 \label{fig:realisation-vpc-route-table-3}
 \end{figure}
 
-La connectivité sortante des sous-réseaux privés repose sur un NAT Gateway unique en environnement \texttt{dev}. L'adresse IP élastique associée stabilise le point de sortie réseau, ce qui facilite les règles de filtrage et les diagnostics.
+La connectivité sortante des sous-réseaux privés repose sur un NAT Gateway unique en environnement \texttt{dev}. Les figures~\ref{fig:realisation-nat-gateway} et \ref{fig:realisation-elastic-ip-nat} présentent respectivement cette passerelle et son adresse IP élastique. Cette association stabilise le point de sortie réseau, ce qui facilite les règles de filtrage et les diagnostics.
 
 \begin{figure}[H]
 \centering
@@ -165,6 +244,8 @@ La phase 2 installe les composants persistants nécessaires au Lakehouse. Le scr
 \end{enumerate}
 
 Cette phase matérialise le socle Bronze/Silver/Gold : les données peuvent être déposées dans des buckets ou chemins dédiés, puis référencées sous forme de tables Iceberg.
+
+Les figures~\ref{fig:realisation-postgres-hive-metastore}, \ref{fig:realisation-minio-bronze-silver} et \ref{fig:realisation-minio-gold} illustrent les bases PostgreSQL et les zones de stockage objet. Elles confirment la séparation entre métadonnées techniques et données organisées selon le modèle médaillon.
 
 \begin{figure}[H]
 \centering
@@ -205,6 +286,8 @@ PostgreSQL pg-source
 
 Le dépôt propose une variante \texttt{dev} légère de Kafka et une variante \texttt{prod} plus proche d'une haute disponibilité. Ce choix permet une soutenance réaliste tout en conservant une trajectoire d'industrialisation.
 
+La figure~\ref{fig:realisation-kafka-running} confirme le déploiement des composants Kafka. La figure~\ref{fig:realisation-nifi-flux} présente plusieurs flux NiFi orientés sources métier et complète la démonstration de l'ingestion.
+
 \begin{figure}[H]
 \centering
 \maybeimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{images/screenshots_infra/kafka_running.png}
@@ -227,6 +310,8 @@ Le dépôt propose une variante \texttt{dev} légère de Kafka et une variante \
 
 La phase 4 implémente la partie centrale du pipeline data. L'image Spark Iceberg regroupe Spark, les connecteurs Iceberg/S3, les dépendances Python et le projet dbt. Les \texttt{SparkApplication} sont soumises par Airflow ou appliquées directement sur Kubernetes, ce qui permet de conserver une orchestration déclarative et reproductible.
 
+Le tableau~\ref{tab:dags} liste les DAGs Airflow livrés, leur fréquence et leur responsabilité dans la chaîne de traitement.
+
 \begin{table}[H]
 \centering
 \caption{DAGs Airflow livrés}
@@ -244,6 +329,8 @@ La phase 4 implémente la partie centrale du pipeline data. L'image Spark Iceber
 \end{table}
 
 Les modèles dbt disponibles démontrent la transformation d'une table budgétaire d'agence vers un staging Silver puis un agrégat Gold mensuel. Cette structure reste extensible à d'autres domaines métier.
+
+Les figures~\ref{fig:realisation-spark-running}, \ref{fig:realisation-airflow-medallion} et \ref{fig:realisation-airflow-spark} montrent le calcul distribué et son orchestration. Les figures~\ref{fig:realisation-tables-medallion} et \ref{fig:realisation-kpis-contrats360} présentent ensuite les résultats produits : tables Bronze, Silver et Gold, puis indicateurs métier.
 
 \begin{figure}[H]
 \centering
@@ -301,6 +388,8 @@ Dans le scénario cible, Dremio permet :
 
 La partie BI matérialise la finalité métier de la plateforme : transformer les tables Gold en indicateurs lisibles pour le pilotage. Le cadrage distingue le contenu attendu, les objectifs de restitution et les enjeux de gouvernance afin que les tableaux de bord restent alignés avec les besoins des utilisateurs.
 
+La figure~\ref{fig:realisation-bi-objectifs-enjeux} synthétise ce cadrage.
+
 \begin{figure}[H]
 \centering
 \maybeimage[width=\textwidth]{images/contenu_objectif_enjeux_BI.png}
@@ -308,7 +397,7 @@ La partie BI matérialise la finalité métier de la plateforme : transformer le
 \label{fig:realisation-bi-objectifs-enjeux}
 \end{figure}
 
-Les maquettes de dashboards illustrent ensuite la consommation des données exposées : la première vue synthétise les indicateurs de suivi et la seconde détaille les analyses métier nécessaires à l'exploration du portefeuille.
+Les maquettes de dashboards illustrent ensuite la consommation des données exposées : la figure~\ref{fig:realisation-dashboard-bi-1} synthétise les indicateurs de suivi et la figure~\ref{fig:realisation-dashboard-bi-2} détaille les analyses métier nécessaires à l'exploration du portefeuille.
 
 \begin{figure}[H]
 \centering
@@ -332,6 +421,8 @@ La phase 6 prépare l'accès sécurisé aux interfaces web : Airflow, Dremio, Gr
 
 Cette approche évite d'exposer directement des LoadBalancers publics et s'aligne avec une logique Zero Trust : authentification, politiques d'accès et publication DNS contrôlée.
 
+La figure~\ref{fig:realisation-cloudflare} présente le connecteur Tunnel et la politique de pare-feu qui matérialisent cette exposition contrôlée.
+
 \begin{figure}[H]
 \centering
 \PFEScreenshotItem{Connecteur Cloudflare Tunnel}{images/screenshots_infra/Capture d'écran 2026-05-22 214950.png}
@@ -345,6 +436,8 @@ Cette approche évite d'exposer directement des LoadBalancers publics et s'align
 %------------------------------------------------------------------------------
 
 La phase 7 prépare l'observabilité de la plateforme. Le socle technique est présent dans le dépôt, mais la finalisation des dashboards, des alertes et des vues de logs reste la principale amélioration à mener après la réalisation du pipeline.
+
+Le tableau~\ref{tab:observabilite-realisation} précise, pour chaque besoin d'exploitation, les éléments déjà disponibles et les compléments restant à finaliser.
 
 \begin{table}[H]
 \centering
@@ -382,6 +475,8 @@ GitHub Actions prend en charge le \texttt{terraform plan/apply} avec OIDC, ce qu
 
 La partie GitOps est conservée comme perspective d'industrialisation. Les bases ArgoCD existent, mais l'activation complète du modèle GitOps et la gouvernance des promotions DEV/UAT/PROD restent à finaliser.
 
+Les figures~\ref{fig:realisation-artefacts-ecr} et \ref{fig:realisation-iam-r2} complètent cette analyse par les preuves d'automatisation : organisation des dossiers, projet dbt, image Spark dans ECR, rôles IAM et backend R2.
+
 \begin{figure}[H]
 \centering
 \PFEScreenshotItem{Organisation des dossiers d'automatisation}{images/screenshots_pipeline/dossier_ansible.png}
@@ -415,6 +510,16 @@ La partie GitOps est conservée comme perspective d'industrialisation. Les bases
 \section*{Conclusion du chapitre}
 \addcontentsline{toc}{section}{Conclusion du chapitre 5}
 
-La réalisation couvre le socle infrastructure, le Lakehouse, l'ingestion, l'orchestration, les traitements Spark/dbt, le serving SQL/BI, l'exposition sécurisée et l'automatisation CI/CD. Le projet peut donc être présenté comme réalisé dans son périmètre principal. Les seuls chantiers restant à finaliser concernent la partie dashboarding, monitoring et logging, ainsi que l'activation complète de GitOps pour industrialiser les promotions entre environnements.
+Ce chapitre a présenté la matérialisation de l'architecture définie précédemment. La landing zone AWS et le socle Kubernetes ont été déployés avec Terraform et les scripts de bootstrap : VPC, sous-réseaux, tables de routage, NAT Gateway, clés KMS, rôles IAM, cluster EKS, node groups, volumes persistants et politiques réseau. Les captures et validations terminal confirment que l'infrastructure est exploitable dans l'environnement de démonstration.
+
+La couche Lakehouse a ensuite été mise en place autour de MinIO, CloudNativePG et Hive Metastore. Les zones Bronze, Silver et Gold sont visibles dans le stockage objet, tandis que les bases PostgreSQL assurent la source de démonstration et les métadonnées du catalogue. Cette séparation constitue le socle persistant sur lequel reposent les traitements.
+
+La chaîne d'ingestion et de transformation est également couverte. Strimzi déploie Kafka, Debezium prépare la capture des changements et NiFi illustre les flux d'intégration métier. Spark, Iceberg, dbt et Airflow prennent en charge le calcul distribué, l'organisation des modèles et l'orchestration des DAGs. Les résultats observés dans les tables Bronze, Silver et Gold ainsi que dans les indicateurs métier montrent que le pipeline dépasse le stade de la conception théorique.
+
+La restitution complète ce parcours. Dremio fournit la couche SQL destinée aux consommateurs analytiques, les dashboards BI illustrent les usages métier et Cloudflare Tunnel permet une exposition contrôlée des interfaces web. L'automatisation s'appuie sur des scripts de cycle de vie, GitHub Actions avec OIDC, un backend Terraform distant sur R2 et une image Spark publiée dans ECR.
+
+La réalisation couvre donc le périmètre principal du projet : infrastructure, stockage, ingestion, orchestration, transformations, serving, sécurité et automatisation. Les limites restantes sont identifiées et circonscrites : enrichissement des dashboards Grafana, finalisation des alertes et des vues OpenObserve, puis activation complète de GitOps avec ArgoCD pour gouverner les promotions entre DEV, UAT et PROD.
+
+Le chapitre suivant dresse le bilan global du Projet de Fin d'Études, présente ces limites avec recul et propose les perspectives d'évolution vers une plateforme davantage industrialisée.
 
 \clearpage

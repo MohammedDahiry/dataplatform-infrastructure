@@ -2,13 +2,18 @@
 
 \textbf{EQDOM} est un acteur marocain du financement et du crédit à la consommation. Son activité repose sur la gestion de parcours clients, de dossiers de financement, de données opérationnelles et d'indicateurs de pilotage. Dans ce type d'environnement, la donnée joue un rôle central : elle alimente l'analyse du risque, le suivi commercial, la conformité, le reporting interne et les tableaux de bord décisionnels.
 
+La figure~\ref{fig:eqdom-logo} présente l'identité visuelle du client de la mission.
+
 \begin{figure}[H]
 \centering
 \maybeimage[height=2cm]{images/eqdom-logo.png}
 \caption{Logo EQDOM}
+\label{fig:eqdom-logo}
 \end{figure}
 
 \subsection{Fiche signalétique}
+
+Le tableau~\ref{tab:fiche-eqdom} résume le profil d'EQDOM, son activité et le contexte dans lequel s'inscrit la mission Data.
 
 \begin{table}[H]
 \centering
@@ -41,6 +46,8 @@ L'entreprise a connu une première étape structurante en 1978 avec son introduc
 Dans les années 2000, l'entreprise a renforcé son ancrage dans le secteur financier marocain à travers son adossement à un groupe bancaire de référence. Plus récemment, l'évolution du paysage bancaire marocain et les opérations de réorganisation actionnariale ont inscrit EQDOM dans une nouvelle phase de transformation. Dans ce contexte, la donnée devient un levier essentiel pour améliorer le pilotage commercial, fiabiliser le reporting, suivre les risques et accompagner la digitalisation des parcours clients.
 
 \subsection{Organigramme simplifié}
+
+La figure~\ref{fig:organigramme-eqdom} propose une lecture simplifiée de l'organisation d'EQDOM. Elle met en évidence le rattachement de la plateforme Lakehouse aux activités SI et Data qui soutiennent les opérations, le pilotage et le reporting.
 
 \begin{figure}[H]
 \centering
@@ -98,6 +105,8 @@ Dans les années 2000, l'entreprise a renforcé son ancrage dans le secteur fina
 
 EQDOM s'appuie sur un réseau de distribution directe afin d'assurer une présence de proximité auprès de ses clients, de ses partenaires automobiles et des organismes conventionnés. La documentation institutionnelle consultée indique un total de \textbf{24 agences} réparties dans les principales villes du Royaume.
 
+Le tableau~\ref{tab:agences-eqdom} détaille cette répartition. Il montre notamment le poids de Casablanca, qui concentre six agences, devant Rabat avec trois agences.
+
 \begin{table}[H]
 \centering
 \caption{Répartition des agences EQDOM par ville}
@@ -119,102 +128,6 @@ EQDOM s'appuie sur un réseau de distribution directe afin d'assurer une présen
 \bottomrule
 \end{tabularx}
 \end{table}
-
-\begin{figure}[H]
-\centering
-\resizebox{0.88\textwidth}{!}{%
-\begin{tikzpicture}[every node/.style={font=\scriptsize}]
-    \definecolor{mapfill}{RGB}{200,16,28}
-    \definecolor{mapline}{RGB}{18,34,58}
-    \definecolor{mapborder}{RGB}{255,229,194}
-    \definecolor{mapdot}{RGB}{255,205,0}
-    \definecolor{mapmuted}{RGB}{92,96,106}
-
-    % Silhouette schématique centrée sur la zone où EQDOM dispose d'agences.
-    \filldraw[fill=mapfill, draw=mapfill, line width=0.9pt]
-        (4.34,14.56) -- (4.84,14.64) -- (5.16,14.28) -- (5.68,14.12)
-        -- (6.08,14.32) -- (6.78,14.08) -- (7.44,13.76) -- (8.06,13.34)
-        -- (8.50,12.70) -- (8.88,11.82) -- (8.64,11.08) -- (7.74,10.92)
-        -- (6.98,11.00) -- (6.62,10.36) -- (7.26,10.00) -- (7.08,9.24)
-        -- (6.34,8.76) -- (5.48,8.42) -- (4.74,8.16) -- (4.20,7.76)
-        -- (3.70,7.28) -- (3.02,7.42) -- (2.42,7.82) -- (1.92,8.42)
-        -- (1.70,9.12) -- (2.10,9.86) -- (2.86,10.38) -- (3.22,11.02)
-        -- (3.52,11.86) -- (3.88,12.62) -- (4.12,13.48) -- cycle;
-
-    % Limites administratives stylisées pour rappeler la carte de référence.
-    \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (4.46,14.36) -- (4.28,13.45) -- (4.70,12.78) -- (4.60,11.84)
-        -- (4.28,11.08) -- (4.50,10.38) -- (4.12,9.68) -- (4.22,8.74)
-        -- (4.02,7.84);
-    \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (5.36,14.10) -- (5.46,13.18) -- (6.08,12.70) -- (6.02,11.84)
-        -- (6.54,11.04);
-    \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (6.68,14.00) -- (6.62,13.14) -- (7.08,12.56) -- (7.58,12.22)
-        -- (8.20,12.22);
-    \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (3.10,10.40) -- (3.86,10.28) -- (4.52,9.96) -- (5.20,9.98)
-        -- (6.10,9.70) -- (7.02,9.38);
-    \draw[mapborder, line width=0.35pt, opacity=0.85]
-        (2.44,8.26) -- (3.22,8.04) -- (4.02,7.62);
-    \node[anchor=west, font=\small\bfseries, text=mapline] at (8.90,13.50) {Réseau EQDOM};
-    \node[anchor=west, align=left, text=mapline] at (8.90,13.05) {Carte des villes\\couvertes par les agences};
-
-    \newcommand{\agencycity}[3]{%
-        \fill[white, opacity=0.95] (#1,#2) circle[radius=#3];
-        \fill[mapdot] (#1,#2) circle[radius=0.48*#3];
-        \draw[mapline, line width=0.35pt] (#1,#2) circle[radius=#3];
-    }
-
-    % Points proportionnels au nombre d'agences.
-    \agencycity{3.98}{13.92}{4.3pt}
-    \agencycity{4.68}{13.58}{3.1pt}
-    \agencycity{3.48}{11.32}{3.1pt}
-    \agencycity{3.38}{10.98}{5.2pt}
-    \agencycity{3.62}{10.82}{3.1pt}
-    \agencycity{3.02}{10.18}{8.0pt}
-    \agencycity{2.66}{9.54}{3.1pt}
-    \agencycity{2.44}{8.52}{3.1pt}
-    \agencycity{3.48}{9.42}{3.1pt}
-    \agencycity{4.76}{10.82}{3.1pt}
-    \agencycity{5.30}{10.96}{3.1pt}
-    \agencycity{7.22}{11.42}{3.1pt}
-    \agencycity{4.72}{8.92}{3.1pt}
-    \agencycity{3.60}{8.18}{4.3pt}
-    \agencycity{2.58}{8.02}{3.1pt}
-
-    % Légende.
-    \node[anchor=west, font=\bfseries, text=mapline] at (8.90,12.10) {Légende};
-    \fill[white, opacity=0.95] (9.10,11.55) circle[radius=3.1pt];
-    \fill[mapdot] (9.10,11.55) circle[radius=1.5pt];
-    \draw[mapline, line width=0.35pt] (9.10,11.55) circle[radius=3.1pt];
-    \node[anchor=west] at (9.42,11.55) {1 agence};
-    \fill[white, opacity=0.95] (9.10,11.00) circle[radius=5.2pt];
-    \fill[mapdot] (9.10,11.00) circle[radius=2.5pt];
-    \draw[mapline, line width=0.35pt] (9.10,11.00) circle[radius=5.2pt];
-    \node[anchor=west] at (9.42,11.00) {3 agences};
-    \fill[white, opacity=0.95] (9.10,10.30) circle[radius=8.0pt];
-    \fill[mapdot] (9.10,10.30) circle[radius=3.8pt];
-    \draw[mapline, line width=0.35pt] (9.10,10.30) circle[radius=8.0pt];
-    \node[anchor=west] at (9.42,10.30) {6 agences};
-    \node[anchor=west, font=\bfseries, text=mapline] at (8.90,9.45) {Agences par ville};
-    \node[anchor=north west, text=mapline] at (8.90,9.10) {%
-        \begin{tabular}{@{}lr@{\hspace{0.45cm}}lr@{}}
-        Casablanca & 6 & Rabat & 3 \\
-        Tanger & 2 & Marrakech & 2 \\
-        Agadir & 1 & Béni Mellal & 1 \\
-        El Jadida & 1 & Fès & 1 \\
-        Kénitra & 1 & Meknès & 1 \\
-        Oujda & 1 & Safi & 1 \\
-        Salé & 1 & Settat & 1 \\
-        Tétouan & 1 & Total & \textbf{24}
-        \end{tabular}
-    };
-\end{tikzpicture}
-}
-\caption{Carte schématique des villes couvertes par les agences EQDOM}
-\label{fig:carte-agences-eqdom}
-\end{figure}
 
 \subsection{Enjeux data du contexte financier}
 
