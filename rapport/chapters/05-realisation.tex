@@ -74,6 +74,8 @@ La figure~\ref{fig:technologies-principales} présente les logos des principales
 \label{fig:technologies-principales}
 \end{figure}
 
+Cette figure offre une vue d'ensemble visuelle de la stack. Les technologies Data forment le chemin de traitement, depuis l'ingestion jusqu'à la restitution BI, tandis que les technologies Cloud et DevOps portent l'exécution, l'automatisation et la sécurité. Le regroupement par rôle facilite la compréhension de l'architecture avant d'entrer dans les preuves de déploiement.
+
 \textbf{Rôle synthétique des principales technologies Data :}
 \begin{itemize}
     \item \textbf{NiFi} représente les flux d'ingestion visuels et les intégrations de sources métier semi-structurées.
@@ -160,6 +162,8 @@ La figure~\ref{fig:realisation-kms-customer-managed-keys} montre les clés gér�
 \label{fig:realisation-kms-customer-managed-keys}
 \end{figure}
 
+La capture confirme que le chiffrement n'est pas laissé à une configuration implicite. Les clés gérées par le client permettent de séparer les usages, de tracer les accès cryptographiques et de préparer une gouvernance plus fine en environnement de production. Elles constituent donc une preuve concrète de l'intégration de la sécurité dès la phase d'infrastructure.
+
 Le script \texttt{bootstrap-cluster.sh} applique ensuite les ressources Kubernetes transverses : namespaces, StorageClass \texttt{gp3} chiffrée, quotas et politiques réseau.
 
 Les figures~\ref{fig:realisation-wsl-validations}, \ref{fig:realisation-eks-compute} et \ref{fig:realisation-network-storage} regroupent les validations du socle : contrôles terminal, workloads EKS, capacité compute, volumes persistants et configuration réseau.
@@ -173,6 +177,8 @@ Les figures~\ref{fig:realisation-wsl-validations}, \ref{fig:realisation-eks-comp
 \label{fig:realisation-wsl-validations}
 \end{figure}
 
+Ces captures terminal montrent la validation opérationnelle du socle depuis l'environnement de travail. Elles attestent que les commandes Kubernetes retournent les namespaces, pods et services attendus, ce qui permet de vérifier rapidement que le cluster est joignable et que les premières ressources transverses ont bien été appliquées.
+
 \begin{figure}[H]
 \centering
 \PFEScreenshotItem{Vue générale du cluster EKS}{images/screenshots_infra/Capture d'écran 2026-05-22 213317.png}
@@ -181,6 +187,8 @@ Les figures~\ref{fig:realisation-wsl-validations}, \ref{fig:realisation-eks-comp
 \caption{Cluster EKS, workloads et capacité compute après déploiement}
 \label{fig:realisation-eks-compute}
 \end{figure}
+
+La figure met en relation trois niveaux de lecture du cluster : la vue EKS, les workloads Kubernetes et le node group compute. Elle confirme que l'infrastructure AWS n'est pas seulement provisionnée, mais qu'elle héberge effectivement des charges applicatives. La présence du node group compute matérialise aussi la séparation prévue entre les traitements élastiques et les composants persistants.
 
 \begin{figure}[H]
 \centering
@@ -191,6 +199,8 @@ Les figures~\ref{fig:realisation-wsl-validations}, \ref{fig:realisation-eks-comp
 \label{fig:realisation-network-storage}
 \end{figure}
 
+Cette figure regroupe les éléments de persistance et de réseau indispensables aux services stateful. Les volumes persistants assurent la conservation des données des composants comme MinIO, PostgreSQL ou Hive Metastore. Le security group et la vue VPC montrent le périmètre réseau dans lequel ces services sont isolés et contrôlés.
+
 Les associations entre sous-réseaux et tables de routage valident la séparation réseau du socle AWS. Les figures~\ref{fig:realisation-vpc-route-table-1}, \ref{fig:realisation-vpc-route-table-2} et \ref{fig:realisation-vpc-route-table-3} montrent les trois tables concernées. Les sous-réseaux publics sont reliés à la table de routage exposée via l'Internet Gateway, tandis que les sous-réseaux privés utilisent les routes sortantes contrôlées par le NAT Gateway.
 
 \begin{figure}[H]
@@ -200,6 +210,8 @@ Les associations entre sous-réseaux et tables de routage valident la séparatio
 \label{fig:realisation-vpc-route-table-1}
 \end{figure}
 
+Cette première table de routage permet de vérifier les associations réseau d'une partie des sous-réseaux du VPC. Elle sert à contrôler que les routes appliquées correspondent bien au rôle prévu pour ces sous-réseaux, notamment en matière d'exposition ou de sortie vers Internet.
+
 \begin{figure}[H]
 \centering
 \maybeimage[width=\textwidth]{images/screenshots_infra/links_vpc_route_table2.png}
@@ -207,12 +219,16 @@ Les associations entre sous-réseaux et tables de routage valident la séparatio
 \label{fig:realisation-vpc-route-table-2}
 \end{figure}
 
+La deuxième table complète la vérification de segmentation réseau. Elle montre que les sous-réseaux ne partagent pas tous les mêmes chemins de routage, ce qui permet de distinguer les zones publiques, privées et applicatives selon les besoins de sécurité de la plateforme.
+
 \begin{figure}[H]
 \centering
 \maybeimage[width=\textwidth]{images/screenshots_infra/links_vpc_route_table3.png}
 \caption{Associations de la troisième table de routage du VPC}
 \label{fig:realisation-vpc-route-table-3}
 \end{figure}
+
+La troisième table confirme la couverture complète des associations de routage. L'ensemble des trois captures donne une preuve de cohérence du VPC : chaque sous-réseau est rattaché à une table explicite, ce qui limite les ambiguïtés lors du diagnostic réseau ou de l'évolution de l'architecture.
 
 La connectivité sortante des sous-réseaux privés repose sur un NAT Gateway unique en environnement \texttt{dev}. Les figures~\ref{fig:realisation-nat-gateway} et \ref{fig:realisation-elastic-ip-nat} présentent respectivement cette passerelle et son adresse IP élastique. Cette association stabilise le point de sortie réseau, ce qui facilite les règles de filtrage et les diagnostics.
 
@@ -223,12 +239,16 @@ La connectivité sortante des sous-réseaux privés repose sur un NAT Gateway un
 \label{fig:realisation-nat-gateway}
 \end{figure}
 
+La capture du NAT Gateway montre le composant chargé de fournir une sortie Internet aux ressources privées sans les exposer directement. En environnement \texttt{dev}, l'utilisation d'un NAT unique réduit les coûts tout en conservant le principe d'un accès sortant contrôlé pour les nœuds et workloads.
+
 \begin{figure}[H]
 \centering
 \maybeimage[width=\textwidth,height=0.58\textheight,keepaspectratio]{images/screenshots_infra/IP_elastic.png}
 \caption{Adresse IP élastique associée au NAT Gateway}
 \label{fig:realisation-elastic-ip-nat}
 \end{figure}
+
+L'adresse IP élastique stabilise l'identité réseau de sortie du NAT Gateway. Elle facilite l'audit, les règles de filtrage externes et les diagnostics, car les communications sortantes des sous-réseaux privés peuvent être rattachées à un point d'émission identifiable.
 
 %------------------------------------------------------------------------------
 \section{Phase 2 — Stockage Lakehouse et métastore}
@@ -254,6 +274,8 @@ Les figures~\ref{fig:realisation-postgres-hive-metastore}, \ref{fig:realisation-
 \label{fig:realisation-postgres-hive-metastore}
 \end{figure}
 
+Cette figure montre la séparation entre la base source de démonstration et la base utilisée par le Hive Metastore. Cette distinction est importante : les données opérationnelles simulées et les métadonnées du Lakehouse ne portent pas la même responsabilité. Elle prépare également l'extension future vers d'autres sources sans mélanger les rôles applicatifs et catalogue.
+
 \begin{figure}[H]
 \centering
 \PFEScreenshotItem{Navigateur d'objets MinIO pour le Lakehouse}{images/screenshots_pipeline/MinIO_object_browser.png}
@@ -263,12 +285,16 @@ Les figures~\ref{fig:realisation-postgres-hive-metastore}, \ref{fig:realisation-
 \label{fig:realisation-minio-bronze-silver}
 \end{figure}
 
+Les captures MinIO matérialisent le stockage objet utilisé par le Lakehouse. Le navigateur d'objets donne une vue d'exploitation, tandis que les buckets Bronze et Silver montrent la structuration physique des premières couches médaillon. Cette organisation rend visible le passage des données brutes vers des données nettoyées et préparées.
+
 \begin{figure}[H]
 \centering
 \PFEScreenshotItem{Bucket Gold dans MinIO}{images/screenshots_pipeline/bucket_gold.png}
 \caption{Zone Gold matérialisée dans MinIO}
 \label{fig:realisation-minio-gold}
 \end{figure}
+
+La zone Gold représente l'aboutissement analytique du stockage Lakehouse. Sa présence dans MinIO confirme que la plateforme ne s'arrête pas à l'ingestion ou à la normalisation : elle prévoit aussi un espace dédié aux tables métier, agrégats et jeux de données consommables par la BI.
 
 %------------------------------------------------------------------------------
 \section{Phase 3 — Ingestion, Kafka et CDC}
@@ -295,6 +321,8 @@ La figure~\ref{fig:realisation-kafka-running} confirme le déploiement des compo
 \label{fig:realisation-kafka-running}
 \end{figure}
 
+La figure confirme que Kafka est effectivement opéré dans Kubernetes. Les composants visibles correspondent au socle de transport événementiel nécessaire à la CDC et aux échanges entre producteurs et consommateurs. Cette preuve est importante, car Kafka joue le rôle de tampon durable entre les sources et les traitements Bronze.
+
 \begin{figure}[H]
 \centering
 \PFEScreenshotItem{Flux NiFi Informix EQDOM}{images/screenshots_pipeline/NiFi_informix_eqdom.png}
@@ -303,6 +331,8 @@ La figure~\ref{fig:realisation-kafka-running} confirme le déploiement des compo
 \caption{Flux NiFi réalisés pour l'ingestion des sources métier}
 \label{fig:realisation-nifi-flux}
 \end{figure}
+
+Les flux NiFi montrent la partie visuelle et paramétrable de l'ingestion. Les différents scénarios illustrent la capacité à représenter plusieurs sources métier et à organiser les étapes de lecture, transformation légère et routage. Cette approche complète Kafka/Debezium en couvrant des flux moins strictement transactionnels, notamment les fichiers ou extractions spécifiques.
 
 %------------------------------------------------------------------------------
 \section{Phase 4 — Spark, dbt et Airflow}
@@ -339,6 +369,8 @@ Les figures~\ref{fig:realisation-spark-running}, \ref{fig:realisation-airflow-me
 \label{fig:realisation-spark-running}
 \end{figure}
 
+Cette figure valide la présence du moteur de calcul distribué dans le cluster. Spark constitue la brique qui consomme les données entrantes, écrit les tables Iceberg et exécute les traitements nécessaires aux couches Bronze, Silver et Gold. Son déploiement dans Kubernetes confirme l'alignement entre le choix cloud-native et les besoins de calcul data.
+
 \begin{figure}[H]
 \centering
 \PFEScreenshotItem{Interface Airflow pour le suivi des DAGs}{images/screenshots_pipeline/airflow_UI.png}
@@ -347,6 +379,8 @@ Les figures~\ref{fig:realisation-spark-running}, \ref{fig:realisation-airflow-me
 \caption{Orchestration Airflow du pipeline médaillon}
 \label{fig:realisation-airflow-medallion}
 \end{figure}
+
+Les captures Airflow montrent le pilotage du pipeline sous forme de DAGs. L'interface permet de suivre les exécutions, le graphe médaillon rend visibles les dépendances entre étapes, et le DAG dbt Silver illustre la transformation intermédiaire. Cette vue prouve que les traitements ne sont pas lancés isolément, mais organisés dans une chaîne contrôlée.
 
 \begin{figure}[H]
 \centering
@@ -357,6 +391,8 @@ Les figures~\ref{fig:realisation-spark-running}, \ref{fig:realisation-airflow-me
 \label{fig:realisation-airflow-spark}
 \end{figure}
 
+Cette figure complète la précédente en montrant la continuité entre orchestration, transformation dbt et suivi Spark. Le DAG Gold matérialise la production des tables orientées métier, le graphe d'ingestion mensuelle couvre un scénario batch, et l'interface Spark Master permet de surveiller les traitements exécutés. Elle relie donc la planification Airflow au calcul réel.
+
 \begin{figure}[H]
 \centering
 \PFEScreenshotItem{Table Bronze client}{images/screenshots_pipeline/table_bronze_inf_client.png}
@@ -366,12 +402,16 @@ Les figures~\ref{fig:realisation-spark-running}, \ref{fig:realisation-airflow-me
 \label{fig:realisation-tables-medallion}
 \end{figure}
 
+Les trois captures de tables démontrent la progression du modèle médaillon sur des données concrètes. Bronze conserve une information proche de la source, Silver présente une version nettoyée et structurée, puis Gold produit une table exploitable pour les analyses métier. Cette preuve relie directement les choix de conception aux résultats observables.
+
 \begin{figure}[H]
 \centering
 \PFEScreenshotItem{Vue des indicateurs contrats 360}{images/screenshots_pipeline/KPIs_Vue_contrats360.png}
 \caption{Indicateurs métier produits à partir de la couche Gold}
 \label{fig:realisation-kpis-contrats360}
 \end{figure}
+
+La figure illustre la finalité métier des transformations. Les indicateurs contrats 360 montrent que les tables Gold peuvent alimenter des vues synthétiques utiles au pilotage, au suivi commercial ou à l'analyse du portefeuille. Elle confirme que la plateforme produit des résultats interprétables, et pas seulement des tables techniques.
 
 %------------------------------------------------------------------------------
 \section{Phase 5 — Serving avec Dremio}
@@ -397,6 +437,8 @@ La figure~\ref{fig:realisation-bi-objectifs-enjeux} synthétise ce cadrage.
 \label{fig:realisation-bi-objectifs-enjeux}
 \end{figure}
 
+Cette figure cadre la couche BI avant de présenter les dashboards. Elle distingue ce que les tableaux de bord doivent contenir, les objectifs de restitution et les enjeux associés, notamment la lisibilité, la gouvernance et l'aide à la décision. Elle sert donc de pont entre les tables Gold et les usages concrets des utilisateurs métier.
+
 Les maquettes de dashboards illustrent ensuite la consommation des données exposées : la figure~\ref{fig:realisation-dashboard-bi-1} synthétise les indicateurs de suivi et la figure~\ref{fig:realisation-dashboard-bi-2} détaille les analyses métier nécessaires à l'exploration du portefeuille.
 
 \begin{figure}[H]
@@ -406,12 +448,16 @@ Les maquettes de dashboards illustrent ensuite la consommation des données expo
 \label{fig:realisation-dashboard-bi-1}
 \end{figure}
 
+Le premier dashboard présente une vision de synthèse. Il regroupe les indicateurs principaux afin de donner rapidement une lecture globale de l'activité ou du portefeuille analysé. Son intérêt est de transformer les tables Gold en informations immédiatement exploitables par un profil métier.
+
 \begin{figure}[H]
 \centering
 \maybeimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{images/dashboard2.png}
 \caption{Dashboard BI d'analyse métier du portefeuille}
 \label{fig:realisation-dashboard-bi-2}
 \end{figure}
+
+Le second dashboard propose une lecture plus détaillée. Il permet d'explorer les segments, les répartitions et les tendances du portefeuille afin de comprendre les variations derrière les indicateurs globaux. Cette complémentarité entre synthèse et analyse détaillée répond aux besoins de pilotage et d'investigation métier.
 
 %------------------------------------------------------------------------------
 \section{Phase 6 — Exposition sécurisée Cloudflare}
@@ -430,6 +476,8 @@ La figure~\ref{fig:realisation-cloudflare} présente le connecteur Tunnel et la 
 \caption{Exposition sécurisée réalisée avec Cloudflare}
 \label{fig:realisation-cloudflare}
 \end{figure}
+
+La figure montre que l'accès aux interfaces n'est pas assuré par une exposition publique directe des services Kubernetes. Le tunnel Cloudflare fournit un point d'entrée contrôlé, et la politique de pare-feu ajoute une couche de filtrage. Cette configuration soutient la logique Zero Trust retenue dans la conception.
 
 %------------------------------------------------------------------------------
 \section{Phase 7 — Monitoring, logging et dashboarding}
@@ -486,6 +534,8 @@ Les figures~\ref{fig:realisation-artefacts-ecr} et \ref{fig:realisation-iam-r2} 
 \label{fig:realisation-artefacts-ecr}
 \end{figure}
 
+Cette figure relie l'automatisation à des artefacts concrets du dépôt et du cloud. Les dossiers montrent l'organisation des scripts et du projet dbt, tandis que l'image Spark publiée dans ECR prouve que l'environnement de calcul est empaqueté et réutilisable. Elle confirme donc que la réalisation est versionnée, reconstruisible et prête à être rejouée.
+
 \begin{figure}[H]
 \centering
 \PFEScreenshotItem{Rôles IAM AWS}{images/screenshots_infra/Capture d'écran 2026-05-22 214655.png}
@@ -493,6 +543,8 @@ Les figures~\ref{fig:realisation-artefacts-ecr} et \ref{fig:realisation-iam-r2} 
 \caption{Identités AWS et backend R2 utilisés par l'automatisation}
 \label{fig:realisation-iam-r2}
 \end{figure}
+
+La dernière figure met en évidence deux éléments transverses de la chaîne DevOps. Les rôles IAM portent les permissions nécessaires aux déploiements et aux services, tandis que le backend R2 conserve l'état Terraform hors de la machine locale. Cette séparation facilite la collaboration, la traçabilité et la sécurisation des opérations d'infrastructure.
 
 %------------------------------------------------------------------------------
 \section{Difficultés rencontrées et mitigations}

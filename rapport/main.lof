@@ -8,55 +8,55 @@
 \contentsline {figure}{\numberline {1.6}{\ignorespaces Organigramme simplifié d'EQDOM}}{9}{figure.1.6}%
 \contentsline {figure}{\numberline {1.7}{\ignorespaces Organisation métier autour de la plateforme data}}{11}{figure.1.7}%
 \contentsline {figure}{\numberline {1.8}{\ignorespaces Taxonomie de la problématique data du projet}}{12}{figure.1.8}%
-\contentsline {figure}{\numberline {1.9}{\ignorespaces Démarche agile appliquée au projet}}{12}{figure.1.9}%
-\contentsline {figure}{\numberline {1.10}{\ignorespaces Diagramme de Gantt du projet}}{13}{figure.1.10}%
+\contentsline {figure}{\numberline {1.9}{\ignorespaces Démarche agile appliquée au projet}}{13}{figure.1.9}%
+\contentsline {figure}{\numberline {1.10}{\ignorespaces Diagramme de Gantt du projet}}{14}{figure.1.10}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Architecture générale de la plateforme Data Lakehouse sur Kubernetes}}{15}{figure.2.1}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Évolution des architectures de données vers le Lakehouse}}{16}{figure.2.2}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces Organisation du Lakehouse selon le modèle médaillon}}{17}{figure.2.3}%
-\contentsline {figure}{\numberline {2.4}{\ignorespaces Architecture infrastructure de la plateforme Data Lakehouse}}{17}{figure.2.4}%
-\contentsline {figure}{\numberline {2.5}{\ignorespaces Rôle de Kubernetes dans l'isolation et l'orchestration des composants}}{18}{figure.2.5}%
-\contentsline {figure}{\numberline {2.6}{\ignorespaces Principe de fonctionnement du pattern Operator}}{18}{figure.2.6}%
-\contentsline {figure}{\numberline {2.7}{\ignorespaces Modes d'ingestion batch et streaming vers la couche Bronze}}{19}{figure.2.7}%
-\contentsline {figure}{\numberline {2.8}{\ignorespaces Pipeline data end-to-end de la plateforme}}{20}{figure.2.8}%
-\contentsline {figure}{\numberline {2.9}{\ignorespaces Chaîne de transformation et d'orchestration des traitements}}{20}{figure.2.9}%
-\contentsline {figure}{\numberline {2.10}{\ignorespaces Exposition SQL et consommation BI des données Gold}}{21}{figure.2.10}%
-\contentsline {figure}{\numberline {2.11}{\ignorespaces Chaîne Infrastructure as Code et CI/CD}}{21}{figure.2.11}%
-\contentsline {figure}{\numberline {2.12}{\ignorespaces Piliers d'observabilité de la plateforme}}{22}{figure.2.12}%
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Architecture générale de la plateforme Data Lakehouse sur Kubernetes}}{16}{figure.2.1}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Évolution des architectures de données vers le Lakehouse}}{17}{figure.2.2}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Organisation du Lakehouse selon le modèle médaillon}}{18}{figure.2.3}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Architecture infrastructure de la plateforme Data Lakehouse}}{19}{figure.2.4}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Rôle de Kubernetes dans l'isolation et l'orchestration des composants}}{19}{figure.2.5}%
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Principe de fonctionnement du pattern Operator}}{20}{figure.2.6}%
+\contentsline {figure}{\numberline {2.7}{\ignorespaces Modes d'ingestion batch et streaming vers la couche Bronze}}{21}{figure.2.7}%
+\contentsline {figure}{\numberline {2.8}{\ignorespaces Pipeline data end-to-end de la plateforme}}{21}{figure.2.8}%
+\contentsline {figure}{\numberline {2.9}{\ignorespaces Chaîne de transformation et d'orchestration des traitements}}{22}{figure.2.9}%
+\contentsline {figure}{\numberline {2.10}{\ignorespaces Exposition SQL et consommation BI des données Gold}}{22}{figure.2.10}%
+\contentsline {figure}{\numberline {2.11}{\ignorespaces Chaîne Infrastructure as Code et CI/CD}}{23}{figure.2.11}%
+\contentsline {figure}{\numberline {2.12}{\ignorespaces Piliers d'observabilité de la plateforme}}{23}{figure.2.12}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Diagramme de flux de données de la plateforme}}{27}{figure.3.1}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Diagramme d'activités du pipeline data}}{28}{figure.3.2}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Diagramme d'infrastructure cloud cible}}{30}{figure.3.3}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Diagramme de flux de données de la plateforme}}{29}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Diagramme d'activités du pipeline data}}{30}{figure.3.2}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Diagramme d'infrastructure cloud cible}}{32}{figure.3.3}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Architecture logique en couches de la Cloud Data Platform}}{33}{figure.4.1}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Socle cible AWS/EKS retenu pour la conception}}{35}{figure.4.2}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Organisation cible des environnements DEV, UAT et PROD}}{36}{figure.4.3}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Flux de données médaillon cible}}{37}{figure.4.4}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Architecture logique en couches de la Cloud Data Platform}}{35}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Socle cible AWS/EKS retenu pour la conception}}{37}{figure.4.2}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Organisation cible des environnements DEV, UAT et PROD}}{38}{figure.4.3}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Flux de données médaillon cible}}{40}{figure.4.4}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Principales technologies utilisées dans la Cloud Data Platform}}{42}{figure.5.1}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Clés KMS gérées par le client pour le chiffrement de la plateforme}}{45}{figure.5.2}%
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Validations terminal WSL du socle déployé}}{46}{figure.5.3}%
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Cluster EKS, workloads et capacité compute après déploiement}}{47}{figure.5.4}%
-\contentsline {figure}{\numberline {5.5}{\ignorespaces Stockage persistant, sécurité réseau et VPC AWS réalisés}}{48}{figure.5.5}%
-\contentsline {figure}{\numberline {5.6}{\ignorespaces Associations de la première table de routage du VPC}}{49}{figure.5.6}%
-\contentsline {figure}{\numberline {5.7}{\ignorespaces Associations de la deuxième table de routage du VPC}}{49}{figure.5.7}%
-\contentsline {figure}{\numberline {5.8}{\ignorespaces Associations de la troisième table de routage du VPC}}{49}{figure.5.8}%
-\contentsline {figure}{\numberline {5.9}{\ignorespaces NAT Gateway utilisé pour la sortie contrôlée des sous-réseaux privés}}{50}{figure.5.9}%
-\contentsline {figure}{\numberline {5.10}{\ignorespaces Adresse IP élastique associée au NAT Gateway}}{51}{figure.5.10}%
-\contentsline {figure}{\numberline {5.11}{\ignorespaces Bases PostgreSQL utilisées par la source de démonstration et le Hive Metastore}}{52}{figure.5.11}%
-\contentsline {figure}{\numberline {5.12}{\ignorespaces Stockage objet MinIO et premières zones Lakehouse}}{53}{figure.5.12}%
-\contentsline {figure}{\numberline {5.13}{\ignorespaces Zone Gold matérialisée dans MinIO}}{54}{figure.5.13}%
-\contentsline {figure}{\numberline {5.14}{\ignorespaces Composants Kafka déployés et en fonctionnement dans Kubernetes}}{55}{figure.5.14}%
-\contentsline {figure}{\numberline {5.15}{\ignorespaces Flux NiFi réalisés pour l'ingestion des sources métier}}{56}{figure.5.15}%
-\contentsline {figure}{\numberline {5.16}{\ignorespaces Composants Spark déployés et en fonctionnement dans Kubernetes}}{57}{figure.5.16}%
-\contentsline {figure}{\numberline {5.17}{\ignorespaces Orchestration Airflow du pipeline médaillon}}{58}{figure.5.17}%
-\contentsline {figure}{\numberline {5.18}{\ignorespaces Traitements dbt, ingestion mensuelle et suivi Spark}}{59}{figure.5.18}%
-\contentsline {figure}{\numberline {5.19}{\ignorespaces Résultats de transformation Bronze, Silver et Gold}}{60}{figure.5.19}%
-\contentsline {figure}{\numberline {5.20}{\ignorespaces Indicateurs métier produits à partir de la couche Gold}}{61}{figure.5.20}%
-\contentsline {figure}{\numberline {5.21}{\ignorespaces Contenu, objectifs et enjeux de la couche BI}}{61}{figure.5.21}%
-\contentsline {figure}{\numberline {5.22}{\ignorespaces Dashboard BI de synthèse alimenté par la couche Gold}}{62}{figure.5.22}%
-\contentsline {figure}{\numberline {5.23}{\ignorespaces Dashboard BI d'analyse métier du portefeuille}}{62}{figure.5.23}%
-\contentsline {figure}{\numberline {5.24}{\ignorespaces Exposition sécurisée réalisée avec Cloudflare}}{63}{figure.5.24}%
-\contentsline {figure}{\numberline {5.25}{\ignorespaces Artefacts d'automatisation, projet dbt et image Spark}}{65}{figure.5.25}%
-\contentsline {figure}{\numberline {5.26}{\ignorespaces Identités AWS et backend R2 utilisés par l'automatisation}}{66}{figure.5.26}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Principales technologies utilisées dans la Cloud Data Platform}}{45}{figure.5.1}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Clés KMS gérées par le client pour le chiffrement de la plateforme}}{48}{figure.5.2}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Validations terminal WSL du socle déployé}}{49}{figure.5.3}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Cluster EKS, workloads et capacité compute après déploiement}}{50}{figure.5.4}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Stockage persistant, sécurité réseau et VPC AWS réalisés}}{51}{figure.5.5}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Associations de la première table de routage du VPC}}{52}{figure.5.6}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Associations de la deuxième table de routage du VPC}}{52}{figure.5.7}%
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Associations de la troisième table de routage du VPC}}{53}{figure.5.8}%
+\contentsline {figure}{\numberline {5.9}{\ignorespaces NAT Gateway utilisé pour la sortie contrôlée des sous-réseaux privés}}{53}{figure.5.9}%
+\contentsline {figure}{\numberline {5.10}{\ignorespaces Adresse IP élastique associée au NAT Gateway}}{54}{figure.5.10}%
+\contentsline {figure}{\numberline {5.11}{\ignorespaces Bases PostgreSQL utilisées par la source de démonstration et le Hive Metastore}}{55}{figure.5.11}%
+\contentsline {figure}{\numberline {5.12}{\ignorespaces Stockage objet MinIO et premières zones Lakehouse}}{56}{figure.5.12}%
+\contentsline {figure}{\numberline {5.13}{\ignorespaces Zone Gold matérialisée dans MinIO}}{57}{figure.5.13}%
+\contentsline {figure}{\numberline {5.14}{\ignorespaces Composants Kafka déployés et en fonctionnement dans Kubernetes}}{58}{figure.5.14}%
+\contentsline {figure}{\numberline {5.15}{\ignorespaces Flux NiFi réalisés pour l'ingestion des sources métier}}{59}{figure.5.15}%
+\contentsline {figure}{\numberline {5.16}{\ignorespaces Composants Spark déployés et en fonctionnement dans Kubernetes}}{61}{figure.5.16}%
+\contentsline {figure}{\numberline {5.17}{\ignorespaces Orchestration Airflow du pipeline médaillon}}{62}{figure.5.17}%
+\contentsline {figure}{\numberline {5.18}{\ignorespaces Traitements dbt, ingestion mensuelle et suivi Spark}}{63}{figure.5.18}%
+\contentsline {figure}{\numberline {5.19}{\ignorespaces Résultats de transformation Bronze, Silver et Gold}}{64}{figure.5.19}%
+\contentsline {figure}{\numberline {5.20}{\ignorespaces Indicateurs métier produits à partir de la couche Gold}}{65}{figure.5.20}%
+\contentsline {figure}{\numberline {5.21}{\ignorespaces Contenu, objectifs et enjeux de la couche BI}}{66}{figure.5.21}%
+\contentsline {figure}{\numberline {5.22}{\ignorespaces Dashboard BI de synthèse alimenté par la couche Gold}}{66}{figure.5.22}%
+\contentsline {figure}{\numberline {5.23}{\ignorespaces Dashboard BI d'analyse métier du portefeuille}}{67}{figure.5.23}%
+\contentsline {figure}{\numberline {5.24}{\ignorespaces Exposition sécurisée réalisée avec Cloudflare}}{68}{figure.5.24}%
+\contentsline {figure}{\numberline {5.25}{\ignorespaces Artefacts d'automatisation, projet dbt et image Spark}}{70}{figure.5.25}%
+\contentsline {figure}{\numberline {5.26}{\ignorespaces Identités AWS et backend R2 utilisés par l'automatisation}}{71}{figure.5.26}%
 \addvspace {10\p@ }

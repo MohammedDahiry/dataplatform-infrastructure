@@ -56,6 +56,8 @@ La figure~\ref{fig:evolution-plateformes-data} résume cette évolution, puis le
 \label{fig:evolution-plateformes-data}
 \end{figure}
 
+Cette figure met en scène la progression des architectures data selon les limites rencontrées par chaque modèle. Le Data Warehouse répond bien aux besoins analytiques structurés, mais devient moins flexible lorsque les sources se diversifient. Le Data Lake apporte cette flexibilité, au prix d'une gouvernance plus difficile. Le Lakehouse apparaît alors comme une synthèse : il conserve le stockage ouvert du Data Lake tout en réintroduisant des garanties utiles pour la qualité, les transactions et l'exploitation BI.
+
 \begin{table}[H]
 \centering
 \caption{Comparaison synthétique des architectures data}
@@ -112,6 +114,8 @@ La figure~\ref{fig:modele-medaillon} illustre la progression de la donnée entre
 \label{fig:modele-medaillon}
 \end{figure}
 
+La figure illustre le principe de maturation progressive des données. Les sources alimentent d'abord Bronze, où l'objectif principal est de conserver une trace fidèle et rejouable. Silver représente l'étape de fiabilisation, avec nettoyage, normalisation et préparation des jointures. Gold porte enfin les jeux de données orientés métier. Le catalogue Iceberg/Hive est placé en transverse, car il fournit les métadonnées communes qui permettent aux moteurs de calcul et de requête de partager les mêmes tables.
+
 %------------------------------------------------------------------------------
 \section{Kubernetes et approche cloud-native}
 %------------------------------------------------------------------------------
@@ -150,6 +154,8 @@ La figure~\ref{fig:architecture-infra} détaille la vue infrastructure de la pla
 \label{fig:kubernetes-cloud-native}
 \end{figure}
 
+Cette figure simplifie la lecture du cluster en le découpant par responsabilités. Les namespaces isolent les composants d'ingestion, de stockage, de calcul et de monitoring, tout en restant orchestrés par un même cluster EKS. Cette organisation facilite la gestion des droits, des quotas, des politiques réseau et des opérations de maintenance, car chaque famille de services possède un périmètre clair.
+
 %------------------------------------------------------------------------------
 \section{Pattern Operator}
 %------------------------------------------------------------------------------
@@ -181,6 +187,8 @@ La figure~\ref{fig:pattern-operator} décrit cette boucle de réconciliation. Le
 \label{fig:pattern-operator}
 \end{figure}
 \vspace{0.8em}
+
+Le schéma présente le fonctionnement déclaratif d'un operator Kubernetes. L'équipe décrit l'état souhaité dans un manifeste, puis l'operator observe les ressources réelles et applique les corrections nécessaires. L'intérêt de cette boucle est de transformer des opérations complexes en objets Kubernetes pilotables par code, ce qui réduit les manipulations manuelles et améliore la reproductibilité des déploiements.
 
 \begin{table}[H]
 \centering
@@ -238,6 +246,8 @@ La figure~\ref{fig:ingestion-batch-streaming} met en parallèle les chemins batc
 \label{fig:ingestion-batch-streaming}
 \end{figure}
 
+La figure distingue deux familles de flux qui convergent vers la même zone Bronze. Les fichiers métiers suivent un chemin batch via NiFi, adapté aux dépôts périodiques ou aux traitements planifiés. Les bases transactionnelles suivent un chemin streaming via Debezium et Kafka, adapté à la capture des changements. La convergence dans Kafka puis Bronze permet d'unifier les traitements aval malgré la diversité des modes d'entrée.
+
 %------------------------------------------------------------------------------
 \section{Transformation distribuée et orchestration}
 %------------------------------------------------------------------------------
@@ -274,6 +284,8 @@ La figure~\ref{fig:pipeline-data} présente le flux fonctionnel de bout en bout.
 \label{fig:transformation-orchestration}
 \end{figure}
 
+Cette figure isole les responsabilités de la chaîne de calcul. Airflow ne transforme pas directement les données : il planifie, ordonne et surveille les dépendances. Spark exécute les traitements distribués nécessaires à la préparation des tables. dbt formalise ensuite les modèles SQL, les tests et la documentation analytique. Le résultat est publié dans Iceberg sous forme de tables Silver et Gold, prêtes à être requêtées.
+
 %------------------------------------------------------------------------------
 \section{Virtualisation SQL et Business Intelligence}
 %------------------------------------------------------------------------------
@@ -300,6 +312,8 @@ La figure~\ref{fig:virtualisation-bi} synthétise cette séparation entre stocka
 \caption{Exposition SQL et consommation BI des données Gold}
 \label{fig:virtualisation-bi}
 \end{figure}
+
+La figure montre la séparation entre la donnée stockée, l'accès SQL et la restitution. Les tables Gold restent dans le Lakehouse, Dremio les rend interrogeables sans copie systématique, puis les vues sémantiques contrôlent les jeux de données exposés à Power BI. Cette organisation limite les duplications et permet aux métiers de consommer des indicateurs préparés sans accéder directement aux couches techniques intermédiaires.
 
 %------------------------------------------------------------------------------
 \section{Infrastructure as Code et CI/CD}
@@ -333,6 +347,8 @@ La figure~\ref{fig:iac-cicd} illustre ce chemin déclaratif depuis le dépôt Gi
 \label{fig:iac-cicd}
 \end{figure}
 \vspace{0.8em}
+
+La figure décrit le passage du code vers l'infrastructure déployée. Le dépôt Git contient les modules et manifests, GitHub Actions exécute les contrôles et les plans, puis Terraform et Helm appliquent les changements sur AWS EKS. Le bloc OIDC montre que l'authentification repose sur une fédération d'identité plutôt que sur des clés statiques longues durées, ce qui renforce la sécurité de la chaîne de déploiement.
 
 %------------------------------------------------------------------------------
 \section{Observabilité}
@@ -368,6 +384,8 @@ La figure~\ref{fig:observabilite} représente les deux flux complémentaires, m�
 \label{fig:observabilite}
 \end{figure}
 \vspace{0.8em}
+
+La figure distingue les deux flux nécessaires au diagnostic opérationnel. Les métriques donnent une vision quantitative de l'état des services et alimentent les dashboards Grafana. Les logs décrivent les événements détaillés et sont centralisés pour l'analyse dans OpenObserve. Les alertes s'appuient sur ces deux sources afin de détecter plus rapidement les anomalies et d'orienter les actions correctives.
 
 \section*{Conclusion du chapitre}
 \addcontentsline{toc}{section}{Conclusion du chapitre 2}

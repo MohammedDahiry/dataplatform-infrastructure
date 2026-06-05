@@ -1,0 +1,428 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{array}
+
+\geometry{margin=2.1cm}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue
+}
+
+\definecolor{mainblue}{RGB}{20,72,110}
+\definecolor{softblue}{RGB}{236,245,250}
+\definecolor{darkgray}{RGB}{45,52,59}
+
+\titleformat{\section}
+  {\Large\bfseries\color{mainblue}}
+  {\thesection}{0.7em}{}
+\titleformat{\subsection}
+  {\large\bfseries\color{darkgray}}
+  {\thesubsection}{0.7em}{}
+
+\setlist[itemize]{leftmargin=1.1cm,itemsep=0.18cm}
+\setlist[enumerate]{leftmargin=1.1cm,itemsep=0.18cm}
+\renewcommand{\arraystretch}{1.25}
+
+\newcommand{\important}[1]{%
+  \vspace{0.25cm}
+  \noindent
+  \colorbox{softblue}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep\relax}{#1}%
+  }
+  \vspace{0.2cm}
+}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries Guide de soutenance}\\[0.25cm]
+{\Large Projet Cloud Data Platform Lakehouse sur AWS EKS}\\[0.35cm]
+{\large Préparation à la présentation orale}
+\end{center}
+
+\vspace{0.5cm}
+
+\important{
+\textbf{Fil conducteur à garder en tête :}
+le projet part de sources de données hétérogènes, les ingère, les stocke dans un Lakehouse, les transforme selon le modèle Bronze--Silver--Gold, puis les expose à la BI avec une couche de sécurité, d'automatisation et d'observabilité.
+}
+
+\tableofcontents
+\newpage
+
+\section{Objectif de la présentation}
+
+Le but de la soutenance n'est pas de réciter tous les outils utilisés. Il faut montrer que le projet répond à un besoin réel de data engineering dans un contexte financier : centraliser des données, les fiabiliser, les rendre exploitables et garantir leur traçabilité.
+
+Tu dois faire comprendre trois idées principales :
+\begin{itemize}
+  \item \textbf{le besoin} : les données sont dispersées entre bases, fichiers et systèmes opérationnels ;
+  \item \textbf{la solution} : une Cloud Data Platform orientée Lakehouse, déployée sur AWS EKS ;
+  \item \textbf{la valeur} : produire des données fiables et consommables par les métiers via SQL et BI.
+\end{itemize}
+
+\important{
+\textbf{Phrase simple à retenir :}
+``Mon projet consiste à concevoir et mettre en oeuvre une plateforme data cloud-native capable d'ingérer des sources hétérogènes, de structurer les données dans un Lakehouse Bronze--Silver--Gold, puis de les exposer aux usages BI avec sécurité, automatisation et observabilité.''
+}
+
+\section{Plan conseillé pour l'oral}
+
+Voici un ordre logique pour présenter ton projet :
+\begin{enumerate}
+  \item Contexte général : SEVENAPP, EQDOM et contexte data.
+  \item Problématique : dispersion des données, fiabilité, traçabilité, BI.
+  \item Objectifs : infrastructure, data engineering, exploitation, gouvernance.
+  \item État de l'art : Lakehouse, modèle médaillon, Kubernetes, operators.
+  \item Architecture globale : parcours de la donnée de la source jusqu'à Power BI.
+  \item Réalisation par phases : AWS/EKS, stockage, ingestion, transformation, serving.
+  \item Résultats obtenus : preuves, captures, tables, dashboards, automatisation.
+  \item Difficultés rencontrées : complexité, coûts, secrets, intégration.
+  \item Limites et perspectives : observabilité avancée, GitOps, PROD, data quality.
+  \item Conclusion : bilan technique et valeur métier.
+\end{enumerate}
+
+\section{Introduction à présenter}
+
+Tu peux commencer avec ce texte :
+
+\important{
+``Dans le cadre de mon Projet de Fin d'Études, j'ai travaillé sur la conception et la mise en oeuvre d'une Cloud Data Platform orientée Lakehouse. Le projet s'inscrit dans un contexte financier où les données doivent être fiables, sécurisées, traçables et exploitables pour le reporting et la Business Intelligence. L'objectif était donc de construire une plateforme capable d'ingérer des sources hétérogènes, de les organiser selon le modèle Bronze--Silver--Gold, puis de les exposer à des usages analytiques.''
+}
+
+\subsection{Points à maîtriser}
+
+\begin{itemize}
+  \item SEVENAPP est l'organisme d'accueil.
+  \item EQDOM représente le contexte client et métier.
+  \item Le projet concerne la modernisation des flux de données.
+  \item La plateforme vise une architecture cloud-native, reproductible et sécurisée.
+\end{itemize}
+
+\section{Problématique}
+
+La problématique doit être claire et directe :
+
+\important{
+``Comment concevoir une plateforme data cloud, sécurisée, observable et extensible, capable d'ingérer des sources hétérogènes, de structurer les données dans un Lakehouse et de les exposer aux usages BI et analytiques ?''
+}
+
+\subsection{Ce qu'il faut expliquer}
+
+\begin{itemize}
+  \item Les données viennent de plusieurs sources : bases opérationnelles, fichiers CSV/XLSX, systèmes métier.
+  \item Cette dispersion rend la consolidation difficile.
+  \item Les traitements doivent être automatisés, traçables et rejouables.
+  \item Les métiers ont besoin d'indicateurs fiables.
+  \item Les équipes techniques ont besoin de supervision, de sécurité et de déploiements reproductibles.
+\end{itemize}
+
+\section{Objectifs du projet}
+
+\begin{tabularx}{\textwidth}{@{}p{0.28\textwidth}X@{}}
+\toprule
+\textbf{Objectif} & \textbf{Explication à donner} \\
+\midrule
+Infrastructure & Créer un socle AWS/EKS automatisé avec Terraform : VPC, EKS, IAM, KMS, ECR. \\
+Data engineering & Mettre en place un pipeline Lakehouse avec ingestion, stockage, transformation et exposition. \\
+Exploitation & Fournir scripts, CI/CD, monitoring, logs et procédures de cycle de vie. \\
+Métier & Produire des tables Gold et des indicateurs BI exploitables. \\
+\bottomrule
+\end{tabularx}
+
+\section{Concepts à maîtriser}
+
+\subsection{Lakehouse}
+
+Le Lakehouse combine les avantages du Data Lake et du Data Warehouse.
+\begin{itemize}
+  \item Comme un Data Lake, il stocke de grands volumes de données sur stockage objet.
+  \item Comme un Data Warehouse, il structure les données pour les usages analytiques.
+  \item Il permet de conserver des données brutes, nettoyées et métier dans une même architecture.
+\end{itemize}
+
+\important{
+\textbf{Réponse courte au jury :}
+``J'ai choisi le Lakehouse car il permet de garder la flexibilité du stockage objet tout en apportant une meilleure gouvernance grâce aux tables Iceberg, au catalogue et aux couches Bronze, Silver et Gold.''
+}
+
+\subsection{Modèle Bronze, Silver, Gold}
+
+\begin{tabularx}{\textwidth}{@{}p{0.18\textwidth}X@{}}
+\toprule
+\textbf{Couche} & \textbf{Rôle} \\
+\midrule
+Bronze & Données brutes, proches de la source, historisées et rejouables. \\
+Silver & Données nettoyées, typées, filtrées, normalisées et prêtes aux jointures. \\
+Gold & Données métier, agrégées, stabilisées et consommables par Dremio ou Power BI. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Kubernetes et AWS EKS}
+
+Kubernetes permet de déployer les composants de la plateforme dans un même environnement contrôlé. AWS EKS fournit un cluster Kubernetes managé.
+
+Notions à maîtriser :
+\begin{itemize}
+  \item \textbf{pod} : unité d'exécution d'un conteneur ;
+  \item \textbf{namespace} : séparation logique des composants ;
+  \item \textbf{service} : exposition réseau interne ou externe ;
+  \item \textbf{volume persistant} : stockage conservé après redémarrage ;
+  \item \textbf{operator} : contrôleur qui automatise la gestion d'un composant complexe.
+\end{itemize}
+
+\subsection{Operators}
+
+Un operator Kubernetes observe l'état réel du cluster et le compare à l'état désiré décrit dans les manifests. Il automatise le déploiement et la maintenance de composants complexes.
+
+Exemples dans le projet :
+\begin{itemize}
+  \item Strimzi pour Kafka ;
+  \item CloudNativePG pour PostgreSQL ;
+  \item MinIO Operator pour le stockage objet ;
+  \item Spark Operator pour les traitements Spark.
+\end{itemize}
+
+\section{Architecture globale à expliquer}
+
+Le meilleur moyen de présenter l'architecture est de suivre le chemin de la donnée :
+
+\important{
+\textbf{Source} $\rightarrow$ \textbf{Ingestion} $\rightarrow$ \textbf{Bronze} $\rightarrow$ \textbf{Silver} $\rightarrow$ \textbf{Gold} $\rightarrow$ \textbf{SQL/BI} $\rightarrow$ \textbf{Supervision}
+}
+
+\subsection{Rôle des composants}
+
+\begin{tabularx}{\textwidth}{@{}p{0.23\textwidth}X@{}}
+\toprule
+\textbf{Composant} & \textbf{Rôle à expliquer} \\
+\midrule
+AWS & Héberge le socle cloud : réseau, sécurité, EKS, volumes, registre. \\
+Terraform & Décrit l'infrastructure comme du code et rend le déploiement reproductible. \\
+EKS & Exécute les composants data dans Kubernetes. \\
+MinIO & Stockage objet compatible S3 pour les zones Bronze, Silver et Gold. \\
+Iceberg & Format de tables Lakehouse avec métadonnées, snapshots et évolution de schéma. \\
+Hive Metastore & Catalogue partagé des tables. \\
+Kafka & Transport événementiel durable entre sources et consommateurs. \\
+Debezium & Capture les changements des bases de données. \\
+NiFi & Ingestion visuelle des flux et fichiers métier. \\
+Spark & Traitements distribués et écritures dans Iceberg. \\
+dbt & Modèles SQL, transformations et structuration analytique. \\
+Airflow & Orchestration des DAGs et dépendances. \\
+Dremio & Exposition SQL des tables Gold. \\
+Power BI & Visualisation métier et dashboards. \\
+Prometheus/Grafana & Métriques et dashboards techniques. \\
+Fluent Bit/OpenObserve & Collecte et exploration des logs. \\
+Cloudflare Tunnel & Exposition sécurisée des interfaces. \\
+\bottomrule
+\end{tabularx}
+
+\section{Réalisation par phases}
+
+\subsection{Phase 1 : Landing zone AWS/EKS}
+
+À dire :
+
+\important{
+``J'ai commencé par construire le socle cloud : VPC, sous-réseaux, cluster EKS, IAM, KMS, ECR, node groups et stockage persistant. Cette phase assure une base sécurisée, modulaire et reproductible.''
+}
+
+À maîtriser :
+\begin{itemize}
+  \item VPC : réseau isolé de la plateforme.
+  \item Sous-réseaux publics/privés : séparation entre accès et workloads internes.
+  \item NAT Gateway : sortie Internet contrôlée des ressources privées.
+  \item KMS : chiffrement des données, volumes, secrets ou logs.
+  \item IAM/IRSA : permissions contrôlées pour services AWS et pods Kubernetes.
+\end{itemize}
+
+\subsection{Phase 2 : Stockage Lakehouse}
+
+À dire :
+
+\important{
+``La deuxième phase installe MinIO, PostgreSQL et Hive Metastore. MinIO porte le stockage objet, PostgreSQL supporte la base source et le métastore, et Hive Metastore référence les tables Iceberg.''
+}
+
+À maîtriser :
+\begin{itemize}
+  \item Différence entre données et métadonnées.
+  \item Pourquoi séparer Bronze, Silver et Gold.
+  \item Pourquoi Iceberg est utile au-dessus d'un stockage objet.
+\end{itemize}
+
+\subsection{Phase 3 : Ingestion}
+
+À dire :
+
+\important{
+``La phase ingestion repose sur Kafka, Debezium et NiFi. Kafka découple les producteurs et les consommateurs. Debezium capture les changements des bases. NiFi permet de représenter et piloter des flux d'ingestion métier.''
+}
+
+À maîtriser :
+\begin{itemize}
+  \item Batch : ingestion périodique de fichiers ou exports.
+  \item Streaming : ingestion continue d'événements.
+  \item CDC : capture des insertions, mises à jour et suppressions.
+  \item Topic Kafka : canal dans lequel les événements sont publiés.
+\end{itemize}
+
+\subsection{Phase 4 : Transformation et orchestration}
+
+À dire :
+
+\important{
+``Spark exécute les traitements distribués, dbt organise les transformations SQL, et Airflow orchestre les dépendances. Cette combinaison permet de produire les couches Silver et Gold de manière contrôlée.''
+}
+
+Différence importante :
+\begin{itemize}
+  \item Airflow orchestre.
+  \item Spark calcule.
+  \item dbt structure les modèles SQL.
+\end{itemize}
+
+\subsection{Phase 5 : Serving et BI}
+
+À dire :
+
+\important{
+``Dremio expose les tables Gold en SQL sans déplacer les données hors du Lakehouse. Power BI consomme ensuite ces jeux de données pour produire des dashboards de pilotage.''
+}
+
+À maîtriser :
+\begin{itemize}
+  \item Dremio est une couche d'accès SQL.
+  \item Power BI est la couche de visualisation.
+  \item Les tables Gold doivent être fiables, lisibles et orientées métier.
+\end{itemize}
+
+\subsection{Sécurité et observabilité}
+
+Sécurité :
+\begin{itemize}
+  \item réseau privé ;
+  \item chiffrement KMS ;
+  \item secrets hors Git ;
+  \item IAM/IRSA ;
+  \item Cloudflare Tunnel ;
+  \item principe du moindre privilège.
+\end{itemize}
+
+Observabilité :
+\begin{itemize}
+  \item Prometheus collecte les métriques ;
+  \item Grafana visualise les indicateurs techniques ;
+  \item Fluent Bit collecte les logs ;
+  \item OpenObserve permet l'analyse des logs.
+\end{itemize}
+
+\section{Résultats obtenus}
+
+Tu peux présenter les résultats ainsi :
+
+\important{
+``Le projet a permis de mettre en place un socle AWS/EKS, une organisation Kubernetes par namespaces, un stockage Lakehouse Bronze--Silver--Gold, des composants d'ingestion, de transformation et d'orchestration, ainsi que des preuves de résultats à travers les tables transformées, les indicateurs métier et les dashboards BI.''
+}
+
+Résultats à citer :
+\begin{itemize}
+  \item infrastructure AWS/EKS déployée ;
+  \item VPC, sous-réseaux, NAT, KMS, IAM et ECR configurés ;
+  \item stockage MinIO avec zones Bronze, Silver et Gold ;
+  \item Kafka, NiFi, Spark, Airflow et dbt intégrés ;
+  \item tables Bronze, Silver et Gold produites ;
+  \item indicateurs métier et dashboards BI ;
+  \item scripts de bootstrap et automatisation CI/CD.
+\end{itemize}
+
+\section{Difficultés rencontrées}
+
+\begin{tabularx}{\textwidth}{@{}p{0.28\textwidth}X@{}}
+\toprule
+\textbf{Difficulté} & \textbf{Réponse apportée} \\
+\midrule
+Complexité des composants & Déploiement organisé par phases et scripts de bootstrap. \\
+Coûts AWS & Environnement dev dimensionné, NAT unique, scripts de destruction. \\
+Gestion des secrets & Valeurs réelles exclues de Git, templates et scripts de génération. \\
+Intégration Kubernetes & Utilisation d'operators et de namespaces spécialisés. \\
+Observabilité complète & Socle présent, dashboards et alertes avancés placés en perspective. \\
+\bottomrule
+\end{tabularx}
+
+\section{Limites et perspectives}
+
+Limites à présenter avec recul :
+\begin{itemize}
+  \item environnement principalement orienté démonstration/dev ;
+  \item dashboards Grafana et alertes à enrichir ;
+  \item GitOps avec ArgoCD à finaliser ;
+  \item passage complet DEV/UAT/PROD à industrialiser ;
+  \item data quality et gouvernance avancée à renforcer.
+\end{itemize}
+
+Perspectives :
+\begin{itemize}
+  \item activer GitOps pour les promotions contrôlées ;
+  \item renforcer la haute disponibilité ;
+  \item ajouter des tests de qualité de données ;
+  \item enrichir les dashboards techniques et métier ;
+  \item intégrer de nouvelles sources métier ;
+  \item optimiser les coûts et le scaling.
+\end{itemize}
+
+\section{Questions probables du jury}
+
+\subsection*{Pourquoi avoir choisi une architecture Lakehouse ?}
+Parce qu'elle combine la flexibilité du Data Lake avec des garanties utiles au décisionnel : tables structurées, catalogue, historique, évolution de schéma et compatibilité avec plusieurs moteurs.
+
+\subsection*{Pourquoi Kubernetes ?}
+Parce qu'il permet de déployer et d'isoler plusieurs composants hétérogènes dans un même environnement : ingestion, stockage, calcul, orchestration, serving et observabilité.
+
+\subsection*{Pourquoi AWS EKS ?}
+EKS fournit un Kubernetes managé intégré à AWS, avec IAM, KMS, EBS, ECR et les briques réseau nécessaires.
+
+\subsection*{Pourquoi MinIO au lieu de S3 directement ?}
+MinIO est compatible S3, portable et adapté à une architecture reproductible, y compris pour des environnements hybrides ou de démonstration.
+
+\subsection*{Pourquoi Iceberg ?}
+Iceberg structure les données sur stockage objet avec des métadonnées, snapshots, évolution de schéma et meilleure fiabilité des traitements analytiques.
+
+\subsection*{Quelle différence entre Airflow, Spark et dbt ?}
+Airflow orchestre les traitements, Spark exécute les calculs distribués, dbt organise les transformations SQL et les modèles analytiques.
+
+\subsection*{Quelle est la valeur métier du projet ?}
+La plateforme centralise et fiabilise les données pour produire des indicateurs exploitables par les métiers dans Dremio et Power BI.
+
+\subsection*{Comment la sécurité est-elle assurée ?}
+Par le réseau privé, IAM/IRSA, KMS, secrets hors Git, Cloudflare Tunnel et le principe du moindre privilège.
+
+\section{Pitch final à mémoriser}
+
+\important{
+``Mon projet consiste à concevoir et mettre en oeuvre une Cloud Data Platform sur AWS EKS. L'objectif est de centraliser des sources hétérogènes, de les ingérer via Kafka, Debezium ou NiFi, de les stocker dans un Lakehouse basé sur MinIO, Iceberg et Hive Metastore, puis de les transformer avec Spark et dbt selon le modèle Bronze, Silver et Gold. Airflow orchestre les traitements, Dremio expose les tables Gold en SQL, et Power BI permet la restitution métier. La plateforme intègre aussi des aspects de sécurité, d'automatisation et d'observabilité afin de répondre aux exigences d'un contexte financier.''
+}
+
+\section{Conseils pour le jour J}
+
+\begin{itemize}
+  \item Ne parle pas trop vite : laisse au jury le temps de comprendre l'architecture.
+  \item Reviens toujours au parcours de la donnée : Source $\rightarrow$ Bronze $\rightarrow$ Silver $\rightarrow$ Gold $\rightarrow$ BI.
+  \item Quand tu présentes un outil, explique son rôle dans le projet, pas seulement sa définition.
+  \item Sois honnête sur les limites : cela montre ta maturité technique.
+  \item Si tu ne sais pas répondre à une question, explique ton raisonnement et propose une piste.
+  \item Mets en avant la cohérence globale : infrastructure, data, sécurité, observabilité et BI.
+\end{itemize}
+
+\end{document}

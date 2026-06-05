@@ -18,6 +18,8 @@ La figure~\ref{fig:arch-globale} représente ces couches et met en évidence le 
 \label{fig:arch-globale}
 \end{figure}
 
+Cette représentation donne une lecture fonctionnelle de la plateforme. Les données entrent par la couche sources, sont captées par les services d'ingestion, puis déposées dans le stockage objet où elles sont structurées selon les zones Bronze, Silver et Gold. Les traitements de calcul assurent ensuite les transformations et la préparation des tables analytiques, tandis que la couche de virtualisation expose ces jeux de données aux outils de restitution. L'intérêt de cette vue est de montrer que chaque composant technique occupe une place précise dans le parcours de la donnée : Kafka et NiFi se concentrent sur l'acquisition, MinIO et Iceberg sur la persistance, Spark et dbt sur la transformation, Dremio et Power BI sur la consommation. La couche d'observabilité encadre l'ensemble afin de suivre l'état des services et de détecter les incidents.
+
 Les captures détaillées d'exécution sont présentées dans le chapitre de réalisation. Dans ce chapitre, seules les illustrations qui aident à comprendre les choix d'architecture sont conservées.
 
 %------------------------------------------------------------------------------
@@ -38,6 +40,8 @@ La figure~\ref{fig:conception-socle-aws-eks} illustre les principales briques AW
 \caption{Socle cible AWS/EKS retenu pour la conception}
 \label{fig:conception-socle-aws-eks}
 \end{figure}
+
+La figure regroupe trois vues complémentaires du socle physique. La première montre le VPC dédié, qui constitue l'enveloppe réseau de la plateforme et permet d'isoler les ressources du reste du compte AWS. La deuxième détaille les sous-réseaux et les tables de routage : les sous-réseaux publics portent les composants d'accès contrôlé, alors que les sous-réseaux privés hébergent les nœuds Kubernetes et les services applicatifs. La troisième vue présente le cluster EKS \texttt{dataplatform-dev}, point d'exécution principal des workloads. Cette lecture met en évidence le choix d'une infrastructure managée : AWS fournit les fondations réseau et le plan de contrôle Kubernetes, tandis que la plateforme garde la maîtrise de ses composants data via Terraform et les manifests Kubernetes.
 
 \subsection{Node groups}
 
@@ -63,6 +67,8 @@ La figure~\ref{fig:environments-dev-uat-prod} présente cette progression. Le ta
 \caption{Organisation cible des environnements DEV, UAT et PROD}
 \label{fig:environments-dev-uat-prod}
 \end{figure}
+
+Cette figure illustre le cycle de promotion prévu pour la plateforme. L'environnement \textbf{DEV} sert d'espace de construction : les modules d'infrastructure, les déploiements Kubernetes et les traitements de données y sont modifiés rapidement avec un niveau de risque limité. L'environnement \textbf{UAT} joue le rôle de filtre de validation ; il permet de vérifier que les flux fonctionnent de bout en bout et que les résultats correspondent aux attentes avant toute mise en production. L'environnement \textbf{PROD} représente enfin la cible d'exploitation, avec des paramètres plus stricts de disponibilité, de sécurité et de supervision. La séparation visible sur la figure évite qu'un changement expérimental influence directement les usages finaux.
 
 \begin{table}[H]
 \centering
@@ -128,6 +134,8 @@ La figure~\ref{fig:flux-medallion} illustre le flux cible, tandis que le tableau
 \caption{Flux de données médaillon cible}
 \label{fig:flux-medallion}
 \end{figure}
+
+La figure met l'accent sur la transformation progressive de la donnée. Les sources opérationnelles, comme PostgreSQL, et les fichiers déposés alimentent d'abord la zone \textbf{Bronze}, qui conserve les données dans un état proche de l'origine afin de préserver la traçabilité. Les traitements Spark et dbt produisent ensuite la zone \textbf{Silver}, où les données sont nettoyées, typées, filtrées et préparées pour les jointures métier. La zone \textbf{Gold} contient les tables les plus proches des usages décisionnels : indicateurs consolidés, agrégats et vues prêtes pour la BI. Cette organisation réduit le couplage entre ingestion, transformation et restitution, car chaque couche possède un rôle clair et peut être contrôlée séparément.
 
 \clearpage
 
