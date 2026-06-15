@@ -210,12 +210,12 @@ Cette problématique se décline en plusieurs axes complémentaires, représent�
     reditem/.style={item, draw=red!60!black, fill=red!4}
 ]
 
-\node[root] (root) at (7.2,0) {Cloud Data Platform\\cible};
+\node[root] (root) at (7.2,0) {Plateforme de données Cloud\\cible};
 \draw[link] (root.south) -- (7.2,-1.05);
 \draw[link] (0.8,-1.05) -- (13.6,-1.05);
 
 \node[bluecat]   (sources) at (1.2,-1.85) {Sources\\hétérogènes};
-\node[greencat]  (pipeline) at (4.2,-1.85) {Pipeline\\data};
+\node[greencat]  (pipeline) at (4.2,-1.85) {Pipeline\\de données};
 \node[orangecat] (lakehouse) at (7.2,-1.85) {Lakehouse\\analytique};
 \node[purplecat] (security) at (10.2,-1.85) {Sécurité\\gouvernance};
 \node[redcat]    (obs) at (13.2,-1.85) {Observabilité\\exploitation};
@@ -231,7 +231,7 @@ Cette problématique se décline en plusieurs axes complémentaires, représent�
 \draw[link] (s1.south) -- (s2.north);
 \draw[link] (s2.south) -- (s3.north);
 
-\node[greenitem] (p1) at (4.2,-3.05) {Ingestion batch et flux};
+\node[greenitem] (p1) at (4.2,-3.05) {Ingestion en lots et flux};
 \node[greenitem] (p2) at (4.2,-4.08) {Orchestration Airflow et traitements Spark};
 \node[greenitem] (p3) at (4.2,-5.11) {Contrôle des phases de déploiement};
 \draw[link] (pipeline.south) -- (p1.north);
@@ -246,7 +246,7 @@ Cette problématique se décline en plusieurs axes complémentaires, représent�
 \draw[link] (l2.south) -- (l3.north);
 
 \node[purpleitem] (g1) at (10.2,-3.05) {Chiffrement et gestion des secrets};
-\node[purpleitem] (g2) at (10.2,-4.08) {Hashing des données sensibles};
+\node[purpleitem] (g2) at (10.2,-4.08) {Hachage des données sensibles};
 \node[purpleitem] (g3) at (10.2,-5.11) {Traçabilité et séparation des accès};
 \draw[link] (security.south) -- (g1.north);
 \draw[link] (g1.south) -- (g2.north);
@@ -254,7 +254,7 @@ Cette problématique se décline en plusieurs axes complémentaires, représent�
 
 \node[reditem] (o1) at (13.2,-3.05) {Monitoring technique};
 \node[reditem] (o2) at (13.2,-4.08) {Centralisation des logs};
-\node[reditem] (o3) at (13.2,-5.11) {Dashboards BI et indicateurs métier};
+\node[reditem] (o3) at (13.2,-5.11) {Tableaux de bord BI et indicateurs métier};
 \draw[link] (obs.south) -- (o1.north);
 \draw[link] (o1.south) -- (o2.north);
 \draw[link] (o2.south) -- (o3.north);
