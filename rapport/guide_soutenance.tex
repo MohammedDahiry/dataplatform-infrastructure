@@ -47,7 +47,7 @@
 
 \begin{center}
 {\Huge\bfseries Guide de soutenance}\\[0.25cm]
-{\Large Projet Cloud Data Platform Lakehouse sur AWS EKS}\\[0.35cm]
+{\Large Projet Cloud Data Platform Lakehouse hybride et multicloud}\\[0.35cm]
 {\large Préparation à la présentation orale}
 \end{center}
 
@@ -55,7 +55,7 @@
 
 \important{
 \textbf{Fil conducteur à garder en tête :}
-le projet part de sources de données hétérogènes, les ingère, les stocke dans un Lakehouse, les transforme selon le modèle Bronze--Silver--Gold, puis les expose à la BI avec une couche de sécurité, d'automatisation et d'observabilité.
+le projet part d'un contexte où le stockage on-premises tend vers la saturation. La solution propose une architecture hybride, multicloud et cloud-native : on-premises pour l'existant, AWS pour le socle d'exécution distant, Cloudflare pour l'exposition sécurisée et le backend Terraform, puis un Lakehouse Bronze--Silver--Gold pour fiabiliser les données jusqu'à la BI.
 }
 
 \tableofcontents
@@ -63,18 +63,18 @@ le projet part de sources de données hétérogènes, les ingère, les stocke da
 
 \section{Objectif de la présentation}
 
-Le but de la soutenance n'est pas de réciter tous les outils utilisés. Il faut montrer que le projet répond à un besoin réel de data engineering dans un contexte financier : centraliser des données, les fiabiliser, les rendre exploitables et garantir leur traçabilité.
+Le but de la soutenance n'est pas de réciter tous les outils utilisés. Il faut montrer que le projet répond à un besoin réel de data engineering dans un contexte financier : centraliser des données, les fiabiliser, les rendre exploitables et garantir leur traçabilité. Il faut aussi insister sur le contexte d'infrastructure : le stockage on-premises existant tend vers la saturation, ce qui justifie une extension vers un socle cloud distant, scalable et automatisé.
 
 Tu dois faire comprendre trois idées principales :
 \begin{itemize}
-  \item \textbf{le besoin} : les données sont dispersées entre bases, fichiers et systèmes opérationnels ;
-  \item \textbf{la solution} : une Cloud Data Platform orientée Lakehouse, déployée sur AWS EKS ;
+  \item \textbf{le besoin} : les données sont dispersées entre bases, fichiers et systèmes opérationnels, avec une capacité de stockage on-premises qui atteint ses limites ;
+  \item \textbf{la solution} : une Cloud Data Platform orientée Lakehouse, déployée sur AWS EKS et intégrée dans une logique hybride/multicloud avec Cloudflare ;
   \item \textbf{la valeur} : produire des données fiables et consommables par les métiers via SQL et BI.
 \end{itemize}
 
 \important{
 \textbf{Phrase simple à retenir :}
-``Mon projet consiste à concevoir et mettre en oeuvre une plateforme data cloud-native capable d'ingérer des sources hétérogènes, de structurer les données dans un Lakehouse Bronze--Silver--Gold, puis de les exposer aux usages BI avec sécurité, automatisation et observabilité.''
+``Mon projet consiste à concevoir et mettre en oeuvre une plateforme data cloud-native capable de répondre à la saturation progressive du stockage on-premises, d'étendre le système vers un environnement cloud distant, d'ingérer des sources hétérogènes, de structurer les données dans un Lakehouse Bronze--Silver--Gold, puis de les exposer aux usages BI avec sécurité, automatisation et observabilité.''
 }
 
 \section{Plan conseillé pour l'oral}
@@ -82,10 +82,11 @@ Tu dois faire comprendre trois idées principales :
 Voici un ordre logique pour présenter ton projet :
 \begin{enumerate}
   \item Contexte général : SEVENAPP, EQDOM et contexte data.
-  \item Problématique : dispersion des données, fiabilité, traçabilité, BI.
+  \item Étude de l'état actuel : limites du stockage on-premises, dispersion des sources, besoin d'extension cloud.
+  \item Problématique : saturation du stockage, dispersion des données, fiabilité, traçabilité, BI.
   \item Objectifs : infrastructure, data engineering, exploitation, gouvernance.
   \item État de l'art : Lakehouse, modèle médaillon, Kubernetes, operators.
-  \item Architecture globale : parcours de la donnée de la source jusqu'à Power BI.
+  \item Architecture cible : architecture hybride/multicloud, parcours de la donnée de la source jusqu'à Power BI.
   \item Réalisation par phases : AWS/EKS, stockage, ingestion, transformation, serving.
   \item Résultats obtenus : preuves, captures, tables, dashboards, automatisation.
   \item Difficultés rencontrées : complexité, coûts, secrets, intégration.
@@ -98,7 +99,7 @@ Voici un ordre logique pour présenter ton projet :
 Tu peux commencer avec ce texte :
 
 \important{
-``Dans le cadre de mon Projet de Fin d'Études, j'ai travaillé sur la conception et la mise en oeuvre d'une Cloud Data Platform orientée Lakehouse. Le projet s'inscrit dans un contexte financier où les données doivent être fiables, sécurisées, traçables et exploitables pour le reporting et la Business Intelligence. L'objectif était donc de construire une plateforme capable d'ingérer des sources hétérogènes, de les organiser selon le modèle Bronze--Silver--Gold, puis de les exposer à des usages analytiques.''
+``Dans le cadre de mon Projet de Fin d'Études, j'ai travaillé sur la conception et la mise en oeuvre d'une Cloud Data Platform orientée Lakehouse. Le projet s'inscrit dans un contexte financier où les données doivent être fiables, sécurisées, traçables et exploitables pour le reporting et la Business Intelligence. L'étude de l'existant montre également que le stockage on-premises tend vers la saturation, ce qui nécessite une architecture extensible vers le cloud. L'objectif était donc de construire une plateforme hybride et multicloud capable d'ingérer des sources hétérogènes, de les organiser selon le modèle Bronze--Silver--Gold, puis de les exposer à des usages analytiques.''
 }
 
 \subsection{Points à maîtriser}
@@ -107,25 +108,46 @@ Tu peux commencer avec ce texte :
   \item SEVENAPP est l'organisme d'accueil.
   \item EQDOM représente le contexte client et métier.
   \item Le projet concerne la modernisation des flux de données.
-  \item La plateforme vise une architecture cloud-native, reproductible et sécurisée.
+  \item La plateforme vise une architecture cloud-native, hybride, multicloud, reproductible et sécurisée.
 \end{itemize}
+
+\section{Étude de l'état actuel}
+
+Dans ta présentation PowerPoint, cette partie arrive avant l'analyse des besoins. Elle sert à expliquer pourquoi le projet est nécessaire.
+
+\subsection{Ce qu'il faut mettre en avant}
+
+\begin{itemize}
+  \item L'existant repose sur des sources et des systèmes déjà présents dans le système d'information.
+  \item Les données sont réparties entre plusieurs environnements : bases opérationnelles, fichiers métiers, outils de reporting et stockage on-premises.
+  \item Le stockage on-premises tend vers la saturation : il devient plus difficile d'absorber de nouveaux volumes, de conserver l'historique et d'accompagner les nouveaux usages analytiques.
+  \item L'extension vers un cloud distant permet de gagner en élasticité, en automatisation et en capacité de traitement.
+  \item L'objectif n'est pas de remplacer brutalement l'existant, mais de proposer une architecture hybride capable de connecter l'on-premises avec des services cloud.
+\end{itemize}
+
+\important{
+\textbf{Phrase à dire :}
+``L'étude de l'état actuel montre que le système existant produit beaucoup de données, mais que le stockage on-premises arrive progressivement à saturation. Le projet propose donc une extension contrôlée vers une architecture cloud distante, tout en gardant une logique hybride compatible avec l'existant.''
+}
 
 \section{Problématique}
 
 La problématique doit être claire et directe :
 
 \important{
-``Comment concevoir une plateforme data cloud, sécurisée, observable et extensible, capable d'ingérer des sources hétérogènes, de structurer les données dans un Lakehouse et de les exposer aux usages BI et analytiques ?''
+``Comment concevoir une plateforme data hybride, multicloud, sécurisée, observable et extensible, capable de répondre à la saturation progressive du stockage on-premises, d'ingérer des sources hétérogènes, de structurer les données dans un Lakehouse et de les exposer aux usages BI et analytiques ?''
 }
 
 \subsection{Ce qu'il faut expliquer}
 
 \begin{itemize}
   \item Les données viennent de plusieurs sources : bases opérationnelles, fichiers CSV/XLSX, systèmes métier.
+  \item Le stockage on-premises tend vers la saturation, ce qui limite la capacité à absorber les nouveaux volumes et les historiques.
   \item Cette dispersion rend la consolidation difficile.
   \item Les traitements doivent être automatisés, traçables et rejouables.
   \item Les métiers ont besoin d'indicateurs fiables.
   \item Les équipes techniques ont besoin de supervision, de sécurité et de déploiements reproductibles.
+  \item L'architecture doit rester ouverte pour éviter l'enfermement dans un fournisseur unique.
 \end{itemize}
 
 \section{Objectifs du projet}
@@ -134,9 +156,10 @@ La problématique doit être claire et directe :
 \toprule
 \textbf{Objectif} & \textbf{Explication à donner} \\
 \midrule
-Infrastructure & Créer un socle AWS/EKS automatisé avec Terraform : VPC, EKS, IAM, KMS, ECR. \\
+Infrastructure & Créer un socle AWS/EKS automatisé avec Terraform : VPC, EKS, IAM, KMS, ECR, volumes persistants et backend distant. \\
 Data engineering & Mettre en place un pipeline Lakehouse avec ingestion, stockage, transformation et exposition. \\
-Exploitation & Fournir scripts, CI/CD, monitoring, logs et procédures de cycle de vie. \\
+Exploitation & Fournir scripts, CI/CD, monitoring, logs, exposition sécurisée Cloudflare et procédures de cycle de vie. \\
+Architecture & Valoriser une approche hybride et multicloud : existant on-premises, AWS pour l'exécution, Cloudflare pour l'accès sécurisé et le backend Terraform. \\
 Métier & Produire des tables Gold et des indicateurs BI exploitables. \\
 \bottomrule
 \end{tabularx}
@@ -182,6 +205,22 @@ Notions à maîtriser :
   \item \textbf{operator} : contrôleur qui automatise la gestion d'un composant complexe.
 \end{itemize}
 
+\subsection{Architecture hybride, multicloud et cloud agnostic}
+
+Ce point est important à valoriser, car il montre que le projet ne dépend pas uniquement d'un seul environnement.
+
+\begin{itemize}
+  \item \textbf{Hybride} : la plateforme prend en compte l'existant on-premises et l'étend vers un environnement cloud distant.
+  \item \textbf{Multicloud} : deux fournisseurs cloud interviennent dans l'architecture : AWS pour le socle d'exécution et Cloudflare pour l'exposition sécurisée et le backend Terraform R2.
+  \item \textbf{Cloud agnostic au niveau applicatif} : les composants data sont conteneurisés et déployés sur Kubernetes. Ils peuvent donc être portés vers un autre cluster compatible.
+  \item \textbf{Découplage du stockage persistant} : les applications demandent du stockage via des \texttt{PersistentVolumeClaims} et une \texttt{StorageClass}. Dans l'implémentation AWS, ces volumes sont provisionnés en EBS, mais le même principe peut être adapté à un autre CSI driver dans un autre cloud ou en on-premises.
+\end{itemize}
+
+\important{
+\textbf{Formulation sûre devant le jury :}
+``L'architecture est cloud agnostic au niveau Kubernetes et applicatif : les workloads sont conteneurisés, décrits par manifests, et consomment le stockage via PVC/StorageClass. Dans mon déploiement AWS, les volumes persistants sont matérialisés par EBS, mais l'abstraction Kubernetes permet de remplacer cette couche par un autre fournisseur de stockage si la plateforme est portée ailleurs.''
+}
+
 \subsection{Operators}
 
 Un operator Kubernetes observe l'état réel du cluster et le compare à l'état désiré décrit dans les manifests. Il automatise le déploiement et la maintenance de composants complexes.
@@ -194,7 +233,7 @@ Exemples dans le projet :
   \item Spark Operator pour les traitements Spark.
 \end{itemize}
 
-\section{Architecture globale à expliquer}
+\section{Architecture cible à expliquer}
 
 Le meilleur moyen de présenter l'architecture est de suivre le chemin de la donnée :
 
@@ -208,9 +247,12 @@ Le meilleur moyen de présenter l'architecture est de suivre le chemin de la don
 \toprule
 \textbf{Composant} & \textbf{Rôle à expliquer} \\
 \midrule
-AWS & Héberge le socle cloud : réseau, sécurité, EKS, volumes, registre. \\
+On-premises & Représente l'existant : systèmes sources, bases opérationnelles, fichiers métier et stockage local qui tend vers la saturation. \\
+AWS & Héberge le socle cloud distant : réseau, sécurité, EKS, volumes EBS, registre ECR. \\
+Cloudflare & Sécurise l'exposition des interfaces via Tunnel et porte le backend Terraform R2. \\
 Terraform & Décrit l'infrastructure comme du code et rend le déploiement reproductible. \\
 EKS & Exécute les composants data dans Kubernetes. \\
+EBS / PVC & Fournit le stockage persistant via l'abstraction Kubernetes des volumes. \\
 MinIO & Stockage objet compatible S3 pour les zones Bronze, Silver et Gold. \\
 Iceberg & Format de tables Lakehouse avec métadonnées, snapshots et évolution de schéma. \\
 Hive Metastore & Catalogue partagé des tables. \\
@@ -227,6 +269,12 @@ Fluent Bit/OpenObserve & Collecte et exploration des logs. \\
 Cloudflare Tunnel & Exposition sécurisée des interfaces. \\
 \bottomrule
 \end{tabularx}
+
+\subsection{Message à faire passer sur l'architecture}
+
+\important{
+``L'architecture cible n'est pas seulement une plateforme AWS. Elle est pensée comme une extension hybride de l'existant on-premises vers un cloud distant. AWS fournit le socle d'exécution Kubernetes, Cloudflare apporte l'exposition sécurisée et le backend distant, et Kubernetes garde les composants data portables grâce aux conteneurs, namespaces, operators et volumes abstraits par PVC/StorageClass.''
+}
 
 \section{Réalisation par phases}
 
@@ -245,6 +293,8 @@ Cloudflare Tunnel & Exposition sécurisée des interfaces. \\
   \item NAT Gateway : sortie Internet contrôlée des ressources privées.
   \item KMS : chiffrement des données, volumes, secrets ou logs.
   \item IAM/IRSA : permissions contrôlées pour services AWS et pods Kubernetes.
+  \item EBS : volumes persistants AWS provisionnés via Kubernetes pour les composants stateful.
+  \item Cloudflare R2 : stockage distant de l'état Terraform, séparé du compte AWS déployé.
 \end{itemize}
 
 \subsection{Phase 2 : Stockage Lakehouse}
@@ -260,6 +310,7 @@ Cloudflare Tunnel & Exposition sécurisée des interfaces. \\
   \item Différence entre données et métadonnées.
   \item Pourquoi séparer Bronze, Silver et Gold.
   \item Pourquoi Iceberg est utile au-dessus d'un stockage objet.
+  \item Comment le Lakehouse évite d'aggraver la saturation on-premises en déportant l'historisation et les zones analytiques vers un stockage objet extensible.
 \end{itemize}
 
 \subsection{Phase 3 : Ingestion}
@@ -317,6 +368,7 @@ Sécurité :
   \item secrets hors Git ;
   \item IAM/IRSA ;
   \item Cloudflare Tunnel ;
+  \item backend Terraform distant sur Cloudflare R2 ;
   \item principe du moindre privilège.
 \end{itemize}
 
@@ -339,7 +391,10 @@ Tu peux présenter les résultats ainsi :
 Résultats à citer :
 \begin{itemize}
   \item infrastructure AWS/EKS déployée ;
+  \item architecture hybride valorisant l'existant on-premises et l'extension vers le cloud distant ;
+  \item usage de deux fournisseurs cloud : AWS pour l'exécution, Cloudflare pour l'exposition sécurisée et R2 ;
   \item VPC, sous-réseaux, NAT, KMS, IAM et ECR configurés ;
+  \item volumes persistants EBS consommés via l'abstraction Kubernetes ;
   \item stockage MinIO avec zones Bronze, Silver et Gold ;
   \item Kafka, NiFi, Spark, Airflow et dbt intégrés ;
   \item tables Bronze, Silver et Gold produites ;
@@ -355,8 +410,10 @@ Résultats à citer :
 \midrule
 Complexité des composants & Déploiement organisé par phases et scripts de bootstrap. \\
 Coûts AWS & Environnement dev dimensionné, NAT unique, scripts de destruction. \\
+Saturation on-premises & Extension du stockage analytique vers une architecture Lakehouse distante et scalable. \\
 Gestion des secrets & Valeurs réelles exclues de Git, templates et scripts de génération. \\
 Intégration Kubernetes & Utilisation d'operators et de namespaces spécialisés. \\
+Portabilité cloud & Découplage par conteneurs, manifests Kubernetes, PVC/StorageClass et composants open source. \\
 Observabilité complète & Socle présent, dashboards et alertes avancés placés en perspective. \\
 \bottomrule
 \end{tabularx}
@@ -369,6 +426,7 @@ Limites à présenter avec recul :
   \item dashboards Grafana et alertes à enrichir ;
   \item GitOps avec ArgoCD à finaliser ;
   \item passage complet DEV/UAT/PROD à industrialiser ;
+  \item connexion complète avec l'existant on-premises à sécuriser et tester à grande échelle ;
   \item data quality et gouvernance avancée à renforcer.
 \end{itemize}
 
@@ -376,6 +434,8 @@ Perspectives :
 \begin{itemize}
   \item activer GitOps pour les promotions contrôlées ;
   \item renforcer la haute disponibilité ;
+  \item étendre la stratégie hybride entre on-premises et cloud distant ;
+  \item prévoir une stratégie d'archivage pour soulager durablement le stockage on-premises ;
   \item ajouter des tests de qualité de données ;
   \item enrichir les dashboards techniques et métier ;
   \item intégrer de nouvelles sources métier ;
@@ -391,7 +451,16 @@ Parce qu'elle combine la flexibilité du Data Lake avec des garanties utiles au 
 Parce qu'il permet de déployer et d'isoler plusieurs composants hétérogènes dans un même environnement : ingestion, stockage, calcul, orchestration, serving et observabilité.
 
 \subsection*{Pourquoi AWS EKS ?}
-EKS fournit un Kubernetes managé intégré à AWS, avec IAM, KMS, EBS, ECR et les briques réseau nécessaires.
+EKS fournit un Kubernetes managé intégré à AWS, avec IAM, KMS, EBS, ECR et les briques réseau nécessaires. Il permet aussi de bénéficier de Kubernetes tout en réduisant la charge de gestion du plan de contrôle.
+
+\subsection*{Pourquoi parler de multicloud ?}
+Parce que l'architecture mobilise plusieurs environnements : l'existant on-premises, AWS pour l'exécution Kubernetes et les volumes EBS, et Cloudflare pour l'exposition sécurisée des interfaces ainsi que le backend Terraform R2.
+
+\subsection*{En quoi l'architecture est-elle cloud agnostic ?}
+Les composants data sont conteneurisés et déployés avec Kubernetes. Les volumes sont demandés via PVC/StorageClass : dans l'implémentation actuelle ils deviennent des volumes EBS sur AWS, mais cette abstraction permet de changer de fournisseur de stockage en remplaçant la StorageClass et le CSI driver.
+
+\subsection*{Pourquoi Cloudflare ?}
+Cloudflare apporte deux fonctions : l'exposition sécurisée des interfaces via Tunnel/Zero Trust et le stockage R2 pour l'état Terraform. Cela évite d'exposer directement des services Kubernetes et sépare le backend Terraform du compte AWS déployé.
 
 \subsection*{Pourquoi MinIO au lieu de S3 directement ?}
 MinIO est compatible S3, portable et adapté à une architecture reproductible, y compris pour des environnements hybrides ou de démonstration.
@@ -411,13 +480,16 @@ Par le réseau privé, IAM/IRSA, KMS, secrets hors Git, Cloudflare Tunnel et le 
 \section{Pitch final à mémoriser}
 
 \important{
-``Mon projet consiste à concevoir et mettre en oeuvre une Cloud Data Platform sur AWS EKS. L'objectif est de centraliser des sources hétérogènes, de les ingérer via Kafka, Debezium ou NiFi, de les stocker dans un Lakehouse basé sur MinIO, Iceberg et Hive Metastore, puis de les transformer avec Spark et dbt selon le modèle Bronze, Silver et Gold. Airflow orchestre les traitements, Dremio expose les tables Gold en SQL, et Power BI permet la restitution métier. La plateforme intègre aussi des aspects de sécurité, d'automatisation et d'observabilité afin de répondre aux exigences d'un contexte financier.''
+``Mon projet consiste à concevoir et mettre en oeuvre une Cloud Data Platform hybride et multicloud. Le besoin vient notamment de la dispersion des données et de la saturation progressive du stockage on-premises. La solution étend l'existant vers un environnement cloud distant basé sur AWS EKS, tout en utilisant Cloudflare pour l'exposition sécurisée et le backend Terraform. Les données sont ingérées via Kafka, Debezium ou NiFi, stockées dans un Lakehouse basé sur MinIO, Iceberg et Hive Metastore, puis transformées avec Spark et dbt selon le modèle Bronze, Silver et Gold. Airflow orchestre les traitements, Dremio expose les tables Gold en SQL, et Power BI permet la restitution métier. L'architecture reste portable au niveau applicatif grâce à Kubernetes, aux conteneurs et à l'abstraction des volumes persistants.''
 }
 
 \section{Conseils pour le jour J}
 
 \begin{itemize}
   \item Ne parle pas trop vite : laisse au jury le temps de comprendre l'architecture.
+  \item Aligne ton oral avec la présentation PowerPoint : contexte, état actuel, problématique, besoins, conception, réalisation, conclusion.
+  \item Mets bien en avant la saturation on-premises comme déclencheur de l'extension vers le cloud.
+  \item Explique calmement le multicloud : on-premises + AWS + Cloudflare, avec des rôles différents et complémentaires.
   \item Reviens toujours au parcours de la donnée : Source $\rightarrow$ Bronze $\rightarrow$ Silver $\rightarrow$ Gold $\rightarrow$ BI.
   \item Quand tu présentes un outil, explique son rôle dans le projet, pas seulement sa définition.
   \item Sois honnête sur les limites : cela montre ta maturité technique.
